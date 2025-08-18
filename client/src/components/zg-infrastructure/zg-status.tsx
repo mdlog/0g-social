@@ -122,7 +122,7 @@ export function ZGInfrastructureStatus() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Zap className="w-5 h-5 text-og-primary" />
-            <span>AI Feed Pribadi Anda</span>
+            <span>Your Personal AI Feed</span>
             {userInstance && (
               <Badge 
                 variant={userInstance.status === 'running' ? 'default' : 'secondary'}
@@ -171,8 +171,8 @@ export function ZGInfrastructureStatus() {
             <div className="text-center space-y-4">
               <div className="text-og-slate-600 dark:text-og-slate-400">
                 <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>AI feed pribadi Anda belum di-deploy</p>
-                <p className="text-xs mt-1">Deploy AI untuk mendapatkan rekomendasi yang dipersonalisasi</p>
+                <p>Your personal AI feed is not yet deployed</p>
+                <p className="text-xs mt-1">Deploy AI to get personalized recommendations</p>
               </div>
               <Button 
                 onClick={deployAI} 
