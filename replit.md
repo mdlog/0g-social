@@ -13,6 +13,18 @@ This represents a paradigm shift from traditional social media to truly decentra
 
 Preferred communication style: Simple, everyday language.
 
+# Recent Changes
+
+## Session-Based Wallet Management (August 18, 2025)
+- **Issue Fixed**: Wallet connection state was shared across different browsers/sessions
+- **Root Cause**: Global variable `currentWalletConnection` was shared by all users
+- **Solution**: Implemented Express session management with per-session wallet storage
+- **Technical Details**: 
+  - Added express-session middleware with cookie-based sessions
+  - Created session type definitions for wallet connection data
+  - Updated all Web3 routes to use session-specific wallet connections
+- **Result**: Each browser/session now has independent wallet connection state
+
 # System Architecture
 
 ## Frontend Architecture
