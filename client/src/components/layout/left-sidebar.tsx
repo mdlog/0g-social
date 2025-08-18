@@ -38,7 +38,7 @@ export function LeftSidebar() {
               {/* Decentralized Identity Badge */}
               <div className="flex items-center justify-center space-x-2 mb-4">
                 <div className="verified-badge">
-                  <Shield className="text-og-primary w-3 h-3" />
+                  <Shield className="text-white w-3 h-3" />
                   <span className="text-xs">Verified DID</span>
                 </div>
               </div>

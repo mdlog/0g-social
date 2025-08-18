@@ -134,11 +134,11 @@
   }
   
   .verified-badge {
-    @apply flex items-center space-x-1 px-2 py-1 bg-og-primary bg-opacity-10 dark:bg-og-primary dark:bg-opacity-20 rounded-full;
+    @apply flex items-center space-x-1 px-2 py-1 bg-og-primary dark:bg-og-primary rounded-full;
   }
   
   .verified-badge span {
-    @apply text-og-primary dark:text-og-primary font-medium;
+    @apply text-white dark:text-white font-medium;
   }
   
   .ai-recommendation-badge {
