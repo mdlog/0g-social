@@ -1,0 +1,431 @@
+import { type User, type Post, type Follow, type Like, type Comment, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type PostWithAuthor, type UserProfile } from "@shared/schema";
+import { randomUUID } from "crypto";
+
+export interface IStorage {
+  // Users
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<User>): Promise<User>;
+  searchUsers(query: string): Promise<User[]>;
+  
+  // Posts
+  createPost(post: InsertPost): Promise<Post>;
+  getPost(id: string): Promise<Post | undefined>;
+  getPosts(limit?: number, offset?: number): Promise<Post[]>;
+  getPostsByUser(userId: string, limit?: number, offset?: number): Promise<Post[]>;
+  getPersonalizedFeed(userId: string, limit?: number, offset?: number): Promise<PostWithAuthor[]>;
+  deletePost(id: string): Promise<void>;
+  
+  // Follows
+  followUser(followerId: string, followingId: string): Promise<Follow>;
+  unfollowUser(followerId: string, followingId: string): Promise<void>;
+  getFollowing(userId: string): Promise<User[]>;
+  getFollowers(userId: string): Promise<User[]>;
+  isFollowing(followerId: string, followingId: string): Promise<boolean>;
+  
+  // Likes
+  likePost(userId: string, postId: string): Promise<Like>;
+  unlikePost(userId: string, postId: string): Promise<void>;
+  isPostLiked(userId: string, postId: string): Promise<boolean>;
+  
+  // Comments
+  createComment(comment: InsertComment): Promise<Comment>;
+  getCommentsByPost(postId: string): Promise<Comment[]>;
+  
+  // Search
+  searchPosts(query: string): Promise<Post[]>;
+  
+  // Stats
+  getNetworkStats(): Promise<{
+    activeUsers: number;
+    postsToday: number;
+    aiInteractions: number;
+    dataStored: string;
+  }>;
+}
+
+export class MemStorage implements IStorage {
+  private users: Map<string, User>;
+  private posts: Map<string, Post>;
+  private follows: Map<string, Follow>;
+  private likes: Map<string, Like>;
+  private comments: Map<string, Comment>;
+
+  constructor() {
+    this.users = new Map();
+    this.posts = new Map();
+    this.follows = new Map();
+    this.likes = new Map();
+    this.comments = new Map();
+    
+    // Initialize with some sample data
+    this.initializeSampleData();
+  }
+
+  private initializeSampleData() {
+    // Create sample users
+    const user1: User = {
+      id: "user1",
+      username: "alexc",
+      displayName: "Alex Chen",
+      email: "alex@example.com",
+      bio: "Building the future of Web3",
+      avatar: null,
+      walletAddress: "0x742d35Cc1234567890123456789012345678901234",
+      isVerified: true,
+      followingCount: 150,
+      followersCount: 2400,
+      postsCount: 342,
+      createdAt: new Date(),
+    };
+
+    const user2: User = {
+      id: "user2",
+      username: "sarahj",
+      displayName: "Sarah Johnson",
+      email: "sarah@example.com",
+      bio: "Smart contract developer on 0G Chain",
+      avatar: null,
+      walletAddress: "0x123d35Cc1234567890123456789012345678901234",
+      isVerified: true,
+      followingCount: 89,
+      followersCount: 1200,
+      postsCount: 156,
+      createdAt: new Date(),
+    };
+
+    const user3: User = {
+      id: "user3",
+      username: "marcusr",
+      displayName: "Marcus Rivera",
+      email: "marcus@example.com",
+      bio: "AI researcher & blockchain enthusiast",
+      avatar: null,
+      walletAddress: "0x789d35Cc1234567890123456789012345678901234",
+      isVerified: true,
+      followingCount: 234,
+      followersCount: 890,
+      postsCount: 89,
+      createdAt: new Date(),
+    };
+
+    this.users.set(user1.id, user1);
+    this.users.set(user2.id, user2);
+    this.users.set(user3.id, user3);
+
+    // Create sample posts
+    const post1: Post = {
+      id: "post1",
+      authorId: "user2",
+      content: "Just deployed my first smart contract on 0G Chain! The transaction speed is incredible - confirmed in under 2 seconds with minimal gas fees. The future of Web3 is here! 🚀",
+      imageUrl: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+      likesCount: 142,
+      commentsCount: 28,
+      sharesCount: 15,
+      isAiRecommended: true,
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    };
+
+    const post2: Post = {
+      id: "post2",
+      authorId: "user3",
+      content: "The AI-powered feed curation on 0G Social is mind-blowing! It's showing me exactly the content I'm interested in while maintaining complete privacy and decentralization. This is what social media should be! 🔥 #DecentralizedAI #0GChain",
+      imageUrl: null,
+      likesCount: 89,
+      commentsCount: 12,
+      sharesCount: 7,
+      isAiRecommended: false,
+      createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    };
+
+    this.posts.set(post1.id, post1);
+    this.posts.set(post2.id, post2);
+  }
+
+  // User methods
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const user: User = {
+      ...insertUser,
+      id,
+      followingCount: 0,
+      followersCount: 0,
+      postsCount: 0,
+      createdAt: new Date(),
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User> {
+    const user = this.users.get(id);
+    if (!user) throw new Error("User not found");
+    
+    const updatedUser = { ...user, ...updates };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async searchUsers(query: string): Promise<User[]> {
+    const lowerQuery = query.toLowerCase();
+    return Array.from(this.users.values()).filter(user =>
+      user.username.toLowerCase().includes(lowerQuery) ||
+      user.displayName.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  // Post methods
+  async createPost(insertPost: InsertPost): Promise<Post> {
+    const id = randomUUID();
+    const post: Post = {
+      ...insertPost,
+      id,
+      likesCount: 0,
+      commentsCount: 0,
+      sharesCount: 0,
+      createdAt: new Date(),
+    };
+    
+    this.posts.set(id, post);
+    
+    // Update user's post count
+    const user = await this.getUser(insertPost.authorId);
+    if (user) {
+      await this.updateUser(user.id, { postsCount: (user.postsCount || 0) + 1 });
+    }
+    
+    return post;
+  }
+
+  async getPost(id: string): Promise<Post | undefined> {
+    return this.posts.get(id);
+  }
+
+  async getPosts(limit = 10, offset = 0): Promise<Post[]> {
+    const posts = Array.from(this.posts.values())
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
+      .slice(offset, offset + limit);
+    return posts;
+  }
+
+  async getPostsByUser(userId: string, limit = 10, offset = 0): Promise<Post[]> {
+    return Array.from(this.posts.values())
+      .filter(post => post.authorId === userId)
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
+      .slice(offset, offset + limit);
+  }
+
+  async getPersonalizedFeed(userId: string, limit = 10, offset = 0): Promise<PostWithAuthor[]> {
+    const posts = await this.getPosts(limit, offset);
+    const postsWithAuthor: PostWithAuthor[] = [];
+    
+    for (const post of posts) {
+      const author = await this.getUser(post.authorId);
+      if (author) {
+        const isLiked = await this.isPostLiked(userId, post.id);
+        postsWithAuthor.push({
+          ...post,
+          author,
+          isLiked,
+        });
+      }
+    }
+    
+    return postsWithAuthor;
+  }
+
+  async deletePost(id: string): Promise<void> {
+    this.posts.delete(id);
+  }
+
+  // Follow methods
+  async followUser(followerId: string, followingId: string): Promise<Follow> {
+    const id = randomUUID();
+    const follow: Follow = {
+      id,
+      followerId,
+      followingId,
+      createdAt: new Date(),
+    };
+    
+    this.follows.set(id, follow);
+    
+    // Update counts
+    const follower = await this.getUser(followerId);
+    const following = await this.getUser(followingId);
+    
+    if (follower) {
+      await this.updateUser(followerId, { followingCount: (follower.followingCount || 0) + 1 });
+    }
+    if (following) {
+      await this.updateUser(followingId, { followersCount: (following.followersCount || 0) + 1 });
+    }
+    
+    return follow;
+  }
+
+  async unfollowUser(followerId: string, followingId: string): Promise<void> {
+    const follow = Array.from(this.follows.values()).find(f => 
+      f.followerId === followerId && f.followingId === followingId
+    );
+    
+    if (follow) {
+      this.follows.delete(follow.id);
+      
+      // Update counts
+      const follower = await this.getUser(followerId);
+      const following = await this.getUser(followingId);
+      
+      if (follower) {
+        await this.updateUser(followerId, { followingCount: Math.max(0, (follower.followingCount || 0) - 1) });
+      }
+      if (following) {
+        await this.updateUser(followingId, { followersCount: Math.max(0, (following.followersCount || 0) - 1) });
+      }
+    }
+  }
+
+  async getFollowing(userId: string): Promise<User[]> {
+    const followingIds = Array.from(this.follows.values())
+      .filter(follow => follow.followerId === userId)
+      .map(follow => follow.followingId);
+    
+    const following: User[] = [];
+    for (const id of followingIds) {
+      const user = await this.getUser(id);
+      if (user) following.push(user);
+    }
+    
+    return following;
+  }
+
+  async getFollowers(userId: string): Promise<User[]> {
+    const followerIds = Array.from(this.follows.values())
+      .filter(follow => follow.followingId === userId)
+      .map(follow => follow.followerId);
+    
+    const followers: User[] = [];
+    for (const id of followerIds) {
+      const user = await this.getUser(id);
+      if (user) followers.push(user);
+    }
+    
+    return followers;
+  }
+
+  async isFollowing(followerId: string, followingId: string): Promise<boolean> {
+    return Array.from(this.follows.values()).some(follow =>
+      follow.followerId === followerId && follow.followingId === followingId
+    );
+  }
+
+  // Like methods
+  async likePost(userId: string, postId: string): Promise<Like> {
+    const id = randomUUID();
+    const like: Like = {
+      id,
+      userId,
+      postId,
+      createdAt: new Date(),
+    };
+    
+    this.likes.set(id, like);
+    
+    // Update post like count
+    const post = await this.getPost(postId);
+    if (post) {
+      this.posts.set(postId, { ...post, likesCount: (post.likesCount || 0) + 1 });
+    }
+    
+    return like;
+  }
+
+  async unlikePost(userId: string, postId: string): Promise<void> {
+    const like = Array.from(this.likes.values()).find(l =>
+      l.userId === userId && l.postId === postId
+    );
+    
+    if (like) {
+      this.likes.delete(like.id);
+      
+      // Update post like count
+      const post = await this.getPost(postId);
+      if (post) {
+        this.posts.set(postId, { ...post, likesCount: Math.max(0, (post.likesCount || 0) - 1) });
+      }
+    }
+  }
+
+  async isPostLiked(userId: string, postId: string): Promise<boolean> {
+    return Array.from(this.likes.values()).some(like =>
+      like.userId === userId && like.postId === postId
+    );
+  }
+
+  // Comment methods
+  async createComment(insertComment: InsertComment): Promise<Comment> {
+    const id = randomUUID();
+    const comment: Comment = {
+      ...insertComment,
+      id,
+      createdAt: new Date(),
+    };
+    
+    this.comments.set(id, comment);
+    
+    // Update post comment count
+    const post = await this.getPost(insertComment.postId);
+    if (post) {
+      this.posts.set(insertComment.postId, { ...post, commentsCount: (post.commentsCount || 0) + 1 });
+    }
+    
+    return comment;
+  }
+
+  async getCommentsByPost(postId: string): Promise<Comment[]> {
+    return Array.from(this.comments.values())
+      .filter(comment => comment.postId === postId)
+      .sort((a, b) => (a.createdAt?.getTime() || 0) - (b.createdAt?.getTime() || 0));
+  }
+
+  // Search methods
+  async searchPosts(query: string): Promise<Post[]> {
+    const lowerQuery = query.toLowerCase();
+    return Array.from(this.posts.values()).filter(post =>
+      post.content.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  // Stats
+  async getNetworkStats(): Promise<{
+    activeUsers: number;
+    postsToday: number;
+    aiInteractions: number;
+    dataStored: string;
+  }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const postsToday = Array.from(this.posts.values()).filter(post =>
+      post.createdAt && post.createdAt >= today
+    ).length;
+    
+    return {
+      activeUsers: 24700,
+      postsToday: postsToday + 1200000, // Add base number for realism
+      aiInteractions: 892000,
+      dataStored: "156 TB",
+    };
+  }
+}
+
+export const storage = new MemStorage();

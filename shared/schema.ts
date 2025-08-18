@@ -1,0 +1,105 @@
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  displayName: text("display_name").notNull(),
+  email: text("email"),
+  bio: text("bio"),
+  avatar: text("avatar"),
+  walletAddress: text("wallet_address"),
+  isVerified: boolean("is_verified").default(false).notNull(),
+  followingCount: integer("following_count").default(0).notNull(),
+  followersCount: integer("followers_count").default(0).notNull(),
+  postsCount: integer("posts_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const posts = pgTable("posts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),
+  likesCount: integer("likes_count").default(0).notNull(),
+  commentsCount: integer("comments_count").default(0).notNull(),
+  sharesCount: integer("shares_count").default(0).notNull(),
+  isAiRecommended: boolean("is_ai_recommended").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const follows = pgTable("follows", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  followerId: varchar("follower_id").notNull().references(() => users.id),
+  followingId: varchar("following_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const likes = pgTable("likes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  postId: varchar("post_id").notNull().references(() => posts.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const comments = pgTable("comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  postId: varchar("post_id").notNull().references(() => posts.id),
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPostSchema = createInsertSchema(posts).omit({
+  id: true,
+  createdAt: true,
+  likesCount: true,
+  commentsCount: true,
+  sharesCount: true,
+});
+
+export const insertFollowSchema = createInsertSchema(follows).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLikeSchema = createInsertSchema(likes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCommentSchema = createInsertSchema(comments).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types
+export type User = typeof users.$inferSelect;
+export type Post = typeof posts.$inferSelect;
+export type Follow = typeof follows.$inferSelect;
+export type Like = typeof likes.$inferSelect;
+export type Comment = typeof comments.$inferSelect;
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertPost = z.infer<typeof insertPostSchema>;
+export type InsertFollow = z.infer<typeof insertFollowSchema>;
+export type InsertLike = z.infer<typeof insertLikeSchema>;
+export type InsertComment = z.infer<typeof insertCommentSchema>;
+
+// Extended types for API responses
+export type PostWithAuthor = Post & {
+  author: User;
+  isLiked: boolean;
+};
+
+export type UserProfile = User & {
+  isFollowing: boolean;
+};
