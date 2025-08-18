@@ -25,7 +25,7 @@ export default function Home() {
       </div>
 
       {/* 0G Infrastructure Status - Bottom Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-og-slate-50 dark:bg-og-slate-900/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-og-slate-50 dark:bg-og-slate-900/50">
         <ZGInfrastructureStatus />
       </div>
 
