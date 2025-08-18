@@ -137,7 +137,15 @@
     @apply flex items-center space-x-1 px-2 py-1 bg-og-primary bg-opacity-10 dark:bg-og-primary dark:bg-opacity-20 rounded-full;
   }
   
+  .verified-badge span {
+    @apply text-og-primary dark:text-og-primary font-medium;
+  }
+  
   .ai-recommendation-badge {
     @apply flex items-center space-x-1 px-2 py-0.5 bg-og-accent bg-opacity-10 dark:bg-og-accent dark:bg-opacity-20 rounded-full;
+  }
+  
+  .ai-recommendation-badge span {
+    @apply text-og-slate-800 dark:text-og-slate-100 font-medium;
   }
 }

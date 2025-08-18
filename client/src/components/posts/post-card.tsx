@@ -76,7 +76,7 @@ export function PostCard({ post }: PostCardProps) {
               {post.isAiRecommended && (
                 <div className="ai-recommendation-badge">
                   <div className="w-3 h-3 gradient-brand rounded-full"></div>
-                  <span className="text-xs text-og-accent">AI Recommended</span>
+                  <span className="text-xs">AI Recommended</span>
                 </div>
               )}
             </div>

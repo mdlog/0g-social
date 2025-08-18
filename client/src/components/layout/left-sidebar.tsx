@@ -39,7 +39,7 @@ export function LeftSidebar() {
               <div className="flex items-center justify-center space-x-2 mb-4">
                 <div className="verified-badge">
                   <Shield className="text-og-primary w-3 h-3" />
-                  <span className="text-xs text-og-primary font-medium">Verified DID</span>
+                  <span className="text-xs">Verified DID</span>
                 </div>
               </div>
 
