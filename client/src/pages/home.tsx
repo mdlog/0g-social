@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/header";
 import { LeftSidebar } from "@/components/layout/left-sidebar";
 import { RightSidebar } from "@/components/layout/right-sidebar";
+import { Footer } from "@/components/layout/footer";
 import { Feed } from "@/components/posts/feed";
 
 export default function Home() {
@@ -21,6 +22,8 @@ export default function Home() {
           <RightSidebar />
         </div>
       </div>
+
+      <Footer />
 
       {/* Floating Create Post (Mobile) */}
       <Button
