@@ -10,7 +10,7 @@ export interface IStorage {
   searchUsers(query: string): Promise<User[]>;
   
   // Posts
-  createPost(post: InsertPost): Promise<Post>;
+  createPost(post: InsertPost & { storageHash?: string; transactionHash?: string; authorId: string }): Promise<Post>;
   getPost(id: string): Promise<Post | undefined>;
   getPosts(limit?: number, offset?: number): Promise<Post[]>;
   getPostsByUser(userId: string, limit?: number, offset?: number): Promise<Post[]>;
@@ -168,6 +168,11 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
+      email: insertUser.email || null,
+      bio: insertUser.bio || null,
+      avatar: insertUser.avatar || null,
+      walletAddress: insertUser.walletAddress || null,
+      isVerified: insertUser.isVerified || false,
       followingCount: 0,
       followersCount: 0,
       postsCount: 0,
@@ -195,14 +200,17 @@ export class MemStorage implements IStorage {
   }
 
   // Post methods
-  async createPost(insertPost: InsertPost): Promise<Post> {
+  async createPost(insertPost: InsertPost & { storageHash?: string; transactionHash?: string; authorId: string }): Promise<Post> {
     const id = randomUUID();
     const post: Post = {
       ...insertPost,
       id,
+      storageHash: insertPost.storageHash || null,
+      transactionHash: insertPost.transactionHash || null,
       likesCount: 0,
       commentsCount: 0,
       sharesCount: 0,
+      isAiRecommended: insertPost.isAiRecommended || false,
       createdAt: new Date(),
     };
     
