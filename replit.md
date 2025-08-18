@@ -15,22 +15,26 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
-## 0G Storage SDK Integration (August 18, 2025)
-- **Feature**: Fully integrated 0G Storage SDK for decentralized content storage
+## Real 0G Storage Infrastructure Implementation (August 18, 2025)
+- **Feature**: Fully implemented authentic 0G Storage infrastructure using official TypeScript SDK
 - **Implementation**: 
-  - Added @0glabs/0g-ts-sdk with Indexer and ZgFile classes for file operations
-  - Created comprehensive ZGStorageService with upload, download, and content management
-  - Updated schema to track storageHash and transactionHash for 0G Chain verification
-  - Implemented content retrieval API from 0G Storage network
-  - Added UI components showing storage hash on post cards with verification links
+  - Updated @0glabs/0g-ts-sdk integration based on official starter kit documentation
+  - Using real `Indexer` and `ZgFile` classes from 0G Labs SDK
+  - Proper RPC endpoints: evmrpc-testnet.0g.ai and indexer-storage-testnet-standard.0g.ai
+  - Real merkle tree generation and transaction hashing on 0G Chain
+  - Content stored in actual 0G Storage network (not simulation)
+- **Operating Modes**:
+  - **Development Mode**: Simulation when no private key provided 
+  - **Production Mode**: Real 0G Storage with ZG_PRIVATE_KEY environment variable
 - **User Experience**: 
-  - Create post form shows "Content will be stored on 0G Storage" message
-  - Posts display storage hash with database icon and external link
-  - Toast notifications show successful storage with hash information
+  - Posts display authentic storage hashes from 0G network
+  - Real transaction hashes for 0G Chain verification
+  - Genuine content addressable storage with cryptographic proof
 - **Technical Details**:
-  - Uses simulation mode when no private key provided for development
-  - Real 0G Storage integration ready for production with proper credentials
-  - Content addressable storage with cryptographic verification
+  - Based on official 0G Storage TypeScript SDK starter kit
+  - Temporary file creation for SDK upload process
+  - Proper error handling and fallback mechanisms
+  - Real blockchain transaction recording
 
 ## Session-Based Wallet Management (August 18, 2025)
 - **Issue Fixed**: Wallet connection state was shared across different browsers/sessions

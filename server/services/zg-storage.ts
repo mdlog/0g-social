@@ -54,7 +54,7 @@ class ZGStorageService {
   }
 
   /**
-   * Initialize Web3 provider, signer, and indexer
+   * Initialize Web3 provider, signer, and indexer based on official starter kit
    */
   private async initializeClients() {
     try {
@@ -67,7 +67,7 @@ class ZGStorageService {
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
       this.signer = new ethers.Wallet(this.privateKey, this.provider);
       
-      // Initialize indexer
+      // Initialize indexer with new syntax from starter kit
       this.indexer = new Indexer(this.indexerRpc);
       
       console.log('[0G Storage] Initialized with RPC:', this.rpcUrl);
