@@ -38,11 +38,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Real 0G Storage Only Configuration (August 18, 2025)
 - **Configuration**: System configured for Galileo Testnet V3 with real storage only
-- **Current Status**: 0G Storage indexer service experiencing intermittent 503 Service Temporarily Unavailable errors
-- **Root Cause**: Testnet indexer endpoint sometimes experiences downtime or high load during testing periods
+- **Current Status**: 0G Storage indexer services unavailable - no accessible endpoint found
+- **Root Cause Analysis**: 
+  - indexer-storage-testnet-standard.0g.ai: 503 Service Temporarily Unavailable
+  - rpc-testnet.0g.ai: DNS resolution failure (ENOTFOUND)
+  - evmrpc-testnet.0g.ai: Works as RPC but missing indexer_getShardedNodes method (not a storage indexer)
+- **Technical Finding**: 0G testnet indexer infrastructure appears to be down or endpoints changed
 - **Technical Implementation**:
   - Removed all simulation fallback modes per user requirement
-  - Using official Galileo Testnet V3 endpoints: evmrpc-testnet.0g.ai and indexer-storage-testnet-standard.0g.ai
+  - Using evmrpc-testnet.0g.ai for both RPC and indexer (RPC confirmed working, indexer endpoints tested but unavailable)
   - Real private key configured with wallet address: 0x4C6165286739696849Fb3e77A16b0639D762c5B6
   - Retry mechanism implemented for temporary indexer downtime (5 second delay, 1 retry)
 - **Current Limitation**: System will fail if indexer service is down, as per user requirement for real storage only
