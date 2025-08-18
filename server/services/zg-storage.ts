@@ -150,32 +150,36 @@ class ZGStorageService {
       }
 
     } catch (error: any) {
-      console.error('[0G Storage] Failed to store content:', error);
+      console.error('[0G Storage] Failed to store content on real 0G Storage:', error);
       
       // More comprehensive error checking for various types of errors
       const errorMessage = error.message || error.toString() || '';
       const errorResponse = error.response?.data || '';
       
-      // Check if it's a network/service error with indexer
+      // Check if it's a network/service error with indexer - retry logic
       if (errorMessage.includes('503') || 
           errorMessage.includes('Service Temporarily Unavailable') || 
           errorMessage.includes('ENOTFOUND') ||
           errorMessage.includes('timeout') ||
           errorResponse.includes('503') ||
           errorResponse.includes('Service Temporarily Unavailable')) {
-        console.log('[0G Storage] Indexer service temporarily unavailable, falling back to simulation mode');
-        return this.simulateStorage(content, metadata);
-      }
-      
-      // For development, fallback to simulation on other errors too  
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[0G Storage] Falling back to simulation mode due to error in development');
-        return this.simulateStorage(content, metadata);
+        console.log('[0G Storage] Indexer service temporarily unavailable - will retry shortly');
+        // Wait a bit and retry once
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+          console.log('[0G Storage] Retrying upload to 0G Storage...');
+          // Try again with the same logic (recursive call with retry protection)
+          if (!metadata.retryAttempt) {
+            return this.storeContent(content, { ...metadata, retryAttempt: true });
+          }
+        } catch (retryError) {
+          console.error('[0G Storage] Retry also failed:', retryError);
+        }
       }
       
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Storage failed'
+        error: `Real 0G Storage failed: ${error instanceof Error ? error.message : 'Storage failed'}. Please ensure indexer service is available and private key has sufficient balance.`
       };
     }
   }

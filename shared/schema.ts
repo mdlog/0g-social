@@ -124,3 +124,14 @@ export type PostWithAuthor = Post & {
 export type UserProfile = User & {
   isFollowing: boolean;
 };
+
+// 0G Storage content metadata interface
+export interface ContentMetadata {
+  type: 'post' | 'image' | 'video' | 'audio';
+  userId?: string;
+  timestamp?: number;
+  originalName?: string;
+  size?: number;
+  mimeType?: string;
+  retryAttempt?: boolean;
+}
