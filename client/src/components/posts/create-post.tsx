@@ -18,7 +18,9 @@ export function CreatePost() {
     },
     onSuccess: (data: any) => {
       setContent("");
+      // Invalidate both posts queries to refresh the feed
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts/feed"] });
       
       // Show success message with 0G Storage information
       toast({
