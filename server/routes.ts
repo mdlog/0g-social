@@ -6,6 +6,7 @@ import { generateAIInsights, generateTrendingTopics } from "./services/ai";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
 import { zgDAService } from "./services/zg-da";
+import { zgChainService } from "./services/zg-chain";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -301,16 +302,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     chainId: null,
   };
 
-  app.get("/api/web3/status", (req, res) => {
-    res.json({
-      connected: currentWalletConnection.connected,
-      network: currentWalletConnection.network || "0G-Galileo-Testnet",
-      chainId: currentWalletConnection.chainId || 16601,
-      blockExplorer: "https://chainscan-newton.0g.ai",
-      rpcUrl: "https://evmrpc-testnet.0g.ai",
-      blockHeight: 1847392 + Math.floor(Date.now() / 12000) + Math.floor(Math.random() * 10),
-      gasPrice: "0.1 gwei",
-    });
+  app.get("/api/web3/status", async (req, res) => {
+    try {
+      const chainInfo = await zgChainService.getChainInfo();
+      
+      res.json({
+        connected: currentWalletConnection.connected,
+        network: currentWalletConnection.network || chainInfo.networkName,
+        chainId: currentWalletConnection.chainId || chainInfo.chainId,
+        blockExplorer: chainInfo.blockExplorer,
+        rpcUrl: chainInfo.rpcUrl,
+        blockHeight: chainInfo.blockHeight,
+        gasPrice: chainInfo.gasPrice,
+      });
+    } catch (error: any) {
+      // Fallback to basic info if chain service fails
+      res.json({
+        connected: currentWalletConnection.connected,
+        network: currentWalletConnection.network || "0G-Galileo-Testnet",
+        chainId: currentWalletConnection.chainId || 16601,
+        blockExplorer: "https://chainscan-newton.0g.ai",
+        rpcUrl: "https://evmrpc-testnet.0g.ai",
+        blockHeight: 5175740, // Latest known block
+        gasPrice: "0.1 gwei",
+      });
+    }
   });
 
   app.get("/api/web3/wallet", (req, res) => {

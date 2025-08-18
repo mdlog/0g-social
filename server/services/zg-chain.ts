@@ -1,0 +1,114 @@
+// 0G Chain API Service
+// Fetches real blockchain data from 0G Chain testnet
+
+const ZG_CHAIN_API_BASE = "https://chainscan-test.0g.ai/open";
+
+interface BlockData {
+  blockNumber: number;
+  timestamp: number;
+  gasUsed: string;
+}
+
+interface ChainStatsResponse {
+  status: string;
+  message: string;
+  result: {
+    total: number;
+    list: BlockData[];
+  };
+}
+
+interface BlockNumberResponse {
+  status: string;
+  message: string;
+  result: number;
+}
+
+export class ZGChainService {
+  private lastBlockHeight: number = 5175740; // Fallback value
+  private lastFetchTime: number = 0;
+  private readonly CACHE_DURATION = 30000; // 30 seconds cache
+
+  async getCurrentBlockHeight(): Promise<number> {
+    const now = Date.now();
+    
+    // Use cache if recent data exists
+    if (now - this.lastFetchTime < this.CACHE_DURATION) {
+      return this.lastBlockHeight;
+    }
+
+    try {
+      // Get latest block data from gas statistics (most reliable endpoint)
+      const response = await fetch(`${ZG_CHAIN_API_BASE}/statistics/block/gas-used?limit=1`);
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data: ChainStatsResponse = await response.json();
+      
+      if (data.status === "1" && data.result.list.length > 0) {
+        this.lastBlockHeight = data.result.list[0].blockNumber;
+        this.lastFetchTime = now;
+        console.log(`✓ Fetched latest block height: ${this.lastBlockHeight}`);
+        return this.lastBlockHeight;
+      }
+      
+      throw new Error("Invalid response format");
+    } catch (error) {
+      console.warn(`Failed to fetch block height from 0G Chain API:`, error);
+      
+      // Try alternative endpoint
+      try {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const altResponse = await fetch(
+          `${ZG_CHAIN_API_BASE}/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before`
+        );
+        
+        if (altResponse.ok) {
+          const altData: BlockNumberResponse = await altResponse.json();
+          if (altData.status === "1" && typeof altData.result === 'number') {
+            this.lastBlockHeight = altData.result;
+            this.lastFetchTime = now;
+            console.log(`✓ Fetched block height from alternative endpoint: ${this.lastBlockHeight}`);
+            return this.lastBlockHeight;
+          }
+        }
+      } catch (altError) {
+        console.warn(`Alternative endpoint also failed:`, altError);
+      }
+      
+      // Return cached value or fallback
+      console.log(`Using cached/fallback block height: ${this.lastBlockHeight}`);
+      return this.lastBlockHeight;
+    }
+  }
+
+  async getGasPrice(): Promise<string> {
+    try {
+      // In a real implementation, you might fetch this from the RPC
+      // For now, we'll use a reasonable default for 0G Chain
+      return "0.1 gwei";
+    } catch (error) {
+      console.warn(`Failed to fetch gas price:`, error);
+      return "0.1 gwei";
+    }
+  }
+
+  async getChainInfo() {
+    const blockHeight = await this.getCurrentBlockHeight();
+    const gasPrice = await this.getGasPrice();
+    
+    return {
+      chainId: 16601,
+      networkName: "0G-Galileo-Testnet",
+      rpcUrl: "https://evmrpc-testnet.0g.ai",
+      blockExplorer: "https://chainscan-newton.0g.ai",
+      blockHeight,
+      gasPrice,
+    };
+  }
+}
+
+// Export singleton instance
+export const zgChainService = new ZGChainService();
