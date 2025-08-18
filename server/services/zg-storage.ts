@@ -45,8 +45,8 @@ class ZGStorageService {
   private indexer: Indexer | null = null;
 
   constructor() {
-    // 0G Chain and Storage network configuration
-    this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai/';
+    // 0G Galileo Testnet V3 configuration
+    this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
     this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-standard.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
 
@@ -70,8 +70,8 @@ class ZGStorageService {
       // Initialize indexer with new syntax from starter kit
       this.indexer = new Indexer(this.indexerRpc);
       
-      console.log('[0G Storage] Initialized with RPC:', this.rpcUrl);
-      console.log('[0G Storage] Indexer RPC:', this.indexerRpc);
+      console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
+      console.log('[0G Storage] Galileo Testnet V3 - Indexer:', this.indexerRpc);
       console.log('[0G Storage] Wallet address:', this.signer.address);
     } catch (error) {
       console.error('[0G Storage] Failed to initialize clients:', error);
@@ -83,16 +83,12 @@ class ZGStorageService {
    */
   async storeContent(content: string | Buffer, metadata: ContentMetadata): Promise<ZGStorageResponse> {
     try {
-      // If no private key or clients not initialized, use simulation mode
+      // Require real 0G Storage setup - no simulation mode
       if (!this.indexer || !this.signer) {
-        console.log('[0G Storage] Running in simulation mode - no private key provided');
-        return this.simulateStorage(content, metadata);
+        throw new Error('Real 0G Storage required: Missing private key or indexer connection. Please ensure ZG_PRIVATE_KEY is set and indexer service is available.');
       }
 
-      // In development mode or when indexer is having issues, use simulation mode as fallback
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[0G Storage] Development mode - attempting real upload with fallback to simulation');
-      }
+      console.log('[0G Storage] Using REAL Galileo testnet storage - no simulation fallback');
 
       // Create temporary file for 0G Storage upload
       const tempDir = path.join(process.cwd(), 'temp');
@@ -130,9 +126,9 @@ class ZGStorageService {
 
         const rootHash = tree.rootHash();
         
-        console.log(`[0G Storage] Successfully uploaded ${metadata.type} content`);
-        console.log(`[0G Storage] Root Hash: ${rootHash}`);
-        console.log(`[0G Storage] Transaction Hash: ${transactionHash}`);
+        console.log(`[0G Storage] Successfully uploaded ${metadata.type} content to Galileo`);
+        console.log(`[0G Storage] Galileo Root Hash: ${rootHash}`);
+        console.log(`[0G Storage] Galileo Transaction Hash: ${transactionHash}`);
 
         return {
           success: true,
@@ -163,23 +159,23 @@ class ZGStorageService {
           errorMessage.includes('timeout') ||
           errorResponse.includes('503') ||
           errorResponse.includes('Service Temporarily Unavailable')) {
-        console.log('[0G Storage] Indexer service temporarily unavailable - will retry shortly');
-        // Wait a bit and retry once
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log('[0G Storage] Galileo indexer service temporarily unavailable - will retry shortly');
+        // Wait a bit and retry once for Galileo testnet
+        await new Promise(resolve => setTimeout(resolve, 5000));
         try {
-          console.log('[0G Storage] Retrying upload to 0G Storage...');
+          console.log('[0G Storage] Retrying upload to Galileo testnet...');
           // Try again with the same logic (recursive call with retry protection)
           if (!metadata.retryAttempt) {
             return this.storeContent(content, { ...metadata, retryAttempt: true });
           }
         } catch (retryError) {
-          console.error('[0G Storage] Retry also failed:', retryError);
+          console.error('[0G Storage] Galileo retry also failed:', retryError);
         }
       }
       
       return {
         success: false,
-        error: `Real 0G Storage failed: ${error instanceof Error ? error.message : 'Storage failed'}. Please ensure indexer service is available and private key has sufficient balance.`
+        error: `Galileo Testnet Storage failed: ${error instanceof Error ? error.message : 'Storage failed'}. Please ensure Galileo indexer service is available and wallet has sufficient OG tokens for testnet.`
       };
     }
   }
@@ -188,22 +184,8 @@ class ZGStorageService {
    * Simulation mode for development when no private key is provided
    */
   private async simulateStorage(content: string | Buffer, metadata: ContentMetadata): Promise<ZGStorageResponse> {
-    const hash = this.generateContentHash(content);
-    const mockTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
-    
-    console.log(`[0G Storage] SIMULATION MODE - Storing ${metadata.type} content`);
-    console.log(`[0G Storage] Generated Hash: ${hash}`);
-    console.log(`[0G Storage] Mock Transaction Hash: ${mockTxHash}`);
-    console.log(`[0G Storage] Metadata:`, metadata);
-    
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    return {
-      success: true,
-      hash: hash,
-      transactionHash: mockTxHash
-    };
+    // This should not be used - user wants real storage only
+    throw new Error('Simulation mode disabled - user requires real Galileo testnet storage only');
   }
 
   /**

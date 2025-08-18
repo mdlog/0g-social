@@ -36,16 +36,17 @@ Preferred communication style: Simple, everyday language.
   - Proper error handling and fallback mechanisms
   - Real blockchain transaction recording
 
-## Real 0G Storage with Smart Fallback (August 18, 2025)
-- **Issue Fixed**: 0G Storage indexer service occasionally returns 503 Service Temporarily Unavailable
-- **Root Cause**: Testnet indexer endpoint sometimes experiences downtime or high load
-- **Solution**: Implemented intelligent fallback to simulation mode when real storage is unavailable
-- **Technical Details**:
-  - Enhanced error detection for 503, timeout, and network errors
-  - Automatic fallback to simulation mode with proper logging
-  - Real 0G Storage attempted first when ZG_PRIVATE_KEY is available
-  - Simulation mode provides authentic-looking storage hashes and transaction IDs
-- **Result**: System now provides reliable content storage with graceful degradation
+## Real 0G Storage Only Configuration (August 18, 2025)
+- **Configuration**: System configured for Galileo Testnet V3 with real storage only
+- **Current Status**: 0G Storage indexer service experiencing intermittent 503 Service Temporarily Unavailable errors
+- **Root Cause**: Testnet indexer endpoint sometimes experiences downtime or high load during testing periods
+- **Technical Implementation**:
+  - Removed all simulation fallback modes per user requirement
+  - Using official Galileo Testnet V3 endpoints: evmrpc-testnet.0g.ai and indexer-storage-testnet-standard.0g.ai
+  - Real private key configured with wallet address: 0x4C6165286739696849Fb3e77A16b0639D762c5B6
+  - Retry mechanism implemented for temporary indexer downtime (5 second delay, 1 retry)
+- **Current Limitation**: System will fail if indexer service is down, as per user requirement for real storage only
+- **Recommendation**: Monitor 0G testnet status or wait for service stability
 
 ## Session-Based Wallet Management (August 18, 2025)
 - **Issue Fixed**: Wallet connection state was shared across different browsers/sessions
