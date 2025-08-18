@@ -51,6 +51,7 @@ interface ComputeInstance {
 
 interface Web3Status {
   connected: boolean;
+  infrastructureConnected: boolean;
   network: string;
   chainId: string;
   blockExplorer: string;
@@ -290,8 +291,8 @@ export function ZGInfrastructureStatus() {
             <div className="flex items-center space-x-2">
               <Activity className="w-4 h-4 text-blue-500" />
               <h3 className="text-sm font-medium">0G Chain</h3>
-              <Badge variant="outline" className={`ml-auto text-xs ${web3Status?.connected ? "text-green-600" : "text-red-600"}`}>
-                {web3Status?.connected ? "Connected" : "Disconnected"}
+              <Badge variant="outline" className={`ml-auto text-xs ${web3Status?.infrastructureConnected ? "text-green-600" : "text-red-600"}`}>
+                {web3Status?.infrastructureConnected ? "Connected" : "Disconnected"}
               </Badge>
             </div>
           </CardHeader>

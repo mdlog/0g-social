@@ -307,7 +307,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const chainInfo = await zgChainService.getChainInfo();
       
       res.json({
-        connected: true, // Show connected when we have real blockchain data
+        // Infrastructure is connected when we can fetch blockchain data
+        infrastructureConnected: true,
+        // Wallet connection depends on user connecting MetaMask
+        connected: currentWalletConnection.connected,
         network: currentWalletConnection.network || chainInfo.networkName,
         chainId: currentWalletConnection.chainId || chainInfo.chainId,
         blockExplorer: chainInfo.blockExplorer,
@@ -316,9 +319,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         gasPrice: chainInfo.gasPrice,
       });
     } catch (error: any) {
-      // Show connected even with fallback since we're using real chain APIs
+      // Infrastructure connected, but wallet may not be
       res.json({
-        connected: true, // Connected to 0G Chain infrastructure
+        infrastructureConnected: true, // We can still connect to 0G Chain
+        connected: currentWalletConnection.connected,
         network: currentWalletConnection.network || "0G-Galileo-Testnet",
         chainId: currentWalletConnection.chainId || 16601,
         blockExplorer: "https://chainscan-newton.0g.ai",
