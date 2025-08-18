@@ -23,6 +23,7 @@ export const posts = pgTable("posts", {
   authorId: varchar("author_id").notNull().references(() => users.id),
   content: text("content").notNull(),
   imageUrl: text("image_url"),
+  storageHash: text("storage_hash"), // 0G Storage content hash
   likesCount: integer("likes_count").default(0).notNull(),
   commentsCount: integer("comments_count").default(0).notNull(),
   sharesCount: integer("shares_count").default(0).notNull(),

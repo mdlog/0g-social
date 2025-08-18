@@ -1,9 +1,12 @@
-import { Brain, TrendingUp } from "lucide-react";
+import { Brain, TrendingUp, Database, ChevronDown, ChevronUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
+import { useState } from "react";
 
 export function RightSidebar() {
+  const [showInfrastructure, setShowInfrastructure] = useState(true);
   const { data: aiInsights } = useQuery<Array<{message: string; type: string; confidence: number}>>({
     queryKey: ["/api/ai/insights"],
     refetchInterval: 300000, // 5 minutes
@@ -46,6 +49,30 @@ export function RightSidebar() {
   return (
     <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
+        {/* 0G Infrastructure Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setShowInfrastructure(!showInfrastructure)}
+            >
+              <div className="flex items-center space-x-2">
+                <Database className="text-og-primary w-4 h-4" />
+                <span>0G Infrastructure</span>
+              </div>
+              {showInfrastructure ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </CardTitle>
+          </CardHeader>
+          {showInfrastructure && (
+            <CardContent>
+              <ZGInfrastructureStatus />
+            </CardContent>
+          )}
+        </Card>
         {/* AI Insights */}
         <Card>
           <CardHeader>

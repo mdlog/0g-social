@@ -1,6 +1,13 @@
 # Overview
 
-0G Social is a decentralized social media platform built with modern web technologies. The application combines React frontend with Express.js backend, featuring AI-powered content recommendations, decentralized identity verification, and Web3 integration. The platform focuses on providing a Twitter-like social experience enhanced with blockchain features and AI-driven personalization.
+0G Social is a fully decentralized, on-chain social media platform where users truly own their data and AI feeds. Built on 0G Chain infrastructure, the platform implements:
+
+- **On-chain Content Storage**: All posts, images, videos, and threads stored on 0G Storage
+- **User-owned AI Feeds**: Personal AI algorithms running on 0G Compute, owned by users not the platform
+- **Transparent Data Availability**: All interactions (likes, comments, reposts) recorded on 0G DA and verified on 0G Chain
+- **No Corporate Algorithm Control**: Users control their own feed algorithms, eliminating hidden corporate manipulation
+
+This represents a paradigm shift from traditional social media to truly decentralized, user-controlled social networking.
 
 # User Preferences
 

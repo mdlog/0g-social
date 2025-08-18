@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema } from "@shared/schema";
 import { generateAIInsights, generateTrendingTopics } from "./services/ai";
+import { zgStorageService } from "./services/zg-storage";
+import { zgComputeService } from "./services/zg-compute";
+import { zgDAService } from "./services/zg-da";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -55,8 +58,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/posts", async (req, res) => {
     try {
       const postData = insertPostSchema.parse(req.body);
+      
+      // Store content on 0G Storage
+      const storageResult = await zgStorageService.storeContent(postData.content, {
+        type: 'post',
+        authorId: "user1",
+        timestamp: new Date().toISOString()
+      });
+      
+      if (!storageResult.success) {
+        return res.status(500).json({ message: "Failed to store content on 0G Storage" });
+      }
+      
       // Set current user as author (in real app, get from session)
-      const post = await storage.createPost({ ...postData, authorId: "user1" });
+      const post = await storage.createPost({ 
+        ...postData, 
+        authorId: "user1",
+        storageHash: storageResult.hash
+      });
+      
+      // Record creation on 0G DA
+      await zgDAService.recordInteraction('post', "user1", post.id, {
+        content: postData.content,
+        storageHash: storageResult.hash
+      });
+      
       res.json(post);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -110,6 +136,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const likeData = insertLikeSchema.parse(req.body);
       const like = await storage.likePost("user1", likeData.postId);
+      
+      // Record like on 0G DA
+      await zgDAService.recordInteraction('like', "user1", likeData.postId, {
+        action: 'like'
+      });
+      
       res.json(like);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -118,6 +150,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/likes/:postId", async (req, res) => {
     await storage.unlikePost("user1", req.params.postId);
+    
+    // Record unlike on 0G DA (negative interaction)
+    await zgDAService.recordInteraction('like', "user1", req.params.postId, {
+      action: 'unlike'
+    });
+    
     res.json({ success: true });
   });
 
@@ -126,6 +164,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const commentData = insertCommentSchema.parse(req.body);
       const comment = await storage.createComment({ ...commentData, authorId: "user1" });
+      
+      // Record comment on 0G DA
+      await zgDAService.recordInteraction('comment', "user1", commentData.postId, {
+        commentId: comment.id,
+        content: commentData.content
+      });
+      
       res.json(comment);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -160,6 +205,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stats", async (req, res) => {
     const stats = await storage.getNetworkStats();
     res.json(stats);
+  });
+
+  // 0G Chain Infrastructure Endpoints
+  
+  // 0G Storage
+  app.get("/api/zg/storage/stats", async (req, res) => {
+    const stats = await zgStorageService.getStorageStats();
+    res.json(stats);
+  });
+
+  app.post("/api/zg/storage/pin/:hash", async (req, res) => {
+    const result = await zgStorageService.pinContent(req.params.hash);
+    res.json(result);
+  });
+
+  // 0G Compute - User AI Management
+  app.post("/api/zg/compute/deploy", async (req, res) => {
+    try {
+      const userId = "user1"; // In real app, get from session
+      const config = {
+        userId,
+        algorithmType: req.body.algorithmType || 'engagement',
+        preferences: req.body.preferences || {
+          contentTypes: ['text', 'image'],
+          topics: ['blockchain', 'ai', 'tech'],
+          engagement_threshold: 5,
+          recency_weight: 0.7,
+          diversity_factor: 0.3
+        }
+      };
+      
+      const result = await zgComputeService.deployUserAI(userId, config);
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/zg/compute/instance", async (req, res) => {
+    const instance = await zgComputeService.getUserInstance("user1");
+    res.json(instance);
+  });
+
+  app.get("/api/zg/compute/stats", async (req, res) => {
+    const stats = await zgComputeService.getComputeStats();
+    res.json(stats);
+  });
+
+  app.post("/api/zg/compute/feed", async (req, res) => {
+    try {
+      const userId = "user1";
+      const posts = await storage.getPosts(50, 0); // Get posts for AI ranking
+      const postIds = posts.map(p => p.id);
+      
+      const aiResult = await zgComputeService.generatePersonalizedFeed(userId, postIds);
+      res.json(aiResult);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // 0G Data Availability
+  app.get("/api/zg/da/stats", async (req, res) => {
+    const stats = await zgDAService.getDAStats();
+    res.json(stats);
+  });
+
+  app.get("/api/zg/da/history", async (req, res) => {
+    const userId = req.query.userId as string;
+    const type = req.query.type as any;
+    const targetId = req.query.targetId as string;
+    
+    const history = await zgDAService.getInteractionHistory(userId, targetId, type);
+    res.json(history);
+  });
+
+  app.get("/api/zg/da/verify/:txId", async (req, res) => {
+    const result = await zgDAService.verifyInteraction(req.params.txId);
+    res.json(result);
   });
 
   // Web3 Mock Endpoints
