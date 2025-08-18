@@ -15,13 +15,13 @@ export function Footer() {
               <h3 className="text-xl font-bold gradient-text">0G Social</h3>
             </div>
             <p className="text-og-slate-600 dark:text-og-slate-400 text-sm">
-              Platform media sosial terdesentralisasi pertama dengan AI yang dimiliki pengguna. 
-              Dibangun di atas infrastruktur 0G Chain untuk masa depan Web3.
+              The first decentralized social media platform with user-owned AI feeds. 
+              Built on 0G Chain infrastructure for the future of Web3.
             </p>
             <div className="flex items-center space-x-2">
               <Shield className="w-4 h-4 text-og-primary" />
               <span className="text-sm text-og-slate-600 dark:text-og-slate-400">
-                100% Terdesentralisasi & Aman
+                100% Decentralized & Secure
               </span>
             </div>
           </div>
@@ -32,27 +32,27 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Beranda
+                  Home
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Jelajahi
+                  Explore
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Rekomendasi AI
+                  AI Recommendations
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Komunitas
+                  Community
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  API Developer
+                  Developer API
                 </a>
               </li>
             </ul>
@@ -64,12 +64,12 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="https://0g.ai" target="_blank" rel="noopener noreferrer" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Website Resmi
+                  Official Website
                 </a>
               </li>
               <li>
                 <a href="https://docs.0g.ai" target="_blank" rel="noopener noreferrer" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Dokumentasi
+                  Documentation
                 </a>
               </li>
               <li>
@@ -92,31 +92,31 @@ export function Footer() {
 
           {/* Support & Community */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-og-slate-900 dark:text-og-slate-100">Dukungan</h4>
+            <h4 className="font-semibold text-og-slate-900 dark:text-og-slate-100">Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Pusat Bantuan
+                  Help Center
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Panduan Pengguna
+                  User Guide
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Kebijakan Privasi
+                  Privacy Policy
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Syarat Layanan
+                  Terms of Service
                 </a>
               </li>
               <li>
                 <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
-                  Status Sistem
+                  System Status
                 </a>
               </li>
             </ul>
@@ -133,11 +133,11 @@ export function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <Zap className="w-3 h-3 text-og-secondary" />
-                <span className="text-og-slate-600 dark:text-og-slate-400">24.7K Pengguna Aktif</span>
+                <span className="text-og-slate-600 dark:text-og-slate-400">24.7K Active Users</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Heart className="w-3 h-3 text-red-500" />
-                <span className="text-og-slate-600 dark:text-og-slate-400">1.2M Post Hari Ini</span>
+                <span className="text-og-slate-600 dark:text-og-slate-400">1.2M Posts Today</span>
               </div>
             </div>
             
@@ -159,7 +159,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-og-slate-200 dark:border-og-slate-700">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between text-sm text-og-slate-600 dark:text-og-slate-400">
-            <p>© 2025 0G Social. Dibangun dengan ❤️ untuk masa depan Web3 yang terdesentralisasi.</p>
+            <p>© 2025 0G Social. Built with ❤️ for the decentralized future of Web3.</p>
             <div className="flex items-center space-x-4 mt-2 md:mt-0">
               <span>Powered by 0G Chain</span>
               <div className="w-4 h-4 gradient-brand rounded"></div>
