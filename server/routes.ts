@@ -67,7 +67,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       if (!storageResult.success) {
-        return res.status(500).json({ message: "Failed to store content on 0G Storage" });
+        console.error('Failed to store content in 0G Storage:', storageResult.error);
+        return res.status(500).json({ 
+          message: "Failed to store content on 0G Storage",
+          details: storageResult.error,
+          note: "The system should handle fallback mode internally - this error suggests fallback also failed"
+        });
       }
       
       // Set current user as author (in real app, get from session)

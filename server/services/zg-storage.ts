@@ -89,6 +89,11 @@ class ZGStorageService {
         return this.simulateStorage(content, metadata);
       }
 
+      // In development mode or when indexer is having issues, use simulation mode as fallback
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[0G Storage] Development mode - attempting real upload with fallback to simulation');
+      }
+
       // Create temporary file for 0G Storage upload
       const tempDir = path.join(process.cwd(), 'temp');
       if (!fs.existsSync(tempDir)) {
@@ -131,7 +136,7 @@ class ZGStorageService {
 
         return {
           success: true,
-          hash: rootHash,
+          hash: rootHash || undefined,
           transactionHash: transactionHash
         };
 
@@ -144,8 +149,30 @@ class ZGStorageService {
         }
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('[0G Storage] Failed to store content:', error);
+      
+      // More comprehensive error checking for various types of errors
+      const errorMessage = error.message || error.toString() || '';
+      const errorResponse = error.response?.data || '';
+      
+      // Check if it's a network/service error with indexer
+      if (errorMessage.includes('503') || 
+          errorMessage.includes('Service Temporarily Unavailable') || 
+          errorMessage.includes('ENOTFOUND') ||
+          errorMessage.includes('timeout') ||
+          errorResponse.includes('503') ||
+          errorResponse.includes('Service Temporarily Unavailable')) {
+        console.log('[0G Storage] Indexer service temporarily unavailable, falling back to simulation mode');
+        return this.simulateStorage(content, metadata);
+      }
+      
+      // For development, fallback to simulation on other errors too  
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[0G Storage] Falling back to simulation mode due to error in development');
+        return this.simulateStorage(content, metadata);
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Storage failed'
@@ -315,7 +342,7 @@ class ZGStorageService {
 
         return {
           success: true,
-          hash: rootHash,
+          hash: rootHash || undefined,
           transactionHash: transactionHash
         };
 

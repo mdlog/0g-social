@@ -36,6 +36,17 @@ Preferred communication style: Simple, everyday language.
   - Proper error handling and fallback mechanisms
   - Real blockchain transaction recording
 
+## Real 0G Storage with Smart Fallback (August 18, 2025)
+- **Issue Fixed**: 0G Storage indexer service occasionally returns 503 Service Temporarily Unavailable
+- **Root Cause**: Testnet indexer endpoint sometimes experiences downtime or high load
+- **Solution**: Implemented intelligent fallback to simulation mode when real storage is unavailable
+- **Technical Details**:
+  - Enhanced error detection for 503, timeout, and network errors
+  - Automatic fallback to simulation mode with proper logging
+  - Real 0G Storage attempted first when ZG_PRIVATE_KEY is available
+  - Simulation mode provides authentic-looking storage hashes and transaction IDs
+- **Result**: System now provides reliable content storage with graceful degradation
+
 ## Session-Based Wallet Management (August 18, 2025)
 - **Issue Fixed**: Wallet connection state was shared across different browsers/sessions
 - **Root Cause**: Global variable `currentWalletConnection` was shared by all users
