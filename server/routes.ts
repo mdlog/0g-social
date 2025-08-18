@@ -51,19 +51,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/posts/feed", async (req, res) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = parseInt(req.query.offset as string) || 0;
-    // Use current user (in real app, get from session)
-    const posts = await storage.getPersonalizedFeed("user1", limit, offset);
+    
+    // Use connected wallet address for personalized feed, fallback to general feed
+    const walletData = req.session.walletConnection;
+    const userId = walletData?.address || "general";
+    const posts = await storage.getPersonalizedFeed(userId, limit, offset);
     res.json(posts);
   });
 
   app.post("/api/posts", async (req, res) => {
     try {
+      // Check if wallet is connected
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to create posts",
+          code: "WALLET_NOT_CONNECTED"
+        });
+      }
+
       const postData = insertPostSchema.parse(req.body);
       
       // Store content on 0G Storage
       const storageResult = await zgStorageService.storeContent(postData.content, {
         type: 'post',
-        userId: "user1"
+        userId: walletData.address
       });
       
       if (!storageResult.success) {
@@ -75,16 +88,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Set current user as author (in real app, get from session)
+      // Use connected wallet address as author
       const post = await storage.createPost({ 
         ...postData, 
-        authorId: "user1",
+        authorId: walletData.address,
         storageHash: storageResult.hash || undefined,
         transactionHash: storageResult.transactionHash || undefined
       });
       
       // Record creation on 0G DA
-      await zgDAService.recordInteraction('post', "user1", post.id, {
+      await zgDAService.recordInteraction('post', walletData.address, post.id, {
         content: postData.content,
         storageHash: storageResult.hash
       });

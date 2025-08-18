@@ -50,6 +50,16 @@ Preferred communication style: Simple, everyday language.
 - **Current Status**: System fully operational with real 0G Storage
 - **Latest Success**: Transaction 0x9453f0151551c665f9e8153af9a9ff27cafea11f57dcb7ecb83d7a96218e7e95 confirmed on Galileo testnet
 
+## Wallet-Gated Posting Feature (August 18, 2025)
+- **Feature**: Implemented wallet connection requirement for post creation
+- **Backend Authorization**: Added middleware to check wallet connection status in session before allowing posts
+- **Frontend UX**: 
+  - Shows "Connect Wallet" prompt instead of post form when wallet not connected
+  - Clear visual indication with yellow warning styling
+  - Real-time wallet status checking every 5 seconds
+- **Security**: Only users with connected wallets can create posts, using their wallet address as authorId
+- **User Experience**: Seamless integration with existing Web3 connection system
+
 ## Session-Based Wallet Management (August 18, 2025)
 - **Issue Fixed**: Wallet connection state was shared across different browsers/sessions
 - **Root Cause**: Global variable `currentWalletConnection` was shared by all users

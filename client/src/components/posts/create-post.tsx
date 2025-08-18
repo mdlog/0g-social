@@ -1,16 +1,29 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ImageIcon, Database, Loader2 } from "lucide-react";
+import { ImageIcon, Database, Loader2, Wallet } from "lucide-react";
 
 export function CreatePost() {
   const [content, setContent] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check wallet connection status
+  const { data: walletStatus } = useQuery({
+    queryKey: ["/api/web3/wallet"],
+    queryFn: async () => {
+      const response = await fetch("/api/web3/wallet");
+      if (!response.ok && response.status !== 404) {
+        throw new Error("Failed to fetch wallet status");
+      }
+      return response.json();
+    },
+    refetchInterval: 5000, // Check every 5 seconds
+  });
 
   const createPostMutation = useMutation({
     mutationFn: async (data: { content: string }) => {
@@ -31,9 +44,13 @@ export function CreatePost() {
       });
     },
     onError: (error: any) => {
+      const errorMessage = error.code === "WALLET_NOT_CONNECTED" 
+        ? "Please connect your wallet to create posts"
+        : error.message;
+      
       toast({
         title: "Failed to create post",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -46,10 +63,47 @@ export function CreatePost() {
     createPostMutation.mutate({ content: content.trim() });
   };
 
-  const isDisabled = !content.trim() || createPostMutation.isPending;
+  const isWalletConnected = walletStatus?.connected === true;
+  const isDisabled = !content.trim() || createPostMutation.isPending || !isWalletConnected;
   const characterCount = content.length;
   const maxCharacters = 280;
   const isOverLimit = characterCount > maxCharacters;
+
+  // If wallet is not connected, show connect wallet prompt
+  if (!isWalletConnected) {
+    return (
+      <Card className="mb-6 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">
+                Connect Wallet to Post
+              </h3>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                You need to connect your wallet to create posts on 0G Social. All posts are stored on the decentralized 0G Storage network.
+              </p>
+              <Button 
+                className="mt-3 bg-yellow-600 hover:bg-yellow-700 text-white"
+                onClick={() => {
+                  // Scroll to Web3 status section or trigger wallet connection
+                  toast({
+                    title: "Connect your wallet",
+                    description: "Look for the Web3 connection section in the sidebar to connect your wallet.",
+                  });
+                }}
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                Connect Wallet
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mb-6">
