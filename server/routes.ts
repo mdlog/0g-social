@@ -286,13 +286,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(result);
   });
 
-  // Web3 0G-Galileo-Testnet Endpoints
+  // Web3 Wallet Connection Management
+  let currentWalletConnection: {
+    connected: boolean;
+    address: string | null;
+    balance: string | null;
+    network: string | null;
+    chainId: string | null;
+  } = {
+    connected: false,
+    address: null,
+    balance: null,
+    network: null,
+    chainId: null,
+  };
+
   app.get("/api/web3/status", (req, res) => {
     res.json({
-      connected: true,
-      network: "0G-Galileo-Testnet",
-      chainId: "16601",
-      blockExplorer: "0G-Galileo-Testnet",
+      connected: currentWalletConnection.connected,
+      network: currentWalletConnection.network || "0G-Galileo-Testnet",
+      chainId: currentWalletConnection.chainId || 16601,
+      blockExplorer: "https://chainscan-newton.0g.ai",
       rpcUrl: "https://evmrpc-testnet.0g.ai",
       blockHeight: 1847392 + Math.floor(Date.now() / 12000) + Math.floor(Math.random() * 10),
       gasPrice: "0.1 gwei",
@@ -300,13 +314,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/web3/wallet", (req, res) => {
+    if (!currentWalletConnection.connected) {
+      return res.status(404).json({
+        connected: false,
+        message: "No wallet connected"
+      });
+    }
+
     res.json({
-      address: "0x742d35Cc1234567890123456789012345678901234",
-      balance: "1.234 0G",
-      connected: true,
-      network: "0G-Galileo-Testnet",
-      chainId: "16601",
+      address: currentWalletConnection.address,
+      balance: currentWalletConnection.balance || "0.000 0G",
+      connected: currentWalletConnection.connected,
+      network: currentWalletConnection.network,
+      chainId: currentWalletConnection.chainId,
     });
+  });
+
+  app.post("/api/web3/connect", async (req, res) => {
+    try {
+      const { address, chainId, network } = req.body;
+      
+      if (!address) {
+        return res.status(400).json({ message: "Wallet address is required" });
+      }
+
+      // Simulate fetching balance (in real app, you'd query the blockchain)
+      const mockBalance = "0.000 0G"; // Could fetch real balance here
+
+      currentWalletConnection = {
+        connected: true,
+        address,
+        balance: mockBalance,
+        network: network || "0G-Galileo-Testnet",
+        chainId: chainId || "16601",
+      };
+
+      res.json({
+        success: true,
+        wallet: currentWalletConnection
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/web3/disconnect", (req, res) => {
+    currentWalletConnection = {
+      connected: false,
+      address: null,
+      balance: null,
+      network: null,
+      chainId: null,
+    };
+
+    res.json({ success: true });
   });
 
   const httpServer = createServer(app);

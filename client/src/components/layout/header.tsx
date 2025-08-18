@@ -60,6 +60,23 @@ export function Header() {
             }
           }
 
+          // Send wallet connection to backend
+          const response = await fetch('/api/web3/connect', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              address: accounts[0],
+              chainId: '16601',
+              network: '0G-Galileo-Testnet'
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to register wallet connection');
+          }
+
           return { success: true, account: accounts[0] };
         } catch (error: any) {
           throw new Error(error.message || 'Failed to connect wallet');
@@ -79,6 +96,38 @@ export function Header() {
     onError: (error: Error) => {
       toast({
         title: "Connection Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const disconnectWallet = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/web3/disconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to disconnect wallet');
+      }
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Wallet Disconnected",
+        description: "Successfully disconnected from wallet",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/web3/wallet"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/web3/status"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Disconnect Failed",
         description: error.message,
         variant: "destructive",
       });
