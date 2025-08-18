@@ -124,136 +124,165 @@ export function ZGInfrastructureStatus() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* 0G Storage */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Database className="w-4 h-4 text-og-primary flex-shrink-0" />
-              <span className="truncate">0G Storage</span>
-              <Badge variant="outline" className="ml-auto flex-shrink-0">
+        <Card className="border-og-slate-200 dark:border-og-slate-700">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Database className="w-6 h-6 text-og-primary" />
+                <div>
+                  <h3 className="text-lg font-semibold">0G Storage</h3>
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">Penyimpanan Terdesentralisasi</p>
+                </div>
+              </div>
+              <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Online
               </Badge>
-            </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Total Storage</span>
-                <span className="font-medium text-right ml-2">{storageStats?.totalStorage || '...'}</span>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-og-primary">{storageStats?.totalStorage || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Total Storage</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Available</span>
-                <span className="font-medium text-right ml-2">{storageStats?.availableSpace || '...'}</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{storageStats?.availableSpace || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Available Space</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Network Nodes</span>
-                <span className="font-medium text-right ml-2">{storageStats?.networkNodes || '...'}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{storageStats?.networkNodes || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Network Nodes</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Replication</span>
-                <span className="font-medium text-right ml-2">{storageStats?.replicationFactor || '...'}x</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{storageStats?.replicationFactor || '...'}x</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Replication Factor</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 0G Compute */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Cpu className="w-4 h-4 text-og-secondary flex-shrink-0" />
-              <span className="truncate">0G Compute</span>
-              <Badge variant="outline" className="ml-auto flex-shrink-0">
+        <Card className="border-og-slate-200 dark:border-og-slate-700">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Cpu className="w-6 h-6 text-og-secondary" />
+                <div>
+                  <h3 className="text-lg font-semibold">0G Compute</h3>
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">AI & Komputasi Terdesentralisasi</p>
+                </div>
+              </div>
+              <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                 <Activity className="w-3 h-3 mr-1" />
                 Active
               </Badge>
-            </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Instances</span>
-                <span className="font-medium text-right ml-2">{computeStats?.totalInstances || '...'}</span>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-og-secondary">{computeStats?.totalInstances || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Total Instances</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Active Users</span>
-                <span className="font-medium text-right ml-2">{computeStats?.activeUsers || '...'}</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{computeStats?.activeUsers || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Active Users</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Capacity</span>
-                <span className="font-medium text-right ml-2">{computeStats?.computeCapacity || '...'}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{computeStats?.computeCapacity || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Capacity</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Response Time</span>
-                <span className="font-medium text-right ml-2">{computeStats?.averageResponseTime || '...'}ms</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">{computeStats?.averageResponseTime || '...'}ms</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Response Time</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 0G Data Availability */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Shield className="w-4 h-4 text-green-500 flex-shrink-0" />
-              <span className="truncate">0G DA</span>
-              <Badge variant="outline" className="ml-auto flex-shrink-0 text-xs">
-                {daStats?.dataAvailability || 0}%
+        <Card className="border-og-slate-200 dark:border-og-slate-700">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Shield className="w-6 h-6 text-green-500" />
+                <div>
+                  <h3 className="text-lg font-semibold">0G Data Availability</h3>
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">Ketersediaan Data Transparan</p>
+                </div>
+              </div>
+              <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                {daStats?.dataAvailability || 0}% Available
               </Badge>
-            </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Total TXs</span>
-                <span className="font-medium text-right ml-2">{daStats?.totalTransactions?.toLocaleString() || '...'}</span>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{daStats?.totalTransactions?.toLocaleString() || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Total Transactions</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Pending</span>
-                <span className="font-medium text-right ml-2">{daStats?.pendingTransactions || '...'}</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-600">{daStats?.pendingTransactions || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Pending</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Batches</span>
-                <span className="font-medium text-right ml-2">{daStats?.processedBatches || '...'}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{daStats?.processedBatches || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Processed Batches</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Batch Size</span>
-                <span className="font-medium text-right ml-2">{daStats?.avgBatchSize || '...'} bytes</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{daStats?.avgBatchSize || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Avg Batch Size (bytes)</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 0G Chain Status */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Activity className="w-4 h-4 text-blue-500 flex-shrink-0" />
-              <span className="truncate">0G Chain</span>
-              <Badge variant={web3Status?.connected ? "default" : "secondary"} className="ml-auto flex-shrink-0 text-xs">
+        <Card className="border-og-slate-200 dark:border-og-slate-700">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Activity className="w-6 h-6 text-blue-500" />
+                <div>
+                  <h3 className="text-lg font-semibold">0G Chain</h3>
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">Blockchain Terdesentralisasi</p>
+                </div>
+              </div>
+              <Badge variant={web3Status?.connected ? "default" : "secondary"} 
+                     className={web3Status?.connected ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"}>
                 {web3Status?.connected ? "Connected" : "Disconnected"}
               </Badge>
-            </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Network</span>
-                <span className="font-medium text-right ml-2 truncate">{web3Status?.network || '...'}</span>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{web3Status?.network || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Network</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Block Height</span>
-                <span className="font-medium text-right ml-2">{web3Status?.blockHeight?.toLocaleString() || '...'}</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{web3Status?.blockHeight?.toLocaleString() || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Block Height</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Chain ID</span>
-                <span className="font-medium text-right ml-2">{web3Status?.chainId || '...'}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{web3Status?.chainId || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Chain ID</div>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Gas Price</span>
-                <span className="font-medium text-right ml-2">{web3Status?.gasPrice || '...'}</span>
+              <div className="text-center p-3 bg-og-slate-50 dark:bg-og-slate-800 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">{web3Status?.gasPrice || '...'}</div>
+                <div className="text-xs text-og-slate-600 dark:text-og-slate-400">Gas Price</div>
               </div>
             </div>
           </CardContent>
