@@ -294,7 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       chainId: "16601",
       blockExplorer: "0G-Galileo-Testnet",
       rpcUrl: "https://evmrpc-testnet.0g.ai",
-      blockHeight: 1847392 + Math.floor(Math.random() * 100),
+      blockHeight: 1847392 + Math.floor(Date.now() / 12000) + Math.floor(Math.random() * 10),
       gasPrice: "0.1 gwei",
     });
   });

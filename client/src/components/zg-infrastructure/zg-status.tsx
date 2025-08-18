@@ -49,6 +49,16 @@ interface ComputeInstance {
   lastActive: string;
 }
 
+interface Web3Status {
+  connected: boolean;
+  network: string;
+  chainId: string;
+  blockExplorer: string;
+  rpcUrl: string;
+  blockHeight: number;
+  gasPrice: string;
+}
+
 export function ZGInfrastructureStatus() {
   const [isDeploying, setIsDeploying] = useState(false);
 
@@ -69,6 +79,11 @@ export function ZGInfrastructureStatus() {
 
   const { data: userInstance, refetch: refetchInstance } = useQuery<ComputeInstance>({
     queryKey: ["/api/zg/compute/instance"],
+    refetchInterval: 5000,
+  });
+
+  const { data: web3Status } = useQuery<Web3Status>({
+    queryKey: ["/api/web3/status"],
     refetchInterval: 5000,
   });
 
@@ -109,7 +124,7 @@ export function ZGInfrastructureStatus() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* 0G Storage */}
         <Card className="border-og-slate-200 dark:border-og-slate-700">
           <CardHeader className="pb-3">
@@ -206,6 +221,39 @@ export function ZGInfrastructureStatus() {
               <div className="flex justify-between text-xs">
                 <span className="text-og-slate-600 dark:text-og-slate-400">Batch Size</span>
                 <span className="font-medium">{daStats?.avgBatchSize || '...'} bytes</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 0G Chain Status */}
+        <Card className="border-og-slate-200 dark:border-og-slate-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center space-x-2 text-sm font-medium">
+              <Activity className="w-4 h-4 text-blue-500" />
+              <span>0G Chain</span>
+              <Badge variant={web3Status?.connected ? "default" : "secondary"} className="ml-auto">
+                {web3Status?.connected ? "Connected" : "Disconnected"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400">Network</span>
+                <span className="font-medium">{web3Status?.network || '...'}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400">Block Height</span>
+                <span className="font-medium">{web3Status?.blockHeight?.toLocaleString() || '...'}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400">Chain ID</span>
+                <span className="font-medium">{web3Status?.chainId || '...'}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400">Gas Price</span>
+                <span className="font-medium">{web3Status?.gasPrice || '...'}</span>
               </div>
             </div>
           </CardContent>
