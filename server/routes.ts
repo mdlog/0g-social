@@ -286,12 +286,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(result);
   });
 
-  // Web3 Mock Endpoints
+  // Web3 0G-Galileo-Testnet Endpoints
   app.get("/api/web3/status", (req, res) => {
     res.json({
       connected: true,
-      network: "Newton v2",
-      blockHeight: 2847392 + Math.floor(Math.random() * 100),
+      network: "0G-Galileo-Testnet",
+      chainId: "16601",
+      blockExplorer: "0G-Galileo-Testnet",
+      rpcUrl: "https://evmrpc-testnet.0g.ai",
+      blockHeight: 1847392 + Math.floor(Math.random() * 100),
       gasPrice: "0.1 gwei",
     });
   });
@@ -299,8 +302,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/web3/wallet", (req, res) => {
     res.json({
       address: "0x742d35Cc1234567890123456789012345678901234",
-      balance: "1.234 ETH",
+      balance: "1.234 0G",
       connected: true,
+      network: "0G-Galileo-Testnet",
+      chainId: "16601",
     });
   });
 

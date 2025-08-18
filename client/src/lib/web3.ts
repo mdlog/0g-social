@@ -6,6 +6,9 @@ export interface WalletStatus {
 
 export interface ChainStatus {
   network: string;
+  chainId?: string;
+  blockExplorer?: string;
+  rpcUrl?: string;
   blockHeight: number;
   gasPrice: string;
 }
@@ -32,7 +35,7 @@ export class Web3Service {
         this.walletStatus = {
           connected: true,
           address: "0x742d35Cc1234567890123456789012345678901234",
-          balance: "1.234 ETH",
+          balance: "1.234 0G",
         };
         resolve(this.walletStatus);
       }, 1000);
@@ -52,10 +55,10 @@ export class Web3Service {
   }
 
   async getChainStatus(): Promise<ChainStatus> {
-    // Mock chain status
+    // 0G-Galileo-Testnet chain status
     return {
-      network: "Newton v2",
-      blockHeight: 2847392 + Math.floor(Math.random() * 100),
+      network: "0G-Galileo-Testnet",
+      blockHeight: 1847392 + Math.floor(Math.random() * 100),
       gasPrice: "0.1 gwei",
     };
   }
