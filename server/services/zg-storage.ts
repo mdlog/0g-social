@@ -1,50 +1,149 @@
 /**
- * 0G Storage Service
- * Handles decentralized content storage on 0G Storage network
+ * 0G Storage Service - Real Implementation
+ * Handles decentralized content storage on 0G Storage network using the official SDK
  */
+
+import { Indexer, ZgFile } from '@0glabs/0g-ts-sdk';
+import { ethers } from 'ethers';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
+
+const writeFile = promisify(fs.writeFile);
+const unlink = promisify(fs.unlink);
 
 export interface ZGStorageFile {
   hash: string;
   size: number;
   mimeType: string;
   timestamp: number;
+  transactionHash?: string;
   metadata?: Record<string, any>;
 }
 
 export interface ZGStorageResponse {
   success: boolean;
   hash?: string;
+  transactionHash?: string;
   error?: string;
 }
 
+export interface ContentMetadata {
+  type: 'post' | 'image' | 'video' | 'thread';
+  userId: string;
+  originalName?: string;
+  mimeType?: string;
+  size?: number;
+}
+
 class ZGStorageService {
-  private readonly storageEndpoint: string;
-  private readonly apiKey: string;
+  private readonly rpcUrl: string;
+  private readonly indexerRpc: string;
+  private readonly privateKey: string;
+  private provider: ethers.JsonRpcProvider | null = null;
+  private signer: ethers.Wallet | null = null;
+  private indexer: Indexer | null = null;
 
   constructor() {
-    this.storageEndpoint = process.env.ZG_STORAGE_ENDPOINT || 'https://storage.0g.ai/api/v1';
-    this.apiKey = process.env.ZG_STORAGE_API_KEY || '';
+    // 0G Chain and Storage network configuration
+    this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai/';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-standard.0g.ai';
+    this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
+
+    this.initializeClients();
+  }
+
+  /**
+   * Initialize Web3 provider, signer, and indexer
+   */
+  private async initializeClients() {
+    try {
+      if (!this.privateKey) {
+        console.warn('[0G Storage] No private key provided - storage operations will be simulated');
+        return;
+      }
+
+      // Initialize provider and signer
+      this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
+      this.signer = new ethers.Wallet(this.privateKey, this.provider);
+      
+      // Initialize indexer
+      this.indexer = new Indexer(this.indexerRpc);
+      
+      console.log('[0G Storage] Initialized with RPC:', this.rpcUrl);
+      console.log('[0G Storage] Indexer RPC:', this.indexerRpc);
+      console.log('[0G Storage] Wallet address:', this.signer.address);
+    } catch (error) {
+      console.error('[0G Storage] Failed to initialize clients:', error);
+    }
   }
 
   /**
    * Store content (posts, images, videos) on 0G Storage
    */
-  async storeContent(content: string | Buffer, metadata: Record<string, any> = {}): Promise<ZGStorageResponse> {
+  async storeContent(content: string | Buffer, metadata: ContentMetadata): Promise<ZGStorageResponse> {
     try {
-      // In production, this would interact with actual 0G Storage API
-      // For now, simulate the storage process with local hash generation
-      const hash = this.generateContentHash(content);
-      
-      console.log(`[0G Storage] Storing content with hash: ${hash}`);
-      console.log(`[0G Storage] Metadata:`, metadata);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      return {
-        success: true,
-        hash: hash
-      };
+      // If no private key or clients not initialized, use simulation mode
+      if (!this.indexer || !this.signer) {
+        console.log('[0G Storage] Running in simulation mode - no private key provided');
+        return this.simulateStorage(content, metadata);
+      }
+
+      // Create temporary file for 0G Storage upload
+      const tempDir = path.join(process.cwd(), 'temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const fileName = `${metadata.type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const tempFilePath = path.join(tempDir, fileName);
+
+      try {
+        // Write content to temporary file
+        await writeFile(tempFilePath, content);
+        
+        console.log(`[0G Storage] Uploading ${metadata.type} content to 0G Storage network...`);
+        
+        // Create ZgFile from file path
+        const zgFile = await ZgFile.fromFilePath(tempFilePath);
+        const [tree, treeErr] = await zgFile.merkleTree();
+
+        if (treeErr || !tree) {
+          throw new Error(`Failed to create merkle tree: ${treeErr}`);
+        }
+
+        // Upload file to 0G Storage network
+        const [transactionHash, uploadErr] = await this.indexer.upload(
+          zgFile, 
+          this.rpcUrl, 
+          this.signer
+        );
+
+        if (uploadErr) {
+          throw new Error(`Upload failed: ${uploadErr}`);
+        }
+
+        const rootHash = tree.rootHash();
+        
+        console.log(`[0G Storage] Successfully uploaded ${metadata.type} content`);
+        console.log(`[0G Storage] Root Hash: ${rootHash}`);
+        console.log(`[0G Storage] Transaction Hash: ${transactionHash}`);
+
+        return {
+          success: true,
+          hash: rootHash,
+          transactionHash: transactionHash
+        };
+
+      } finally {
+        // Clean up temporary file
+        try {
+          await unlink(tempFilePath);
+        } catch (err) {
+          console.warn('[0G Storage] Failed to delete temp file:', err);
+        }
+      }
+
     } catch (error) {
       console.error('[0G Storage] Failed to store content:', error);
       return {
@@ -55,48 +154,247 @@ class ZGStorageService {
   }
 
   /**
+   * Simulation mode for development when no private key is provided
+   */
+  private async simulateStorage(content: string | Buffer, metadata: ContentMetadata): Promise<ZGStorageResponse> {
+    const hash = this.generateContentHash(content);
+    const mockTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
+    
+    console.log(`[0G Storage] SIMULATION MODE - Storing ${metadata.type} content`);
+    console.log(`[0G Storage] Generated Hash: ${hash}`);
+    console.log(`[0G Storage] Mock Transaction Hash: ${mockTxHash}`);
+    console.log(`[0G Storage] Metadata:`, metadata);
+    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    return {
+      success: true,
+      hash: hash,
+      transactionHash: mockTxHash
+    };
+  }
+
+  /**
    * Retrieve content from 0G Storage by hash
    */
   async retrieveContent(hash: string): Promise<{ content?: string; metadata?: Record<string, any>; error?: string }> {
     try {
       console.log(`[0G Storage] Retrieving content with hash: ${hash}`);
       
-      // In production, this would fetch from 0G Storage network
-      // For now, simulate content retrieval
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      // Check if hash exists in our mock storage
-      if (this.mockStorageExists(hash)) {
-        return {
-          content: this.getMockContent(hash),
-          metadata: { retrievedAt: new Date().toISOString() }
-        };
+      // If no indexer client, use simulation mode
+      if (!this.indexer) {
+        return this.simulateRetrieval(hash);
       }
-      
-      return { error: 'Content not found on 0G Storage' };
+
+      // Create temporary directory for download
+      const tempDir = path.join(process.cwd(), 'temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const tempFileName = `download_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const tempFilePath = path.join(tempDir, tempFileName);
+
+      try {
+        // Download from 0G Storage using the SDK
+        console.log(`[0G Storage] Downloading content with hash: ${hash}`);
+        
+        const downloadErr = await this.indexer.download(hash, tempFilePath, true);
+        
+        if (downloadErr) {
+          throw new Error(`Download failed: ${downloadErr}`);
+        }
+
+        // Read downloaded content
+        const content = await fs.promises.readFile(tempFilePath, 'utf-8');
+        
+        console.log(`[0G Storage] Successfully downloaded content with hash: ${hash}`);
+        
+        return {
+          content: content,
+          metadata: { 
+            retrievedAt: new Date().toISOString(),
+            fromNetwork: true,
+            hash: hash 
+          }
+        };
+
+      } finally {
+        // Clean up temporary file
+        try {
+          await unlink(tempFilePath);
+        } catch (err) {
+          console.warn('[0G Storage] Failed to delete temp download file:', err);
+        }
+      }
+
     } catch (error) {
       console.error('[0G Storage] Failed to retrieve content:', error);
-      return { error: error instanceof Error ? error.message : 'Retrieval failed' };
+      return {
+        error: error instanceof Error ? error.message : 'Retrieval failed'
+      };
     }
   }
 
   /**
-   * Store media files (images, videos) with special handling
+   * Simulation mode for content retrieval
    */
-  async storeMedia(file: Buffer, mimeType: string, filename: string): Promise<ZGStorageResponse> {
-    try {
-      const metadata = {
-        type: 'media',
-        mimeType,
-        filename,
-        uploadedAt: new Date().toISOString()
+  private async simulateRetrieval(hash: string): Promise<{ content?: string; metadata?: Record<string, any>; error?: string }> {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    console.log(`[0G Storage] SIMULATION MODE - Retrieving content with hash: ${hash}`);
+    
+    // Check if hash exists in our mock storage
+    if (this.mockStorageExists(hash)) {
+      return {
+        content: this.getMockContent(hash),
+        metadata: { 
+          retrievedAt: new Date().toISOString(),
+          fromNetwork: false,
+          simulation: true 
+        }
       };
+    }
       
-      return await this.storeContent(file, metadata);
+    return { error: 'Content not found in simulation storage' };
+  }
+
+  /**
+   * Store media files (images, videos) with special handling  
+   */
+  async storeMediaFile(fileBuffer: Buffer, metadata: ContentMetadata & { originalName: string; mimeType: string }): Promise<ZGStorageResponse> {
+    try {
+      console.log(`[0G Storage] Storing ${metadata.type} media file: ${metadata.originalName}`);
+      
+      // If no private key or clients not initialized, use simulation mode
+      if (!this.indexer || !this.signer) {
+        return this.simulateStorage(fileBuffer, metadata);
+      }
+
+      // Create temporary file for 0G Storage upload
+      const tempDir = path.join(process.cwd(), 'temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const fileExtension = path.extname(metadata.originalName) || '';
+      const tempFileName = `${metadata.type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}${fileExtension}`;
+      const tempFilePath = path.join(tempDir, tempFileName);
+
+      try {
+        // Write buffer to temporary file
+        await writeFile(tempFilePath, fileBuffer);
+        
+        console.log(`[0G Storage] Uploading ${metadata.type} file to 0G Storage network...`);
+        
+        // Create ZgFile from file path
+        const zgFile = await ZgFile.fromFilePath(tempFilePath);
+        const [tree, treeErr] = await zgFile.merkleTree();
+
+        if (treeErr || !tree) {
+          throw new Error(`Failed to create merkle tree: ${treeErr}`);
+        }
+
+        // Upload file to 0G Storage network
+        const [transactionHash, uploadErr] = await this.indexer.upload(
+          zgFile, 
+          this.rpcUrl, 
+          this.signer
+        );
+
+        if (uploadErr) {
+          throw new Error(`Upload failed: ${uploadErr}`);
+        }
+
+        const rootHash = tree.rootHash();
+        
+        console.log(`[0G Storage] Successfully uploaded ${metadata.type} file`);
+        console.log(`[0G Storage] Root Hash: ${rootHash}`);
+        console.log(`[0G Storage] Transaction Hash: ${transactionHash}`);
+
+        return {
+          success: true,
+          hash: rootHash,
+          transactionHash: transactionHash
+        };
+
+      } finally {
+        // Clean up temporary file
+        try {
+          await unlink(tempFilePath);
+        } catch (err) {
+          console.warn('[0G Storage] Failed to delete temp media file:', err);
+        }
+      }
+
     } catch (error) {
+      console.error('[0G Storage] Failed to store media file:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Media storage failed'
+      };
+    }
+  }
+
+  /**
+   * Download media file from 0G Storage and return as buffer
+   */
+  async downloadMediaFile(hash: string): Promise<{ buffer?: Buffer; metadata?: Record<string, any>; error?: string }> {
+    try {
+      console.log(`[0G Storage] Downloading media file with hash: ${hash}`);
+      
+      // If no indexer client, return error
+      if (!this.indexer) {
+        return { 
+          error: 'Media download not available in simulation mode - requires 0G Storage private key' 
+        };
+      }
+
+      // Create temporary directory for download
+      const tempDir = path.join(process.cwd(), 'temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const tempFileName = `media_download_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const tempFilePath = path.join(tempDir, tempFileName);
+
+      try {
+        // Download from 0G Storage using the SDK
+        const downloadErr = await this.indexer.download(hash, tempFilePath, true);
+        
+        if (downloadErr) {
+          throw new Error(`Download failed: ${downloadErr}`);
+        }
+
+        // Read downloaded file as buffer
+        const buffer = await fs.promises.readFile(tempFilePath);
+        
+        console.log(`[0G Storage] Successfully downloaded media file with hash: ${hash}`);
+        
+        return {
+          buffer: buffer,
+          metadata: { 
+            downloadedAt: new Date().toISOString(),
+            fromNetwork: true,
+            hash: hash 
+          }
+        };
+
+      } finally {
+        // Clean up temporary file
+        try {
+          await unlink(tempFilePath);
+        } catch (err) {
+          console.warn('[0G Storage] Failed to delete temp media download file:', err);
+        }
+      }
+
+    } catch (error) {
+      console.error('[0G Storage] Failed to download media file:', error);
+      return {
+        error: error instanceof Error ? error.message : 'Media download failed'
       };
     }
   }
@@ -140,23 +438,6 @@ class ZGStorageService {
   private getMockContent(hash: string): string {
     // Return mock content based on hash
     return `Content stored with hash: ${hash}`;
-  }
-
-  /**
-   * Pin content to ensure it stays available
-   */
-  async pinContent(hash: string): Promise<{ success: boolean; error?: string }> {
-    try {
-      console.log(`[0G Storage] Pinning content: ${hash}`);
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Pin failed'
-      };
-    }
   }
 }
 

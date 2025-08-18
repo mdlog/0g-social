@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Share, Bookmark, Shield } from "lucide-react";
+import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -115,6 +115,31 @@ export function PostCard({ post }: PostCardProps) {
                 alt="Post image" 
                 className="rounded-xl w-full h-48 object-cover mb-4" 
               />
+            )}
+
+            {/* 0G Storage Hash Display */}
+            {post.storageHash && (
+              <div className="flex items-center space-x-2 mb-3 p-2 bg-og-slate-100 dark:bg-og-slate-800 rounded-lg">
+                <Database className="w-4 h-4 text-og-primary" />
+                <span className="text-xs text-og-slate-600 dark:text-og-slate-400">
+                  Stored on 0G:
+                </span>
+                <code className="text-xs font-mono text-og-slate-700 dark:text-og-slate-300 truncate">
+                  {post.storageHash}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto p-1 text-og-slate-500 hover:text-og-primary"
+                  onClick={() => {
+                    if (post.storageHash) {
+                      window.open(`/api/zg/storage/content/${post.storageHash}`, '_blank');
+                    }
+                  }}
+                >
+                  <ExternalLink className="w-3 h-3" />
+                </Button>
+              </div>
             )}
 
             <div className="flex items-center justify-between">

@@ -5,6 +5,7 @@ import { LeftSidebar } from "@/components/layout/left-sidebar";
 import { RightSidebar } from "@/components/layout/right-sidebar";
 import { Footer } from "@/components/layout/footer";
 import { Feed } from "@/components/posts/feed";
+import { CreatePost } from "@/components/posts/create-post";
 import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
           <LeftSidebar />
           
           <main className="lg:col-span-6">
+            <CreatePost />
             <Feed />
           </main>
           

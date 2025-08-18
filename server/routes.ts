@@ -63,8 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store content on 0G Storage
       const storageResult = await zgStorageService.storeContent(postData.content, {
         type: 'post',
-        authorId: "user1",
-        timestamp: new Date().toISOString()
+        userId: "user1"
       });
       
       if (!storageResult.success) {
@@ -75,7 +74,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const post = await storage.createPost({ 
         ...postData, 
         authorId: "user1",
-        storageHash: storageResult.hash
+        storageHash: storageResult.hash || undefined,
+        transactionHash: storageResult.transactionHash || undefined
       });
       
       // Record creation on 0G DA
@@ -245,9 +245,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(stats);
   });
 
-  app.post("/api/zg/storage/pin/:hash", async (req, res) => {
-    const result = await zgStorageService.pinContent(req.params.hash);
-    res.json(result);
+  // 0G Storage Content Retrieval
+  app.get("/api/zg/storage/content/:hash", async (req, res) => {
+    try {
+      const result = await zgStorageService.retrieveContent(req.params.hash);
+      if (result.error) {
+        return res.status(404).json({ message: result.error });
+      }
+      res.json({ content: result.content, metadata: result.metadata });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to retrieve content from 0G Storage" });
+    }
   });
 
   // 0G Compute - User AI Management

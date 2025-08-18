@@ -121,12 +121,14 @@ export class MemStorage implements IStorage {
     this.users.set(user2.id, user2);
     this.users.set(user3.id, user3);
 
-    // Create sample posts
+    // Create sample posts with 0G Storage integration
     const post1: Post = {
       id: "post1",
       authorId: "user2",
       content: "Just deployed my first smart contract on 0G Chain! The transaction speed is incredible - confirmed in under 2 seconds with minimal gas fees. The future of Web3 is here! 🚀",
       imageUrl: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+      storageHash: "0g001234567890abcdef", // 0G Storage content hash
+      transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef", // 0G Chain tx hash
       likesCount: 142,
       commentsCount: 28,
       sharesCount: 15,
@@ -139,6 +141,8 @@ export class MemStorage implements IStorage {
       authorId: "user3",
       content: "The AI-powered feed curation on 0G Social is mind-blowing! It's showing me exactly the content I'm interested in while maintaining complete privacy and decentralization. This is what social media should be! 🔥 #DecentralizedAI #0GChain",
       imageUrl: null,
+      storageHash: "0g009876543210fedcba", // 0G Storage content hash
+      transactionHash: "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321", // 0G Chain tx hash
       likesCount: 89,
       commentsCount: 12,
       sharesCount: 7,
