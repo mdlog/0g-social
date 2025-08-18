@@ -34,6 +34,30 @@ export function PostCard({ post }: PostCardProps) {
     },
   });
 
+  const repostMutation = useMutation({
+    mutationFn: async () => {
+      if (post.isReposted) {
+        await apiRequest("DELETE", `/api/reposts/${post.id}`);
+      } else {
+        await apiRequest("POST", "/api/reposts", { postId: post.id });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      toast({
+        title: post.isReposted ? "Repost removed" : "Post reposted",
+        description: post.isReposted ? "Your repost has been removed" : "Post has been shared to your followers",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Repost failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const formatTimeAgo = (date: Date | null) => {
     if (!date) return "now";
     const now = new Date();
@@ -120,9 +144,15 @@ export function PostCard({ post }: PostCardProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2 text-og-slate-600 dark:text-og-slate-400 hover:text-green-500 transition-colors"
+                  onClick={() => repostMutation.mutate()}
+                  disabled={repostMutation.isPending}
+                  className={`flex items-center space-x-2 transition-colors ${
+                    post.isReposted 
+                      ? "text-green-500 hover:text-green-600" 
+                      : "text-og-slate-600 dark:text-og-slate-400 hover:text-green-500"
+                  }`}
                 >
-                  <Share className="w-4 h-4" />
+                  <Share className={`w-4 h-4 ${post.isReposted ? "fill-current" : ""}`} />
                   <span className="text-sm">{post.sharesCount}</span>
                 </Button>
               </div>

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema } from "@shared/schema";
+import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema } from "@shared/schema";
 import { generateAIInsights, generateTrendingTopics } from "./services/ai";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
@@ -183,6 +183,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(comments);
   });
 
+  // Reposts
+  app.post("/api/reposts", async (req, res) => {
+    try {
+      const repostData = insertRepostSchema.parse(req.body);
+      const repost = await storage.repostPost("user1", repostData.postId);
+      
+      // Record repost on 0G DA
+      await zgDAService.recordInteraction('repost', "user1", repostData.postId, {
+        action: 'repost',
+        repostId: repost.id
+      });
+      
+      res.json(repost);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/reposts/:postId", async (req, res) => {
+    await storage.unrepostPost("user1", req.params.postId);
+    
+    // Record unrepost on 0G DA (negative interaction)
+    await zgDAService.recordInteraction('repost', "user1", req.params.postId, {
+      action: 'unrepost'
+    });
+    
+    res.json({ success: true });
+  });
+
   // AI Features
   app.get("/api/ai/insights", async (req, res) => {
     try {
@@ -284,6 +313,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/zg/da/verify/:txId", async (req, res) => {
     const result = await zgDAService.verifyInteraction(req.params.txId);
+    res.json(result);
+  });
+
+  // Demo endpoint to test DA recording
+  app.post("/api/zg/da/demo", async (req, res) => {
+    const { type, userId = "demo-user", targetId = "demo-target", data = {} } = req.body;
+    
+    const result = await zgDAService.recordInteraction(type, userId, targetId, data);
     res.json(result);
   });
 

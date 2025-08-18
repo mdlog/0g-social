@@ -1,4 +1,4 @@
-import { type User, type Post, type Follow, type Like, type Comment, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type PostWithAuthor, type UserProfile } from "@shared/schema";
+import { type User, type Post, type Follow, type Like, type Comment, type Repost, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type InsertRepost, type PostWithAuthor, type UserProfile } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -33,6 +33,11 @@ export interface IStorage {
   createComment(comment: InsertComment): Promise<Comment>;
   getCommentsByPost(postId: string): Promise<Comment[]>;
   
+  // Reposts
+  repostPost(userId: string, postId: string): Promise<Repost>;
+  unrepostPost(userId: string, postId: string): Promise<void>;
+  isPostReposted(userId: string, postId: string): Promise<boolean>;
+  
   // Search
   searchPosts(query: string): Promise<Post[]>;
   
@@ -51,6 +56,7 @@ export class MemStorage implements IStorage {
   private follows: Map<string, Follow>;
   private likes: Map<string, Like>;
   private comments: Map<string, Comment>;
+  private reposts: Map<string, Repost>;
 
   constructor() {
     this.users = new Map();
@@ -58,6 +64,7 @@ export class MemStorage implements IStorage {
     this.follows = new Map();
     this.likes = new Map();
     this.comments = new Map();
+    this.reposts = new Map();
     
     // Initialize with some sample data
     this.initializeSampleData();
@@ -232,10 +239,12 @@ export class MemStorage implements IStorage {
       const author = await this.getUser(post.authorId);
       if (author) {
         const isLiked = await this.isPostLiked(userId, post.id);
+        const isReposted = await this.isPostReposted(userId, post.id);
         postsWithAuthor.push({
           ...post,
           author,
           isLiked,
+          isReposted,
         });
       }
     }
@@ -395,6 +404,55 @@ export class MemStorage implements IStorage {
     return Array.from(this.comments.values())
       .filter(comment => comment.postId === postId)
       .sort((a, b) => (a.createdAt?.getTime() || 0) - (b.createdAt?.getTime() || 0));
+  }
+
+  // Repost methods
+  async repostPost(userId: string, postId: string): Promise<Repost> {
+    // Check if already reposted
+    const existingRepost = Array.from(this.reposts.values())
+      .find(repost => repost.userId === userId && repost.postId === postId);
+    
+    if (existingRepost) {
+      return existingRepost;
+    }
+
+    const id = randomUUID();
+    const repost: Repost = {
+      id,
+      userId,
+      postId,
+      createdAt: new Date(),
+    };
+    
+    this.reposts.set(id, repost);
+    
+    // Update post shares count
+    const post = await this.getPost(postId);
+    if (post) {
+      this.posts.set(postId, { ...post, sharesCount: (post.sharesCount || 0) + 1 });
+    }
+    
+    return repost;
+  }
+
+  async unrepostPost(userId: string, postId: string): Promise<void> {
+    const repost = Array.from(this.reposts.values())
+      .find(repost => repost.userId === userId && repost.postId === postId);
+    
+    if (repost) {
+      this.reposts.delete(repost.id);
+      
+      // Update post shares count
+      const post = await this.getPost(postId);
+      if (post && post.sharesCount > 0) {
+        this.posts.set(postId, { ...post, sharesCount: post.sharesCount - 1 });
+      }
+    }
+  }
+
+  async isPostReposted(userId: string, postId: string): Promise<boolean> {
+    return Array.from(this.reposts.values())
+      .some(repost => repost.userId === userId && repost.postId === postId);
   }
 
   // Search methods

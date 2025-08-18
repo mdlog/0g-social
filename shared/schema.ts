@@ -53,6 +53,13 @@ export const comments = pgTable("comments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const reposts = pgTable("reposts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  postId: varchar("post_id").notNull().references(() => posts.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -82,23 +89,32 @@ export const insertCommentSchema = createInsertSchema(comments).omit({
   createdAt: true,
 });
 
+export const insertRepostSchema = createInsertSchema(reposts).omit({
+  id: true,
+  createdAt: true,
+  userId: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type Follow = typeof follows.$inferSelect;
 export type Like = typeof likes.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
+export type Repost = typeof reposts.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertFollow = z.infer<typeof insertFollowSchema>;
 export type InsertLike = z.infer<typeof insertLikeSchema>;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type InsertRepost = z.infer<typeof insertRepostSchema>;
 
 // Extended types for API responses
 export type PostWithAuthor = Post & {
   author: User;
   isLiked: boolean;
+  isReposted: boolean;
 };
 
 export type UserProfile = User & {
