@@ -34,6 +34,7 @@ export interface ContentMetadata {
   originalName?: string;
   mimeType?: string;
   size?: number;
+  retryAttempt?: boolean;
 }
 
 class ZGStorageService {
@@ -45,7 +46,7 @@ class ZGStorageService {
   private indexer: Indexer | null = null;
 
   constructor() {
-    // 0G Testnet configuration - using official documented endpoints
+    // 0G Galileo Testnet V3 configuration - updated endpoints for Chain ID 16601
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
     this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
