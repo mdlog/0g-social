@@ -15,6 +15,23 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## 0G Storage SDK Integration (August 18, 2025)
+- **Feature**: Fully integrated 0G Storage SDK for decentralized content storage
+- **Implementation**: 
+  - Added @0glabs/0g-ts-sdk with Indexer and ZgFile classes for file operations
+  - Created comprehensive ZGStorageService with upload, download, and content management
+  - Updated schema to track storageHash and transactionHash for 0G Chain verification
+  - Implemented content retrieval API from 0G Storage network
+  - Added UI components showing storage hash on post cards with verification links
+- **User Experience**: 
+  - Create post form shows "Content will be stored on 0G Storage" message
+  - Posts display storage hash with database icon and external link
+  - Toast notifications show successful storage with hash information
+- **Technical Details**:
+  - Uses simulation mode when no private key provided for development
+  - Real 0G Storage integration ready for production with proper credentials
+  - Content addressable storage with cryptographic verification
+
 ## Session-Based Wallet Management (August 18, 2025)
 - **Issue Fixed**: Wallet connection state was shared across different browsers/sessions
 - **Root Cause**: Global variable `currentWalletConnection` was shared by all users

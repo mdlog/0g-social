@@ -3,7 +3,6 @@ import { Brain, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CreatePost } from "./create-post";
 import { PostCard } from "./post-card";
 import type { PostWithAuthor } from "@shared/schema";
 
@@ -52,9 +51,6 @@ export function Feed() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Create Post */}
-      <CreatePost />
 
       {/* Posts Feed */}
       {isLoading ? (
