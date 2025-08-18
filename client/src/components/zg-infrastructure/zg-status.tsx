@@ -84,7 +84,7 @@ export function ZGInfrastructureStatus() {
 
   const { data: web3Status } = useQuery<Web3Status>({
     queryKey: ["/api/web3/status"],
-    refetchInterval: 5000,
+    refetchInterval: 1000, // Update every second for real-time block height
   });
 
   const deployAI = async () => {

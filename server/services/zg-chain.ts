@@ -27,7 +27,7 @@ interface BlockNumberResponse {
 export class ZGChainService {
   private lastBlockHeight: number = 5175740; // Fallback value
   private lastFetchTime: number = 0;
-  private readonly CACHE_DURATION = 30000; // 30 seconds cache
+  private readonly CACHE_DURATION = 1000; // 1 second cache for real-time updates
 
   async getCurrentBlockHeight(): Promise<number> {
     const now = Date.now();
@@ -50,7 +50,7 @@ export class ZGChainService {
       if (data.status === "1" && data.result.list.length > 0) {
         this.lastBlockHeight = data.result.list[0].blockNumber;
         this.lastFetchTime = now;
-        console.log(`✓ Fetched latest block height: ${this.lastBlockHeight}`);
+        console.log(`✓ Real-time block height update: ${this.lastBlockHeight}`);
         return this.lastBlockHeight;
       }
       
@@ -70,7 +70,7 @@ export class ZGChainService {
           if (altData.status === "1" && typeof altData.result === 'number') {
             this.lastBlockHeight = altData.result;
             this.lastFetchTime = now;
-            console.log(`✓ Fetched block height from alternative endpoint: ${this.lastBlockHeight}`);
+            console.log(`✓ Real-time block height from alternative API: ${this.lastBlockHeight}`);
             return this.lastBlockHeight;
           }
         }
