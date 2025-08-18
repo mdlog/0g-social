@@ -124,136 +124,136 @@ export function ZGInfrastructureStatus() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 0G Storage */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700">
-          <CardHeader className="pb-3">
+        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
+          <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Database className="w-4 h-4 text-og-primary" />
-              <span>0G Storage</span>
-              <Badge variant="outline" className="ml-auto">
+              <Database className="w-4 h-4 text-og-primary flex-shrink-0" />
+              <span className="truncate">0G Storage</span>
+              <Badge variant="outline" className="ml-auto flex-shrink-0">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Online
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Total Storage</span>
-                <span className="font-medium">{storageStats?.totalStorage || '...'}</span>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Total Storage</span>
+                <span className="font-medium text-right ml-2">{storageStats?.totalStorage || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Available</span>
-                <span className="font-medium">{storageStats?.availableSpace || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Available</span>
+                <span className="font-medium text-right ml-2">{storageStats?.availableSpace || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Network Nodes</span>
-                <span className="font-medium">{storageStats?.networkNodes || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Network Nodes</span>
+                <span className="font-medium text-right ml-2">{storageStats?.networkNodes || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Replication</span>
-                <span className="font-medium">{storageStats?.replicationFactor || '...'}x</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Replication</span>
+                <span className="font-medium text-right ml-2">{storageStats?.replicationFactor || '...'}x</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 0G Compute */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700">
-          <CardHeader className="pb-3">
+        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
+          <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Cpu className="w-4 h-4 text-og-secondary" />
-              <span>0G Compute</span>
-              <Badge variant="outline" className="ml-auto">
+              <Cpu className="w-4 h-4 text-og-secondary flex-shrink-0" />
+              <span className="truncate">0G Compute</span>
+              <Badge variant="outline" className="ml-auto flex-shrink-0">
                 <Activity className="w-3 h-3 mr-1" />
                 Active
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Instances</span>
-                <span className="font-medium">{computeStats?.totalInstances || '...'}</span>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Instances</span>
+                <span className="font-medium text-right ml-2">{computeStats?.totalInstances || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Active Users</span>
-                <span className="font-medium">{computeStats?.activeUsers || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Active Users</span>
+                <span className="font-medium text-right ml-2">{computeStats?.activeUsers || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Capacity</span>
-                <span className="font-medium">{computeStats?.computeCapacity || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Capacity</span>
+                <span className="font-medium text-right ml-2">{computeStats?.computeCapacity || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Response Time</span>
-                <span className="font-medium">{computeStats?.averageResponseTime || '...'}ms</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Response Time</span>
+                <span className="font-medium text-right ml-2">{computeStats?.averageResponseTime || '...'}ms</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 0G Data Availability */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700">
-          <CardHeader className="pb-3">
+        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
+          <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Shield className="w-4 h-4 text-green-500" />
-              <span>0G DA</span>
-              <Badge variant="outline" className="ml-auto">
-                {daStats?.dataAvailability || 0}% Available
+              <Shield className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <span className="truncate">0G DA</span>
+              <Badge variant="outline" className="ml-auto flex-shrink-0 text-xs">
+                {daStats?.dataAvailability || 0}%
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Total TXs</span>
-                <span className="font-medium">{daStats?.totalTransactions?.toLocaleString() || '...'}</span>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Total TXs</span>
+                <span className="font-medium text-right ml-2">{daStats?.totalTransactions?.toLocaleString() || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Pending</span>
-                <span className="font-medium">{daStats?.pendingTransactions || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Pending</span>
+                <span className="font-medium text-right ml-2">{daStats?.pendingTransactions || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Batches</span>
-                <span className="font-medium">{daStats?.processedBatches || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Batches</span>
+                <span className="font-medium text-right ml-2">{daStats?.processedBatches || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Batch Size</span>
-                <span className="font-medium">{daStats?.avgBatchSize || '...'} bytes</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Batch Size</span>
+                <span className="font-medium text-right ml-2">{daStats?.avgBatchSize || '...'} bytes</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 0G Chain Status */}
-        <Card className="border-og-slate-200 dark:border-og-slate-700">
-          <CardHeader className="pb-3">
+        <Card className="border-og-slate-200 dark:border-og-slate-700 min-h-[180px]">
+          <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-sm font-medium">
-              <Activity className="w-4 h-4 text-blue-500" />
-              <span>0G Chain</span>
-              <Badge variant={web3Status?.connected ? "default" : "secondary"} className="ml-auto">
+              <Activity className="w-4 h-4 text-blue-500 flex-shrink-0" />
+              <span className="truncate">0G Chain</span>
+              <Badge variant={web3Status?.connected ? "default" : "secondary"} className="ml-auto flex-shrink-0 text-xs">
                 {web3Status?.connected ? "Connected" : "Disconnected"}
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Network</span>
-                <span className="font-medium">{web3Status?.network || '...'}</span>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Network</span>
+                <span className="font-medium text-right ml-2 truncate">{web3Status?.network || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Block Height</span>
-                <span className="font-medium">{web3Status?.blockHeight?.toLocaleString() || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Block Height</span>
+                <span className="font-medium text-right ml-2">{web3Status?.blockHeight?.toLocaleString() || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Chain ID</span>
-                <span className="font-medium">{web3Status?.chainId || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Chain ID</span>
+                <span className="font-medium text-right ml-2">{web3Status?.chainId || '...'}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-og-slate-600 dark:text-og-slate-400">Gas Price</span>
-                <span className="font-medium">{web3Status?.gasPrice || '...'}</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-og-slate-600 dark:text-og-slate-400 truncate">Gas Price</span>
+                <span className="font-medium text-right ml-2">{web3Status?.gasPrice || '...'}</span>
               </div>
             </div>
           </CardContent>
