@@ -35,8 +35,9 @@ export function useWebSocket() {
           
           switch (message.type) {
             case 'new_post':
-              // Invalidate posts query to refresh feed
+              // Invalidate ALL post-related queries for immediate refresh
               queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
               // Also invalidate user profile queries to update post counts
               queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
               console.log('📨 New post received, refreshing feed...');
@@ -45,11 +46,13 @@ export function useWebSocket() {
             case 'post_liked':
               // Refresh posts to show updated like count
               queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
               break;
             
             case 'post_commented':
               // Refresh posts to show updated comment count
               queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
               break;
             
             default:

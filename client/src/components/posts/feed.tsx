@@ -4,11 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PostCard } from "./post-card";
+import { useWebSocket } from "@/hooks/use-websocket";
 import type { PostWithAuthor } from "@shared/schema";
 
 export function Feed() {
   const [offset, setOffset] = useState(0);
   const limit = 10;
+  
+  // Initialize WebSocket connection for real-time updates
+  useWebSocket();
 
   const { data: posts, isLoading, error, refetch } = useQuery<PostWithAuthor[]>({
     queryKey: ["/api/posts/feed", limit, offset],
@@ -18,7 +22,10 @@ export function Feed() {
       return response.json();
     },
     staleTime: 0, // Always consider data stale for immediate refresh
-    gcTime: 0, // Don't cache for immediate updates (updated from cacheTime)
+    gcTime: 0, // Don't cache for immediate updates
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 
   const loadMore = () => {
