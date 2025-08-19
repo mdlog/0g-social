@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bookmark, Search, FileText, Image, Video, Filter, Calendar, Trash2 } from "lucide-react";
 import { PostCard } from "@/components/posts/post-card";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export function BookmarksPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,6 +74,7 @@ export function BookmarksPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -293,6 +296,7 @@ export function BookmarksPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Plus, Search, Crown, TrendingUp, Globe, Lock, Settings } from "lucide-react";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,6 +73,7 @@ export function CommunitiesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -301,6 +304,7 @@ export function CommunitiesPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
