@@ -52,13 +52,8 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateUserProfile) => {
       console.log("Updating profile with data:", data);
-      return await apiRequest("/api/users/me", {
-        method: "PUT",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiRequest("PUT", "/api/users/me", data);
+      return await response.json();
     },
     onSuccess: (result) => {
       console.log("Profile update successful:", result);
@@ -115,12 +110,11 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
       reader.readAsDataURL(file);
 
       // Get upload URL
-      const response = await apiRequest("/api/objects/upload", {
-        method: "POST",
-      });
+      const response = await apiRequest("POST", "/api/objects/upload");
+      const uploadData = await response.json();
 
       // Upload file
-      const uploadResponse = await fetch(response.uploadURL, {
+      const uploadResponse = await fetch(uploadData.uploadURL, {
         method: "PUT",
         body: file,
         headers: {
@@ -133,16 +127,13 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
       }
 
       // Update avatar on backend
-      const avatarResponse = await apiRequest("/api/users/me/avatar", {
-        method: "PUT",
-        body: JSON.stringify({ avatarURL: response.uploadURL }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const avatarResponse = await apiRequest("PUT", "/api/users/me/avatar", { 
+        avatarURL: uploadData.uploadURL 
       });
+      const avatarData = await avatarResponse.json();
 
       // Update form value
-      form.setValue("avatar", avatarResponse.avatar);
+      form.setValue("avatar", avatarData.avatar);
       
       toast({
         title: "Avatar uploaded",
