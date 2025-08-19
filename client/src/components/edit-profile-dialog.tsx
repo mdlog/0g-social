@@ -181,8 +181,9 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-20 w-20">
               <AvatarImage 
-                src={avatarPreview || form.watch("avatar") || user.avatar || ""} 
-                alt={user.displayName} 
+                src={avatarPreview || (form.watch("avatar") ? `${window.location.origin}${form.watch("avatar")}` : "") || (user.avatar ? `${window.location.origin}${user.avatar}` : "")} 
+                alt={user.displayName}
+                className="object-cover"
               />
               <AvatarFallback className="avatar-gradient-1 text-white font-semibold">
                 {user.displayName.slice(0, 2).toUpperCase()}

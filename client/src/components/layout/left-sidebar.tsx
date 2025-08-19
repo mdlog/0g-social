@@ -51,7 +51,11 @@ export function LeftSidebar() {
             <CardContent className="p-6">
               <div className="text-center">
                 <Avatar className="w-16 h-16 mx-auto mb-3">
-                  <AvatarImage src={currentUser.avatar || ""} alt={currentUser.displayName} />
+                  <AvatarImage 
+                    src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
+                    alt={currentUser.displayName} 
+                    className="object-cover"
+                  />
                   <AvatarFallback className="avatar-gradient-1 text-white font-semibold">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
