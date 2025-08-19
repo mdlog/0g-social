@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EditProfileDialog } from "@/components/edit-profile-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Link, useLocation } from "wouter";
 
 export function LeftSidebar() {
+  const [location] = useLocation();
+  
   const { data: currentUser, isError, refetch } = useQuery<{id: string; displayName: string; username: string; email: string | null; bio: string | null; avatar: string | null; walletAddress: string | null; isVerified: boolean; followingCount: number; followersCount: number; postsCount: number; createdAt: Date | null}>({
     queryKey: ["/api/users/me"],
     retry: false, // Don't retry on 401 errors
@@ -34,7 +37,7 @@ export function LeftSidebar() {
   });
 
   const navItems = [
-    { icon: Home, label: "Home Feed", href: "/", active: true },
+    { icon: Home, label: "Home Feed", href: "/" },
     { icon: Bot, label: "AI Recommendations", href: "/ai-recommendations" },
     { icon: Compass, label: "Discover", href: "/discover" },
     { icon: Users, label: "Communities", href: "/communities" },
@@ -130,17 +133,19 @@ export function LeftSidebar() {
               <ul className="space-y-3">
                 {navItems.map((item) => (
                   <li key={item.href}>
-                    <Button
-                      variant="ghost"
-                      className={`w-full justify-start p-3 rounded-xl transition-all duration-300 ${
-                        item.active 
-                          ? "bg-cyan-500/20 text-cyan-300 neon-border-cyan shadow-lg shadow-cyan-500/20" 
-                          : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5 mr-3" />
-                      <span className="font-medium">{item.label}</span>
-                    </Button>
+                    <Link href={item.href} className="block">
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start p-3 rounded-xl transition-all duration-300 ${
+                          location === item.href 
+                            ? "bg-cyan-500/20 text-cyan-300 neon-border-cyan shadow-lg shadow-cyan-500/20" 
+                            : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
+                        }`}
+                      >
+                        <item.icon className="w-5 h-5 mr-3" />
+                        <span className="font-medium">{item.label}</span>
+                      </Button>
+                    </Link>
                   </li>
                 ))}
               </ul>
