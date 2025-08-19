@@ -117,28 +117,54 @@ export function PostCard({ post }: PostCardProps) {
               />
             )}
 
-            {/* 0G Storage Hash Display */}
-            {post.storageHash && (
-              <div className="flex items-center space-x-2 mb-3 p-2 bg-og-slate-100 dark:bg-og-slate-800 rounded-lg">
-                <Database className="w-4 h-4 text-og-primary" />
-                <span className="text-xs text-og-slate-600 dark:text-og-slate-400">
-                  Stored on 0G:
-                </span>
-                <code className="text-xs font-mono text-og-slate-700 dark:text-og-slate-300 truncate">
-                  {post.storageHash}
-                </code>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-1 text-og-slate-500 hover:text-og-primary"
-                  onClick={() => {
-                    if (post.storageHash) {
-                      window.open(`/api/zg/storage/content/${post.storageHash}`, '_blank');
-                    }
-                  }}
-                >
-                  <ExternalLink className="w-3 h-3" />
-                </Button>
+            {/* 0G Storage Verification Links */}
+            {post.storageHash && post.transactionHash && (
+              <div className="mb-3 p-3 bg-gradient-to-r from-og-slate-50 to-green-50 dark:from-og-slate-800 dark:to-green-900 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Database className="w-4 h-4 text-green-600" />
+                  <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                    ✅ Verified on 0G Storage Network
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-og-slate-600 dark:text-og-slate-400">Transaction:</span>
+                    <div className="flex items-center space-x-1">
+                      <span className="text-xs font-mono text-og-slate-700 dark:text-og-slate-300">
+                        {post.transactionHash.slice(0, 8)}...{post.transactionHash.slice(-6)}
+                      </span>
+                      <a 
+                        href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-og-primary hover:text-og-primary/80 transition-colors"
+                        title="View transaction on 0G Chain Explorer"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-og-slate-600 dark:text-og-slate-400">Storage Hash:</span>
+                    <span className="text-xs font-mono text-og-slate-700 dark:text-og-slate-300">
+                      {post.storageHash.slice(0, 8)}...{post.storageHash.slice(-6)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Show when post is not stored on 0G */}
+            {!post.storageHash && !post.transactionHash && (
+              <div className="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center space-x-2">
+                  <Database className="w-4 h-4 text-yellow-600" />
+                  <span className="text-xs text-yellow-700 dark:text-yellow-300">
+                    ⚠️ Not stored on 0G Storage (upload failed or pending)
+                  </span>
+                </div>
               </div>
             )}
 
