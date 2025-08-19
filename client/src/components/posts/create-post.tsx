@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ImageIcon, Database, Loader2, Wallet } from "lucide-react";
+import { ImageIcon, Database, Loader2, Wallet, X, Video } from "lucide-react";
 
 // Extend Window interface for MetaMask
 declare global {
@@ -19,6 +19,11 @@ declare global {
 
 export function CreatePost() {
   const [content, setContent] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedMediaURL, setUploadedMediaURL] = useState<string | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -35,8 +40,96 @@ export function CreatePost() {
     refetchInterval: 5000, // Check every 5 seconds
   });
 
+  // Handle file selection
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Media files must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image or video file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFilePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Get upload URL
+      const response = await apiRequest("POST", "/api/posts/upload-media");
+      const uploadData = await response.json();
+
+      // Upload file
+      const uploadResponse = await fetch(uploadData.uploadURL, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.status}`);
+      }
+
+      setUploadedMediaURL(uploadData.uploadURL);
+      
+      toast({
+        title: "File uploaded",
+        description: "Your media file has been uploaded successfully.",
+      });
+
+    } catch (error: any) {
+      console.error("Media upload error:", error);
+      setSelectedFile(null);
+      setFilePreview(null);
+      toast({
+        title: "Upload failed",
+        description: `Failed to upload media: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Remove selected file
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    setUploadedMediaURL(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const createPostMutation = useMutation({
-    mutationFn: async (data: { content: string }) => {
+    mutationFn: async (data: { content: string; mediaURL?: string; mediaType?: string; mediaName?: string }) => {
       // Step 1: Request MetaMask signature
       if (!window.ethereum) {
         throw new Error("MetaMask not detected. Please install MetaMask to continue.");
@@ -62,6 +155,9 @@ export function CreatePost() {
         // Step 2: Send post with signature to backend
         return await apiRequest("POST", "/api/posts", {
           content: data.content,
+          mediaURL: data.mediaURL,
+          mediaType: data.mediaType,
+          mediaName: data.mediaName,
           signature,
           message,
           timestamp,
@@ -76,6 +172,7 @@ export function CreatePost() {
     },
     onSuccess: (data: any) => {
       setContent("");
+      removeSelectedFile();
       // Invalidate all posts queries with broad matching to refresh the feed
       queryClient.invalidateQueries({ 
         predicate: (query) => {
@@ -142,11 +239,16 @@ export function CreatePost() {
     e.preventDefault();
     if (!content.trim()) return;
     
-    createPostMutation.mutate({ content: content.trim() });
+    createPostMutation.mutate({ 
+      content: content.trim(),
+      mediaURL: uploadedMediaURL || undefined,
+      mediaType: selectedFile?.type,
+      mediaName: selectedFile?.name
+    });
   };
 
   const isWalletConnected = walletStatus?.connected === true;
-  const isDisabled = !content.trim() || createPostMutation.isPending || !isWalletConnected;
+  const isDisabled = !content.trim() || createPostMutation.isPending || !isWalletConnected || isUploading;
   const characterCount = content.length;
   const maxCharacters = 280;
   const isOverLimit = characterCount > maxCharacters;
@@ -202,11 +304,73 @@ export function CreatePost() {
                 disabled={createPostMutation.isPending}
               />
               
+              {/* File preview */}
+              {filePreview && (
+                <div className="mt-3 relative">
+                  <div className="relative inline-block rounded-lg overflow-hidden border border-og-slate-200 dark:border-og-slate-700">
+                    {selectedFile?.type.startsWith('image/') ? (
+                      <img 
+                        src={filePreview} 
+                        alt="File preview" 
+                        className="max-w-full max-h-48 object-cover"
+                      />
+                    ) : selectedFile?.type.startsWith('video/') ? (
+                      <video 
+                        src={filePreview} 
+                        controls 
+                        className="max-w-full max-h-48"
+                      />
+                    ) : null}
+                    
+                    <button
+                      type="button"
+                      onClick={removeSelectedFile}
+                      className="absolute top-2 right-2 w-6 h-6 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-og-slate-500 mt-1">
+                    {selectedFile?.name} ({(selectedFile?.size || 0 / 1024 / 1024).toFixed(1)} MB)
+                  </p>
+                </div>
+              )}
+
               {/* Character count and 0G Storage info */}
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-og-slate-200 dark:border-og-slate-700">
-                <div className="flex items-center space-x-2 text-xs text-og-slate-500">
-                  <Database className="w-3 h-3" />
-                  <span>Content will be stored on 0G Storage</span>
+                <div className="flex items-center space-x-4">
+                  {/* File upload button */}
+                  <div className="flex items-center">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      disabled={isUploading || createPostMutation.isPending}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading || createPostMutation.isPending}
+                      className="text-og-primary hover:bg-og-primary/10"
+                    >
+                      {isUploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : selectedFile?.type.startsWith('video/') ? (
+                        <Video className="w-4 h-4" />
+                      ) : (
+                        <ImageIcon className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 text-xs text-og-slate-500">
+                    <Database className="w-3 h-3" />
+                    <span>Content will be stored on 0G Storage</span>
+                  </div>
                 </div>
                 
                 <div className="flex items-center space-x-4">
@@ -221,15 +385,7 @@ export function CreatePost() {
                   </span>
                   
                   <div className="flex items-center space-x-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-og-primary hover:bg-og-primary/10"
-                      disabled={createPostMutation.isPending}
-                    >
-                      <ImageIcon className="w-4 h-4" />
-                    </Button>
+
                     
                     <Button
                       type="submit"

@@ -218,11 +218,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: user.id
       });
 
+      // Handle media upload if provided
+      let mediaStorageHash = undefined;
+      let mediaTransactionHash = undefined;
+      
+      if (postData.mediaURL) {
+        try {
+          const mediaResult = await zgStorageService.confirmMediaUpload(postData.mediaURL, {
+            type: 'media',
+            userId: user.id,
+            originalName: postData.mediaName || 'uploaded_media',
+            mimeType: postData.mediaType || 'image/jpeg'
+          });
+          
+          if (mediaResult.success) {
+            mediaStorageHash = mediaResult.hash;
+            mediaTransactionHash = mediaResult.transactionHash;
+          }
+        } catch (mediaError) {
+          console.warn('[Post Creation] Media upload failed but continuing with post:', mediaError);
+        }
+      }
+
       // Create the post in our system regardless of 0G Storage status (graceful degradation)
       const newPost = {
         content: postData.content,
         authorId: user.id, // Use proper user UUID, not wallet address
-        imageUrl: null,
+        imageUrl: postData.mediaURL || null,
+        mediaType: postData.mediaType || null,
+        mediaStorageHash,
         likesCount: 0,
         commentsCount: 0,
         sharesCount: 0,
@@ -757,6 +781,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Upload URL error:", error);
       res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
+  // Media upload endpoints for posts
+  app.post("/api/posts/upload-media", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "Please connect your wallet to upload media files"
+        });
+      }
+
+      // Get user by wallet address
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      // Get upload URL for media file
+      const uploadURL = await zgStorageService.getMediaUploadURL();
+      
+      res.json({ 
+        uploadURL,
+        message: "Upload URL generated successfully"
+      });
+    } catch (error: any) {
+      console.error('[Media Upload] Failed to generate upload URL:', error);
+      res.status(500).json({ 
+        message: "Failed to generate media upload URL",
+        error: error.message 
+      });
+    }
+  });
+
+  // Direct upload endpoint (simplified for development)
+  app.put("/api/upload-direct/:objectId", async (req, res) => {
+    try {
+      // For development, we'll just confirm the upload
+      // In production, this would handle the actual file storage
+      const objectId = req.params.objectId;
+      
+      console.log(`[Media Upload] Direct upload received for object: ${objectId}`);
+      
+      res.json({ 
+        success: true,
+        objectId,
+        message: "File uploaded successfully" 
+      });
+    } catch (error: any) {
+      console.error('[Media Upload] Direct upload failed:', error);
+      res.status(500).json({ 
+        message: "Direct upload failed",
+        error: error.message 
+      });
     }
   });
 

@@ -111,12 +111,23 @@ export function PostCard({ post }: PostCardProps) {
               {post.content}
             </p>
 
+            {/* Media display for images and videos */}
             {post.imageUrl && (
-              <img 
-                src={post.imageUrl} 
-                alt="Post image" 
-                className="rounded-xl w-full h-48 object-cover mb-4" 
-              />
+              <div className="mb-4 rounded-xl overflow-hidden">
+                {post.mediaType?.startsWith('video/') ? (
+                  <video 
+                    src={post.imageUrl} 
+                    controls 
+                    className="w-full max-h-80 object-cover" 
+                  />
+                ) : (
+                  <img 
+                    src={post.imageUrl} 
+                    alt="Post media" 
+                    className="w-full h-48 object-cover" 
+                  />
+                )}
+              </div>
             )}
 
             {/* 0G Storage Verification Links */}
@@ -233,8 +244,8 @@ export function PostCard({ post }: PostCardProps) {
                     </DialogTrigger>
                     <DialogContent className="max-w-md">
                       <BlockchainVerification 
-                        storageHash={post.storageHash}
-                        transactionHash={post.transactionHash}
+                        storageHash={post.storageHash || undefined}
+                        transactionHash={post.transactionHash || undefined}
                         postId={post.id}
                       />
                     </DialogContent>
