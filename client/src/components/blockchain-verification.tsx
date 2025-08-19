@@ -48,12 +48,32 @@ export function BlockchainVerification({ storageHash, transactionHash, postId }:
   };
 
   const getVerificationStatus = () => {
-    if (!storageHash || !transactionHash) {
+    // Check if hash contains fake/placeholder values
+    const hasFakeHash = transactionHash?.includes('existing') || 
+                       transactionHash?.includes('_hash') ||
+                       storageHash?.includes('existing') || 
+                       storageHash?.includes('_hash');
+    
+    // If we have both hashes and they are not fake, consider it verified
+    if (storageHash && transactionHash && !hasFakeHash) {
+      return { icon: Check, text: "Verified", color: "bg-green-500" };
+    }
+    
+    // If we have valid storage hash but no transaction hash
+    if (storageHash && !hasFakeHash && !transactionHash) {
+      return { icon: AlertCircle, text: "Stored", color: "bg-blue-500" };
+    }
+    
+    // If no hashes or fake hashes
+    if (!storageHash || !transactionHash || hasFakeHash) {
       return { icon: AlertCircle, text: "Pending", color: "bg-yellow-500" };
     }
+    
+    // After verification process
     if (verificationResult?.verified) {
       return { icon: Check, text: "Verified", color: "bg-green-500" };
     }
+    
     return { icon: Clock, text: "Unverified", color: "bg-gray-500" };
   };
 

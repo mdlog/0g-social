@@ -175,8 +175,8 @@ class ZGStorageService {
             const rootHash = tree.rootHash();
             return {
               success: true,
-              hash: rootHash || 'existing_data_hash',
-              transactionHash: transactionHash || 'existing_transaction_hash'
+              hash: rootHash,
+              transactionHash: null  // Don't show fake transaction hash
             };
           }
           throw new Error(`Upload failed: ${uploadErr}`);
@@ -247,10 +247,11 @@ class ZGStorageService {
       if (isDataAlreadyExists) {
         console.log('[0G Storage] Data already exists on 0G Storage - treating as successful retry');
         // For "Data already exists", we should treat it as success since the data is stored
+        // Return null for hash/transactionHash to avoid displaying fake values
         return {
           success: true,
-          hash: metadata.hash || 'existing_data_hash',
-          transactionHash: metadata.transactionHash || 'existing_transaction_hash'
+          hash: null,
+          transactionHash: null
         };
       }
 
