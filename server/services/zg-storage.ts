@@ -48,7 +48,7 @@ class ZGStorageService {
   constructor() {
     // 0G Galileo Testnet V3 configuration - updated endpoints for Chain ID 16601
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
 
     this.initializeClients();
@@ -68,12 +68,55 @@ class ZGStorageService {
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
       this.signer = new ethers.Wallet(this.privateKey, this.provider);
       
+      // Test RPC connectivity first
+      try {
+        const blockNumber = await this.provider.getBlockNumber();
+        console.log('[0G Storage] ✅ RPC connection successful - Current block:', blockNumber);
+      } catch (rpcError) {
+        console.error('[0G Storage] ❌ RPC connection failed:', rpcError);
+        throw new Error(`RPC connection failed: ${rpcError}`);
+      }
+      
       // Initialize indexer with new syntax from starter kit
       this.indexer = new Indexer(this.indexerRpc);
+      
+      // Test indexer connectivity
+      try {
+        console.log('[0G Storage] Testing indexer connectivity...');
+        // Simple test to see if indexer responds
+        const testResult = await fetch(`${this.indexerRpc}/status`, { 
+          method: 'GET',
+          timeout: 10000,
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (testResult.ok) {
+          console.log('[0G Storage] ✅ Indexer connection successful');
+        } else {
+          console.warn('[0G Storage] ⚠️ Indexer responded with status:', testResult.status);
+        }
+      } catch (indexerError) {
+        console.error('[0G Storage] ❌ Indexer connectivity test failed:', indexerError);
+        console.warn('[0G Storage] ⚠️ Storage uploads may fail due to indexer connectivity issues');
+      }
       
       console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
       console.log('[0G Storage] Galileo Testnet V3 - Indexer:', this.indexerRpc);
       console.log('[0G Storage] Wallet address:', this.signer.address);
+      
+      // Test wallet balance
+      try {
+        const balance = await this.provider.getBalance(this.signer.address);
+        const balanceEth = ethers.formatEther(balance);
+        console.log('[0G Storage] Wallet balance:', balanceEth, 'ETH');
+        
+        if (parseFloat(balanceEth) < 0.001) {
+          console.warn('[0G Storage] ⚠️ Low wallet balance - may need more ETH from faucet');
+        }
+      } catch (balanceError) {
+        console.error('[0G Storage] Failed to check wallet balance:', balanceError);
+      }
+      
     } catch (error) {
       console.error('[0G Storage] Failed to initialize clients:', error);
     }

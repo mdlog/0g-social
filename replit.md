@@ -80,23 +80,26 @@ Preferred communication style: Simple, everyday language.
   - Security: Comprehensive validation pipeline before 0G Storage upload
 - **Graceful Degradation**: Posts still created in feed if 0G Storage temporarily unavailable
 
-## Real 0G Storage Infrastructure - Updated for Galileo Testnet V3 (August 18-19, 2025)
-- **Network Update**: Updated to latest 0G Galileo Testnet V3 configuration
-- **Chain ID**: Updated from 80087 to 16601 (official Galileo testnet)
-- **Network Name**: 0G-Galileo-Testnet
-- **Current Status**: ⚠️ 0G Storage with graceful degradation (Galileo indexer intermittently unavailable)
-- **Endpoints Updated**:
-  - RPC: https://evmrpc-testnet.0g.ai (Chain ID 16601)
-  - Storage Indexer: https://indexer-storage-testnet-turbo.0g.ai (confirmed by user)
-- **Wallet Configuration**:
-  - Address: 0x4C6165286739696849Fb3e77A16b0639D762c5B6
-  - Balance: 0.164 ETH (may need 0G tokens from https://faucet.0g.ai)
+## 0G Storage Infrastructure Diagnosis & Analysis (August 19, 2025)
+- **Network Configuration**: 0G Galileo Testnet V3 (Chain ID 16601)
+- **Current Status**: ❌ 0G Storage indexer endpoints experiencing widespread infrastructure outages
+- **Root Cause Analysis**:
+  - RPC Endpoint: ✅ https://evmrpc-testnet.0g.ai (functional - responds correctly)
+  - Storage Indexer: ❌ All tested endpoints returning 503/404/timeout errors:
+    - indexer-storage-testnet-turbo.0g.ai: 404 Not Found
+    - indexer-storage-testnet-standard.0g.ai: 503 Service Unavailable 
+    - indexer-storage-testnet.0g.ai: No response
+- **Diagnosis Results**:
+  - ✅ ZG_PRIVATE_KEY properly configured and available
+  - ✅ Wallet configuration correct (0x4C6165286739696849Fb3e77A16b0639D762c5B6)
+  - ✅ Network connectivity and RPC working
+  - ❌ 0G Storage indexer infrastructure down (not a code issue)
 - **Technical Implementation**:
   - Real 0G Storage using official @0glabs/0g-ts-sdk
-  - Improved error handling with user-friendly messages
-  - Retry mechanism for temporary indexer downtime
-  - Graceful fallback: posts created in feed even if 0G Storage fails
-- **User Guidance**: Clear messaging about faucet tokens and service availability
+  - Enhanced diagnostics and connectivity testing
+  - Comprehensive error logging for infrastructure monitoring
+  - Graceful degradation: posts successfully created locally when storage fails
+- **Current Behavior**: Platform remains fully functional with local post creation, 0G Storage uploads resume when infrastructure restored
 
 ## Wallet-Gated Posting Feature (August 18, 2025)
 - **Feature**: Implemented wallet connection requirement for post creation
