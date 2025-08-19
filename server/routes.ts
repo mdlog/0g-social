@@ -205,9 +205,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Follows
   app.post("/api/follows", async (req, res) => {
     try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to follow users"
+        });
+      }
+
       const followData = insertFollowSchema.parse(req.body);
-      // Set current user as follower (in real app, get from session)
-      const follow = await storage.followUser("user1", followData.followingId);
+      const follow = await storage.followUser(walletData.address, followData.followingId);
       res.json(follow);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -215,7 +222,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.delete("/api/follows/:followingId", async (req, res) => {
-    await storage.unfollowUser("user1", req.params.followingId);
+    const walletData = req.session.walletConnection;
+    if (!walletData || !walletData.connected || !walletData.address) {
+      return res.status(401).json({ 
+        message: "Wallet connection required",
+        details: "You must connect your wallet to unfollow users"
+      });
+    }
+
+    await storage.unfollowUser(walletData.address, req.params.followingId);
     res.json({ success: true });
   });
 
@@ -230,7 +245,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/follows/check/:followingId", async (req, res) => {
-    const isFollowing = await storage.isFollowing("user1", req.params.followingId);
+    const walletData = req.session.walletConnection;
+    if (!walletData || !walletData.connected || !walletData.address) {
+      return res.json({ isFollowing: false });
+    }
+
+    const isFollowing = await storage.isFollowing(walletData.address, req.params.followingId);
     res.json({ isFollowing });
   });
 

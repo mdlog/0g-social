@@ -84,12 +84,15 @@ export function CreatePost() {
         }
       });
       
-      // Force immediate refetch of the current feed with a slight delay to ensure backend processing
+      // Invalidate user profile to update post count in sidebar
+      queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      
+      // Force immediate refetch of the current feed and profile with a slight delay to ensure backend processing
       setTimeout(() => {
         queryClient.refetchQueries({
           predicate: (query) => {
             const key = query.queryKey[0];
-            return typeof key === 'string' && key === '/api/posts/feed';
+            return typeof key === 'string' && (key === '/api/posts/feed' || key === '/api/users/me');
           }
         });
       }, 100);
