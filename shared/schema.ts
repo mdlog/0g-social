@@ -159,4 +159,19 @@ export interface ContentMetadata {
   size?: number;
   mimeType?: string;
   retryAttempt?: boolean;
+  originalAttempt?: number;
+  backgroundRetry?: boolean;
+  manualRetry?: boolean;
+  walletAddress?: string;
+}
+
+// 0G Storage response interface
+export interface ZGStorageResponse {
+  success: boolean;
+  hash?: string;
+  transactionHash?: string;
+  error?: string;
+  retryable?: boolean;
+  errorType?: string;
+  rawError?: string;
 }

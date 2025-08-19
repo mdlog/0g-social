@@ -194,29 +194,49 @@ class ZGStorageService {
 
     } catch (error: any) {
       console.error('[0G Storage] Failed to store content on real 0G Storage:', error);
+      console.error('[0G Storage] Full error object:', JSON.stringify(error, null, 2));
       
       const errorMessage = error.message || error.toString() || '';
       const errorResponse = error.response?.data || '';
+      const errorCode = error.code || '';
       
-      // Enhanced retry logic with exponential backoff
+      // Enhanced retry logic with exponential backoff - more specific network errors
       const isRetriableError = (
+        errorCode === 'ENOTFOUND' ||
+        errorCode === 'ETIMEDOUT' ||
+        errorCode === 'ECONNRESET' ||
+        errorCode === 'ECONNREFUSED' ||
         errorMessage.includes('503') || 
+        errorMessage.includes('502') ||
         errorMessage.includes('Service Temporarily Unavailable') || 
-        errorMessage.includes('ENOTFOUND') ||
         errorMessage.includes('timeout') ||
-        errorMessage.includes('ETIMEDOUT') ||
-        errorMessage.includes('ECONNRESET') ||
-        errorMessage.includes('network') ||
+        errorMessage.includes('Connection refused') ||
+        errorMessage.includes('Network error') ||
         errorResponse.includes('503') ||
+        errorResponse.includes('502') ||
         errorResponse.includes('Service Temporarily Unavailable')
       );
 
-      // Check for insufficient funds (common 0G testnet issue)
+      // FIXED: More accurate insufficient funds detection - avoid false positives
       const isInsufficientFunds = (
-        errorMessage.includes('insufficient funds') ||
-        errorMessage.includes('insufficient balance') ||
-        errorMessage.includes('not enough balance') ||
-        errorMessage.includes('execution reverted')
+        (errorMessage.toLowerCase().includes('insufficient funds') && 
+         errorMessage.toLowerCase().includes('balance')) ||
+        (errorMessage.toLowerCase().includes('not enough balance')) ||
+        (errorMessage.toLowerCase().includes('execution reverted') && 
+         errorMessage.toLowerCase().includes('gas')) ||
+        (errorCode === 'INSUFFICIENT_FUNDS') ||
+        // Check for specific 0G Chain balance errors
+        (errorMessage.includes('sender doesn\'t have enough funds') ||
+         errorMessage.includes('insufficient balance for transfer'))
+      );
+
+      // Check for 0G Storage service specific errors (not balance related)
+      const isStorageServiceError = (
+        errorMessage.includes('Upload failed') ||
+        errorMessage.includes('Storage node') ||
+        errorMessage.includes('Indexer') ||
+        errorMessage.includes('Data already exists') ||
+        (errorMessage.includes('Error') && !isInsufficientFunds && !isRetriableError)
       );
 
       if (isRetriableError && !metadata.retryAttempt) {
@@ -250,42 +270,67 @@ class ZGStorageService {
         console.error('[0G Storage] All retry attempts exhausted');
       }
       
-      // Provide specific error messages for different failure types
+      // Provide specific error messages based on actual error analysis
       let userFriendlyMessage = '';
+      let errorType = 'unknown_error';
+      let isRetryable = false;
       
       if (isInsufficientFunds) {
-        userFriendlyMessage = `Insufficient 0G tokens in wallet. 
+        errorType = 'insufficient_funds';
+        isRetryable = false;
+        userFriendlyMessage = `Insufficient 0G tokens for blockchain transaction.
+
+Wallet: ${this.indexer.rpcUrl || 'Unknown'}  
+Issue: Not enough 0G tokens to pay for transaction gas fees
 
 Solution:
 1. Visit 0G Faucet: https://faucet.0g.ai
-2. Connect your wallet (${this.wallet?.address || 'Unknown'})
-3. Request testnet tokens
-4. Wait a few minutes and try posting again
+2. Connect your wallet and request testnet tokens
+3. Wait a few minutes for tokens to arrive
+4. Try posting again
 
 Your post has been saved locally and will sync to 0G Storage once you have sufficient tokens.`;
       } else if (isRetriableError) {
+        errorType = 'network_error';
+        isRetryable = true;
         userFriendlyMessage = `0G Storage network temporarily unavailable.
 
 Network Status: Galileo Testnet experiencing connectivity issues
-Infrastructure: Indexer and storage nodes may be under maintenance
+Issue: Cannot connect to 0G Storage indexer or storage nodes
+Infrastructure: Services may be under maintenance
 
-Your post has been created in your feed and will automatically sync to 0G Storage when the network recovers.`;
+Your post has been created in your feed and will automatically retry uploading to 0G Storage when the network recovers.`;
+      } else if (isStorageServiceError) {
+        errorType = 'service_error';
+        isRetryable = true;
+        userFriendlyMessage = `0G Storage service error encountered.
+
+Error: ${errorMessage}
+Network: Galileo Testnet 
+Issue: 0G Storage service returned an error (not balance-related)
+
+Your post has been saved locally. The upload will retry automatically when the service is available.`;
       } else {
-        userFriendlyMessage = `0G Storage upload failed: ${errorMessage}
+        errorType = 'unknown_error';
+        isRetryable = false;
+        userFriendlyMessage = `0G Storage upload failed with unknown error.
+
+Error Details: ${errorMessage}
 
 This could be due to:
 1. Network connectivity issues
-2. Insufficient 0G tokens (visit https://faucet.0g.ai)
+2. 0G Storage service problems  
 3. Temporary service maintenance
 
-Your post is saved locally and will retry uploading automatically.`;
+Your post is saved locally. Please check your connection or try again later.`;
       }
       
       return {
         success: false,
         error: userFriendlyMessage,
-        retryable: isRetriableError,
-        errorType: isInsufficientFunds ? 'insufficient_funds' : 'network_error'
+        retryable: isRetryable,
+        errorType: errorType,
+        rawError: errorMessage // Include raw error for debugging
       };
     }
   }

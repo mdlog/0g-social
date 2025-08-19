@@ -16,20 +16,22 @@ Preferred communication style: Simple, everyday language.
 # Recent Changes
 
 ## Enhanced 0G Storage Error Handling & Retry System (August 19, 2025)
-- **Issue**: Recurring "Not stored on 0G Storage" warnings due to network/token issues
-- **Solution**: Comprehensive retry and error handling system
+- **Issue**: False "insufficient funds" errors appearing even when users had adequate 0G token balance
+- **Root Cause**: Error detection logic was too generic, classifying network/service errors as balance issues
+- **Solution**: Comprehensive error detection refinement and retry system
 - **Features Implemented**:
-  - **Smart Retry Logic**: Exponential backoff retry (3 attempts with increasing delays)
-  - **Error Classification**: Distinguishes between network errors and insufficient funds
-  - **Background Retry Queue**: Automatic retry system for failed uploads over 48 hours
-  - **Enhanced User Feedback**: Detailed error messages with actionable solutions
-  - **Faucet Integration**: Direct link to 0G faucet for token issues
+  - **Accurate Error Classification**: Fixed detection to distinguish network vs balance vs service errors
+  - **Smart Retry Logic**: Exponential backoff retry (2s → 4s → 8s → 16s → 32s delays)
+  - **Manual Retry Buttons**: User-controlled "Retry now" buttons for immediate retry attempts
+  - **Enhanced User Feedback**: Specific error messages with targeted solutions
+  - **Faucet Integration**: Direct 0G faucet links only for genuine balance issues
 - **Technical Implementation**:
-  - Retry attempts: 5min → 15min → 45min → 2h → 6h → 12h → 24h
-  - Error types: `network_error`, `insufficient_funds`, `service_unavailable`
-  - Background processing every 30 seconds
-  - Database updates when retry succeeds
-- **User Experience**: Posts always created locally, automatic sync when 0G network available
+  - Error types: `network_error` (retryable), `insufficient_funds` (non-retryable), `service_error` (retryable)
+  - Network errors: ECONNREFUSED, ETIMEDOUT, 503, 502, timeouts (retryable)
+  - Balance errors: Only genuine blockchain gas/balance issues (non-retryable)  
+  - Service errors: 0G Storage specific errors like "Data already exists" (retryable)
+  - Manual retry endpoint: `/api/posts/:id/retry-storage` for user control
+- **User Experience**: No more false balance warnings, accurate error reporting, user control over retries
 
 # Recent Changes
 
