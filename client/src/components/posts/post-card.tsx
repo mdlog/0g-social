@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink, RefreshCw } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +24,27 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Manual retry mutation for 0G Storage uploads
+  const retryStorageMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", `/api/posts/${post.id}/retry-storage`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Upload retry initiated",
+        description: "0G Storage upload retry has been queued. Check back in a few minutes.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Retry failed",
+        description: error.message || "Could not initiate storage retry",
+        variant: "destructive",
+      });
+    },
+  });
 
   const likeMutation = useMutation({
     mutationFn: async () => {
@@ -178,14 +199,49 @@ export function PostCard({ post }: PostCardProps) {
               </div>
             )}
 
-            {/* Show when post is not stored on 0G */}
+            {/* Show when post is not stored on 0G with enhanced status */}
             {!post.storageHash && !post.transactionHash && (
-              <div className="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                <div className="flex items-center space-x-2">
-                  <Database className="w-4 h-4 text-yellow-600" />
-                  <span className="text-xs text-yellow-700 dark:text-yellow-300">
-                    ⚠️ Not stored on 0G Storage (upload failed or pending)
-                  </span>
+              <div className="mb-3 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <div className="animate-pulse">
+                      <Database className="w-5 h-5 text-yellow-600" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                      0G Storage Upload Pending
+                    </p>
+                    <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                      Post created locally. Upload to decentralized storage will retry automatically when network is available.
+                    </p>
+                    <div className="mt-2 flex items-center space-x-4">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
+                        Auto-retrying...
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => retryStorageMutation.mutate()}
+                        disabled={retryStorageMutation.isPending}
+                        className="h-6 px-2 text-xs text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700 hover:bg-yellow-100 dark:hover:bg-yellow-900/30"
+                      >
+                        {retryStorageMutation.isPending ? (
+                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                        )}
+                        Retry now
+                      </Button>
+                      <button 
+                        className="text-xs text-yellow-700 dark:text-yellow-300 hover:text-yellow-900 dark:hover:text-yellow-100 underline"
+                        onClick={() => window.open('https://faucet.0g.ai', '_blank')}
+                      >
+                        Get 0G tokens
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

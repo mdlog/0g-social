@@ -197,6 +197,10 @@ export class DatabaseStorage implements IStorage {
     return postsWithAuthor;
   }
 
+  async updatePost(id: string, updates: Partial<InsertPost>): Promise<void> {
+    await db.update(posts).set(updates).where(eq(posts.id, id));
+  }
+
   async deletePost(id: string): Promise<void> {
     await db.delete(posts).where(eq(posts.id, id));
   }

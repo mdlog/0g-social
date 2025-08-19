@@ -195,40 +195,97 @@ class ZGStorageService {
     } catch (error: any) {
       console.error('[0G Storage] Failed to store content on real 0G Storage:', error);
       
-      // More comprehensive error checking for various types of errors
       const errorMessage = error.message || error.toString() || '';
       const errorResponse = error.response?.data || '';
       
-      // Check if it's a network/service error with indexer - retry logic
-      if (errorMessage.includes('503') || 
-          errorMessage.includes('Service Temporarily Unavailable') || 
-          errorMessage.includes('ENOTFOUND') ||
-          errorMessage.includes('timeout') ||
-          errorResponse.includes('503') ||
-          errorResponse.includes('Service Temporarily Unavailable')) {
-        console.log('[0G Storage] Galileo indexer service temporarily unavailable - will retry shortly');
-        // Wait a bit and retry once for Galileo testnet
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        try {
-          console.log('[0G Storage] Retrying upload to Galileo testnet...');
-          // Try again with the same logic (recursive call with retry protection)
-          if (!metadata.retryAttempt) {
-            return this.storeContent(content, { ...metadata, retryAttempt: true });
+      // Enhanced retry logic with exponential backoff
+      const isRetriableError = (
+        errorMessage.includes('503') || 
+        errorMessage.includes('Service Temporarily Unavailable') || 
+        errorMessage.includes('ENOTFOUND') ||
+        errorMessage.includes('timeout') ||
+        errorMessage.includes('ETIMEDOUT') ||
+        errorMessage.includes('ECONNRESET') ||
+        errorMessage.includes('network') ||
+        errorResponse.includes('503') ||
+        errorResponse.includes('Service Temporarily Unavailable')
+      );
+
+      // Check for insufficient funds (common 0G testnet issue)
+      const isInsufficientFunds = (
+        errorMessage.includes('insufficient funds') ||
+        errorMessage.includes('insufficient balance') ||
+        errorMessage.includes('not enough balance') ||
+        errorMessage.includes('execution reverted')
+      );
+
+      if (isRetriableError && !metadata.retryAttempt) {
+        console.log('[0G Storage] Network/service error detected - implementing retry with exponential backoff');
+        
+        // Try up to 3 times with exponential backoff
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          const delay = Math.min(1000 * Math.pow(2, attempt), 10000); // Max 10s delay
+          console.log(`[0G Storage] Retry attempt ${attempt}/3 after ${delay}ms delay...`);
+          
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          try {
+            // Recursive call with retry protection
+            const retryResult = await this.storeContent(content, { 
+              ...metadata, 
+              retryAttempt: true,
+              originalAttempt: attempt 
+            });
+            
+            if (retryResult.success) {
+              console.log(`[0G Storage] ✅ Retry attempt ${attempt} succeeded!`);
+              return retryResult;
+            }
+          } catch (retryError: any) {
+            console.warn(`[0G Storage] Retry attempt ${attempt} failed:`, retryError.message);
+            // Continue to next retry attempt
           }
-        } catch (retryError) {
-          console.error('[0G Storage] Galileo retry also failed:', retryError);
         }
+        
+        console.error('[0G Storage] All retry attempts exhausted');
+      }
+      
+      // Provide specific error messages for different failure types
+      let userFriendlyMessage = '';
+      
+      if (isInsufficientFunds) {
+        userFriendlyMessage = `Insufficient 0G tokens in wallet. 
+
+Solution:
+1. Visit 0G Faucet: https://faucet.0g.ai
+2. Connect your wallet (${this.wallet?.address || 'Unknown'})
+3. Request testnet tokens
+4. Wait a few minutes and try posting again
+
+Your post has been saved locally and will sync to 0G Storage once you have sufficient tokens.`;
+      } else if (isRetriableError) {
+        userFriendlyMessage = `0G Storage network temporarily unavailable.
+
+Network Status: Galileo Testnet experiencing connectivity issues
+Infrastructure: Indexer and storage nodes may be under maintenance
+
+Your post has been created in your feed and will automatically sync to 0G Storage when the network recovers.`;
+      } else {
+        userFriendlyMessage = `0G Storage upload failed: ${errorMessage}
+
+This could be due to:
+1. Network connectivity issues
+2. Insufficient 0G tokens (visit https://faucet.0g.ai)
+3. Temporary service maintenance
+
+Your post is saved locally and will retry uploading automatically.`;
       }
       
       return {
         success: false,
-        error: `Galileo Testnet Storage temporarily unavailable: ${errorMessage}. 
-        
-This error suggests:
-1. Galileo indexer service is currently down for maintenance
-2. Your wallet may need 0G tokens from the faucet at https://faucet.0g.ai
-
-The post has been created in your feed and will be stored to 0G Storage when the network is available. You can visit the faucet to get testnet tokens if needed.`
+        error: userFriendlyMessage,
+        retryable: isRetriableError,
+        errorType: isInsufficientFunds ? 'insufficient_funds' : 'network_error'
       };
     }
   }

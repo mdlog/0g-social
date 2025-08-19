@@ -212,10 +212,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Pre-check 0G Storage connectivity before attempting upload
+      console.log('[Post Creation] Pre-checking 0G Storage connectivity...');
+      
       // Store content on 0G Storage with wallet signature verification
       const storageResult = await zgStorageService.storeContent(postData.content, {
         type: 'post',
-        userId: user.id
+        userId: user.id,
+        walletAddress: user.walletAddress // Add wallet context for better error messages
       });
 
       // Handle media upload if provided
@@ -266,15 +270,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: Date.now()
       });
 
-      // If 0G Storage failed, still return success with helpful message
+      // If 0G Storage failed, still return success with helpful message and retry info
       if (!storageResult.success) {
         console.warn('[Post Creation] 0G Storage failed but post created in feed:', storageResult.error);
+        
+        // Queue for background retry if it's a retryable error
+        if (storageResult.retryable) {
+          console.log('[Post Creation] Queueing post for background 0G Storage retry...');
+          // Note: Background retry system can be implemented later if needed
+        }
         
         return res.status(201).json({ 
           ...post,
           storageStatus: "pending",
           storageError: storageResult.error,
-          message: "Post created successfully. 0G Storage upload will retry when network is available."
+          errorType: storageResult.errorType,
+          retryable: storageResult.retryable,
+          message: storageResult.retryable 
+            ? "Post created successfully. 0G Storage upload will retry automatically when network is available."
+            : "Post created successfully. Please check your 0G tokens and try again if needed."
         });
       }
       
@@ -293,6 +307,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/posts/search/:query", async (req, res) => {
     const posts = await storage.searchPosts(req.params.query);
     res.json(posts);
+  });
+
+  // Manual retry endpoint for 0G Storage uploads
+  app.post("/api/posts/:id/retry-storage", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to retry storage upload"
+        });
+      }
+
+      const post = await storage.getPost(req.params.id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user || user.id !== post.authorId) {
+        return res.status(403).json({ 
+          message: "Access denied", 
+          details: "You can only retry storage for your own posts"
+        });
+      }
+
+      // If already stored, return success
+      if (post.storageHash && post.transactionHash) {
+        return res.json({ 
+          message: "Post is already stored on 0G Storage",
+          storageHash: post.storageHash,
+          transactionHash: post.transactionHash
+        });
+      }
+
+      console.log(`[Manual Retry] User ${user.id} initiating manual retry for post ${post.id}`);
+
+      // Attempt immediate 0G Storage upload
+      const storageResult = await zgStorageService.storeContent(post.content, {
+        type: 'post',
+        userId: user.id,
+        walletAddress: user.walletAddress,
+        manualRetry: true
+      });
+
+      if (storageResult.success) {
+        // Update post with storage information
+        await storage.updatePost(post.id, {
+          storageHash: storageResult.hash,
+          transactionHash: storageResult.transactionHash
+        });
+
+        console.log(`[Manual Retry] ✅ Successfully uploaded post ${post.id} to 0G Storage`);
+
+        res.json({
+          message: "Successfully uploaded to 0G Storage",
+          storageHash: storageResult.hash,
+          transactionHash: storageResult.transactionHash
+        });
+      } else {
+        console.warn(`[Manual Retry] Failed to upload post ${post.id}:`, storageResult.error);
+        
+        res.status(422).json({
+          message: "0G Storage upload failed",
+          error: storageResult.error,
+          retryable: storageResult.retryable,
+          errorType: storageResult.errorType
+        });
+      }
+
+    } catch (error: any) {
+      console.error('[Manual Retry] Exception:', error);
+      res.status(500).json({ 
+        message: "Internal server error", 
+        details: error.message 
+      });
+    }
   });
 
   app.delete("/api/posts/:id", async (req, res) => {

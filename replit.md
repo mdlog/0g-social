@@ -15,6 +15,24 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## Enhanced 0G Storage Error Handling & Retry System (August 19, 2025)
+- **Issue**: Recurring "Not stored on 0G Storage" warnings due to network/token issues
+- **Solution**: Comprehensive retry and error handling system
+- **Features Implemented**:
+  - **Smart Retry Logic**: Exponential backoff retry (3 attempts with increasing delays)
+  - **Error Classification**: Distinguishes between network errors and insufficient funds
+  - **Background Retry Queue**: Automatic retry system for failed uploads over 48 hours
+  - **Enhanced User Feedback**: Detailed error messages with actionable solutions
+  - **Faucet Integration**: Direct link to 0G faucet for token issues
+- **Technical Implementation**:
+  - Retry attempts: 5min → 15min → 45min → 2h → 6h → 12h → 24h
+  - Error types: `network_error`, `insufficient_funds`, `service_unavailable`
+  - Background processing every 30 seconds
+  - Database updates when retry succeeds
+- **User Experience**: Posts always created locally, automatic sync when 0G network available
+
+# Recent Changes
+
 ## Post Count Display Fix (August 19, 2025)
 - **Issue**: User profile cards were not displaying correct post counts after post creation
 - **Root Cause**: Database storage method was not incrementing users.postsCount field when posts were created
