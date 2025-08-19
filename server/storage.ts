@@ -74,6 +74,16 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByWalletAddress(walletAddress: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.walletAddress, walletAddress));
+    
+    // Migration: Convert old /objects/... paths to /api/objects/... for existing users
+    if (user && user.avatar && user.avatar.startsWith('/objects/')) {
+      console.log(`Migrating avatar path for user ${user.id}: ${user.avatar} -> /api${user.avatar}`);
+      const migratedPath = `/api${user.avatar}`;
+      // Update database with new path
+      await db.update(users).set({ avatar: migratedPath }).where(eq(users.id, user.id));
+      user.avatar = migratedPath;
+    }
+    
     return user || undefined;
   }
 
