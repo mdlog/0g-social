@@ -2,8 +2,10 @@ import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink }
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { BlockchainVerification } from "@/components/blockchain-verification";
 import type { PostWithAuthor } from "@shared/schema";
 
 interface PostCardProps {
@@ -207,13 +209,38 @@ export function PostCard({ post }: PostCardProps) {
                   <span className="text-sm">{post.sharesCount}</span>
                 </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-slate-800 dark:hover:text-og-slate-200 transition-colors"
-              >
-                <Bookmark className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-slate-800 dark:hover:text-og-slate-200 transition-colors"
+                >
+                  <Bookmark className="w-4 h-4" />
+                </Button>
+                
+                {/* Blockchain Verification Button - only show if post is stored on blockchain */}
+                {(post.storageHash || post.transactionHash) && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+                        title="Verify on Blockchain"
+                      >
+                        <Shield className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <BlockchainVerification 
+                        storageHash={post.storageHash}
+                        transactionHash={post.transactionHash}
+                        postId={post.id}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
             </div>
           </div>
         </article>

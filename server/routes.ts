@@ -454,6 +454,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint to verify transaction on 0G Chain
+  app.get("/api/zg/chain/transaction/:hash", async (req, res) => {
+    try {
+      const txHash = req.params.hash;
+      
+      // Verify transaction exists on 0G Chain
+      const result = await zgChainService.getTransactionStatus(txHash);
+      
+      if (result.success) {
+        res.json({
+          transactionHash: txHash,
+          status: result.status,
+          blockNumber: result.blockNumber,
+          confirmations: result.confirmations,
+          timestamp: result.timestamp,
+          verified: true
+        });
+      } else {
+        res.status(404).json({ 
+          message: "Transaction not found on 0G Chain",
+          transactionHash: txHash,
+          verified: false
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: "Failed to verify transaction on 0G Chain",
+        error: error.message
+      });
+    }
+  });
+
   // 0G Compute - User AI Management
   app.post("/api/zg/compute/deploy", async (req, res) => {
     try {

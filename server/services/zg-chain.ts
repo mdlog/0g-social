@@ -95,6 +95,48 @@ export class ZGChainService {
     }
   }
 
+  /**
+   * Get transaction status from 0G Chain
+   */
+  async getTransactionStatus(txHash: string): Promise<{
+    success: boolean;
+    status?: string;
+    blockNumber?: number;
+    confirmations?: number;
+    timestamp?: number;
+  }> {
+    try {
+      // Check transaction status using 0G Chain API
+      const response = await fetch(
+        `${ZG_CHAIN_API_BASE}/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === "1") {
+        // Get current block height for confirmations
+        const currentBlock = await this.getCurrentBlockHeight();
+        
+        return {
+          success: true,
+          status: data.result?.status || "1",
+          blockNumber: data.result?.blockNumber || 0,
+          confirmations: currentBlock - (data.result?.blockNumber || 0),
+          timestamp: data.result?.timestamp || Date.now() / 1000
+        };
+      }
+
+      return { success: false };
+    } catch (error) {
+      console.warn(`Failed to get transaction status from 0G Chain:`, error);
+      return { success: false };
+    }
+  }
+
   async getChainInfo() {
     const blockHeight = await this.getCurrentBlockHeight();
     const gasPrice = await this.getGasPrice();
@@ -103,7 +145,7 @@ export class ZGChainService {
       chainId: 16601,
       networkName: "0G-Galileo-Testnet",
       rpcUrl: "https://evmrpc-testnet.0g.ai",
-      blockExplorer: "https://chainscan-newton.0g.ai",
+      blockExplorer: "https://chainscan-galileo.0g.ai",
       blockHeight,
       gasPrice,
     };
