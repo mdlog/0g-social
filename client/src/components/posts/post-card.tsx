@@ -321,28 +321,30 @@ export function PostCard({ post }: PostCardProps) {
                   <Bookmark className="w-4 h-4" />
                 </Button>
                 
-                {/* Blockchain Verification Button - only show if post is stored on blockchain */}
-                {(post.storageHash || post.transactionHash) && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 rounded-xl text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan transition-all duration-300 pulse-glow"
-                        title="Verify on Blockchain"
-                      >
-                        <Shield className="w-4 h-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="futuristic-card dark:futuristic-card-dark max-w-md">
-                      <BlockchainVerification 
-                        storageHash={post.storageHash || undefined}
-                        transactionHash={post.transactionHash || undefined}
-                        postId={post.id}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                )}
+                {/* Blockchain Verification Button - available for all posts */}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`p-2 rounded-xl transition-all duration-300 ${
+                        post.storageHash && post.transactionHash
+                          ? "text-green-400 hover:text-green-300 hover:bg-green-500/10 hover:neon-border-green pulse-glow"
+                          : "text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
+                      }`}
+                      title="Verify on Blockchain"
+                    >
+                      <Shield className="w-4 h-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="futuristic-card dark:futuristic-card-dark max-w-md">
+                    <BlockchainVerification 
+                      storageHash={post.storageHash || undefined}
+                      transactionHash={post.transactionHash || undefined}
+                      postId={post.id}
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>
