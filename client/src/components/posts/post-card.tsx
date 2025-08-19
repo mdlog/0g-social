@@ -131,45 +131,46 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="futuristic-card dark:futuristic-card-dark hover:neon-border-cyan transition-all duration-300 slide-in-cyber">
       <CardContent className="p-6">
-        <article className="flex space-x-3">
-          <Avatar className="w-10 h-10 flex-shrink-0">
+        <article className="flex space-x-4">
+          <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 transition-all duration-300">
             <AvatarImage 
               src={post.author.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
               alt={post.author.displayName} 
               className="object-cover"
             />
-            <AvatarFallback className={`${getAvatarClass(post.authorId)} text-white font-semibold text-sm`}>
+            <AvatarFallback className={`${getAvatarClass(post.authorId)} text-white font-semibold text-sm shadow-lg`}>
               {post.author.displayName.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-2">
-              <h4 className="font-semibold">{post.author.displayName}</h4>
-              <span className="text-og-slate-600 dark:text-og-slate-400">@{post.author.username}.0g</span>
+            <div className="flex items-center space-x-3 mb-3">
+              <h4 className="font-semibold text-cyan-100">{post.author.displayName}</h4>
+              <span className="gradient-neon-text text-sm">@{post.author.username}.0g</span>
               {post.author.isVerified && (
-                <div className="flex items-center space-x-1">
-                  <Shield className="text-og-primary w-3 h-3" />
+                <div className="verified-badge">
+                  <Shield className="w-3 h-3" />
+                  <span className="text-xs">VERIFIED</span>
                 </div>
               )}
-              <span className="text-og-slate-500 text-sm">•</span>
-              <span className="text-og-slate-500 text-sm">{formatTimeAgo(post.createdAt)}</span>
+              <span className="text-cyan-400/60 text-sm">•</span>
+              <span className="text-cyan-300/80 text-sm">{formatTimeAgo(post.createdAt)}</span>
               {post.isAiRecommended && (
-                <div className="ai-recommendation-badge">
-                  <div className="w-3 h-3 gradient-brand rounded-full"></div>
-                  <span className="text-xs">AI Recommended</span>
+                <div className="ai-recommendation-badge pulse-glow">
+                  <div className="w-3 h-3 gradient-cyber-primary rounded-full"></div>
+                  <span className="text-xs">AI ENHANCED</span>
                 </div>
               )}
             </div>
             
-            <p className="text-og-slate-800 dark:text-og-slate-200 mb-4">
+            <p className="text-cyan-50 dark:text-cyan-100 mb-4 leading-relaxed">
               {post.content}
             </p>
 
             {/* Media display for images and videos */}
             {post.imageUrl && (
-              <div className="mb-4 rounded-xl overflow-hidden">
+              <div className="mb-4 rounded-2xl overflow-hidden border border-cyan-400/20 shadow-lg shadow-cyan-400/10">
                 {post.mediaType?.startsWith('video/') ? (
                   <video 
                     src={post.imageUrl} 
@@ -180,7 +181,7 @@ export function PostCard({ post }: PostCardProps) {
                   <img 
                     src={post.imageUrl} 
                     alt="Post media" 
-                    className="w-full h-48 object-cover" 
+                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300" 
                   />
                 )}
               </div>
@@ -188,36 +189,36 @@ export function PostCard({ post }: PostCardProps) {
 
             {/* 0G Storage Verification Links */}
             {post.storageHash && post.transactionHash && (
-              <div className="mb-3 p-3 bg-gradient-to-r from-og-slate-50 to-green-50 dark:from-og-slate-800 dark:to-green-900 rounded-lg border border-green-200 dark:border-green-800">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Database className="w-4 h-4 text-green-600" />
-                  <span className="text-xs font-medium text-green-700 dark:text-green-300">
-                    ✅ Verified on 0G Storage Network
+              <div className="mb-4 p-4 cyber-glass dark:cyber-glass-dark rounded-2xl neon-border-green">
+                <div className="flex items-center space-x-3 mb-3">
+                  <Database className="w-5 h-5 text-green-400 pulse-glow" />
+                  <span className="text-sm font-semibold text-green-300">
+                    ✅ VERIFIED ON 0G NETWORK
                   </span>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-og-slate-600 dark:text-og-slate-400">Transaction:</span>
-                    <div className="flex items-center space-x-1">
-                      <span className="text-xs font-mono text-og-slate-700 dark:text-og-slate-300">
+                    <span className="text-xs text-cyan-300/80">TRANSACTION:</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-mono text-green-300 bg-green-400/10 px-2 py-1 rounded-lg">
                         {post.transactionHash.slice(0, 8)}...{post.transactionHash.slice(-6)}
                       </span>
                       <a 
                         href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-og-primary hover:text-og-primary/80 transition-colors"
+                        className="p-1 cyber-glass hover:neon-border-cyan transition-all duration-300"
                         title="View transaction on 0G Chain Explorer"
                       >
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3 h-3 text-cyan-400" />
                       </a>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-og-slate-600 dark:text-og-slate-400">Storage Hash:</span>
-                    <span className="text-xs font-mono text-og-slate-700 dark:text-og-slate-300">
+                    <span className="text-xs text-cyan-300/80">STORAGE HASH:</span>
+                    <span className="text-xs font-mono text-green-300 bg-green-400/10 px-2 py-1 rounded-lg">
                       {post.storageHash.slice(0, 8)}...{post.storageHash.slice(-6)}
                     </span>
                   </div>
@@ -227,44 +228,44 @@ export function PostCard({ post }: PostCardProps) {
 
             {/* Show when post is not stored on 0G with enhanced status */}
             {!post.storageHash && !post.transactionHash && (
-              <div className="mb-3 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <div className="mb-4 p-4 cyber-glass dark:cyber-glass-dark rounded-2xl neon-border-yellow">
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
-                    <div className="animate-pulse">
-                      <Database className="w-5 h-5 text-yellow-600" />
+                    <div className="pulse-glow">
+                      <Database className="w-5 h-5 text-yellow-400" />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                      0G Storage Upload Pending
+                    <p className="text-sm font-semibold text-yellow-300">
+                      0G STORAGE UPLOAD PENDING
                     </p>
-                    <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                    <p className="text-xs text-yellow-200/80 mt-1">
                       Post created locally. Upload to decentralized storage will retry automatically when network is available.
                     </p>
-                    <div className="mt-2 flex items-center space-x-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
-                        Auto-retrying...
+                    <div className="mt-3 flex items-center space-x-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium bg-yellow-400/10 text-yellow-300 border border-yellow-400/30">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></div>
+                        AUTO-RETRYING...
                       </span>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => retryStorageMutation.mutate()}
                         disabled={retryStorageMutation.isPending}
-                        className="h-6 px-2 text-xs text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700 hover:bg-yellow-100 dark:hover:bg-yellow-900/30"
+                        className="cyber-button-small text-xs"
                       >
                         {retryStorageMutation.isPending ? (
                           <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                         ) : (
                           <RefreshCw className="w-3 h-3 mr-1" />
                         )}
-                        Retry now
+                        RETRY NOW
                       </Button>
                       <button 
-                        className="text-xs text-yellow-700 dark:text-yellow-300 hover:text-yellow-900 dark:hover:text-yellow-100 underline"
+                        className="text-xs text-yellow-300 hover:text-yellow-100 transition-colors underline"
                         onClick={() => window.open('https://faucet.0g.ai', '_blank')}
                       >
-                        Get 0G tokens
+                        GET 0G TOKENS
                       </button>
                     </div>
                   </div>
@@ -272,50 +273,50 @@ export function PostCard({ post }: PostCardProps) {
               </div>
             )}
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-2 border-t border-cyan-400/10">
               <div className="flex items-center space-x-6">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => likeMutation.mutate()}
                   disabled={likeMutation.isPending}
-                  className={`flex items-center space-x-2 transition-colors ${
+                  className={`flex items-center space-x-2 p-2 rounded-xl transition-all duration-300 ${
                     post.isLiked 
-                      ? "text-red-500 hover:text-red-600" 
-                      : "text-og-slate-600 dark:text-og-slate-400 hover:text-red-500"
+                      ? "text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 neon-border-red" 
+                      : "text-cyan-300/80 hover:text-red-400 hover:bg-red-500/10 hover:neon-border-red"
                   }`}
                 >
-                  <Heart className={`w-4 h-4 ${post.isLiked ? "fill-current" : ""}`} />
-                  <span className="text-sm">{post.likesCount}</span>
+                  <Heart className={`w-4 h-4 ${post.isLiked ? "fill-current pulse-glow" : ""}`} />
+                  <span className="text-sm font-medium">{post.likesCount}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2 text-og-slate-600 dark:text-og-slate-400 hover:text-blue-500 transition-colors"
+                  className="flex items-center space-x-2 p-2 rounded-xl text-cyan-300/80 hover:text-blue-400 hover:bg-blue-500/10 hover:neon-border-blue transition-all duration-300"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm">{post.commentsCount}</span>
+                  <span className="text-sm font-medium">{post.commentsCount}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => repostMutation.mutate()}
                   disabled={repostMutation.isPending}
-                  className={`flex items-center space-x-2 transition-colors ${
+                  className={`flex items-center space-x-2 p-2 rounded-xl transition-all duration-300 ${
                     post.isReposted 
-                      ? "text-green-500 hover:text-green-600" 
-                      : "text-og-slate-600 dark:text-og-slate-400 hover:text-green-500"
+                      ? "text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 neon-border-green" 
+                      : "text-cyan-300/80 hover:text-green-400 hover:bg-green-500/10 hover:neon-border-green"
                   }`}
                 >
-                  <Share className={`w-4 h-4 ${post.isReposted ? "fill-current" : ""}`} />
-                  <span className="text-sm">{post.sharesCount}</span>
+                  <Share className={`w-4 h-4 ${post.isReposted ? "fill-current pulse-glow" : ""}`} />
+                  <span className="text-sm font-medium">{post.sharesCount}</span>
                 </Button>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-slate-800 dark:hover:text-og-slate-200 transition-colors"
+                  className="p-2 rounded-xl text-cyan-300/80 hover:text-magenta-400 hover:bg-magenta-500/10 hover:neon-border-magenta transition-all duration-300"
                 >
                   <Bookmark className="w-4 h-4" />
                 </Button>
@@ -327,13 +328,13 @@ export function PostCard({ post }: PostCardProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+                        className="p-2 rounded-xl text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan transition-all duration-300 pulse-glow"
                         title="Verify on Blockchain"
                       >
                         <Shield className="w-4 h-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="futuristic-card dark:futuristic-card-dark max-w-md">
                       <BlockchainVerification 
                         storageHash={post.storageHash || undefined}
                         transactionHash={post.transactionHash || undefined}

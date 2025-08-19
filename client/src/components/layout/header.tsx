@@ -151,15 +151,15 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 glassmorphism border-b border-og-slate-200 dark:border-og-slate-700">
+    <header className="sticky top-0 z-50 futuristic-card dark:futuristic-card-dark border-b border-transparent backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">0G</span>
+          <div className="flex items-center space-x-3 slide-in-cyber">
+            <div className="w-10 h-10 gradient-cyber-primary rounded-xl flex items-center justify-center pulse-glow">
+              <span className="text-white font-bold text-sm neon-text">0G</span>
             </div>
-            <h1 className="text-xl font-bold gradient-text">
+            <h1 className="text-xl font-bold gradient-neon-text">
               0G Social
             </h1>
           </div>
@@ -167,13 +167,13 @@ export function Header() {
           {/* Search Bar */}
           <div className="hidden md:block flex-1 max-w-lg mx-8">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-og-slate-400 w-4 h-4" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-400 w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search posts, users, topics..."
+                placeholder="Search the metaverse..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-og-slate-100 dark:bg-og-slate-800 border border-og-slate-200 dark:border-og-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-og-primary focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 cyber-glass dark:cyber-glass-dark rounded-2xl border-0 focus:outline-none focus:neon-border-cyan placeholder-cyan-300/60 dark:placeholder-cyan-300/40 text-foreground"
               />
             </div>
           </div>
@@ -182,22 +182,22 @@ export function Header() {
           <div className="flex items-center space-x-4">
             {/* MetaMask Wallet Connection */}
             {walletStatus?.connected && web3Status?.connected ? (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-green-700 dark:text-green-300 font-medium">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 px-4 py-2 cyber-glass dark:cyber-glass-dark rounded-2xl neon-border-cyan">
+                  <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse shadow-lg shadow-cyan-400/50"></div>
+                  <span className="text-sm font-semibold text-cyan-100">
                     {formatAddress(walletStatus.address)}
                   </span>
-                  <Badge variant="outline" className="text-xs text-green-600 dark:text-green-400 border-green-300 dark:border-green-700">
+                  <Badge variant="outline" className="text-xs bg-cyan-500/10 text-cyan-300 border-cyan-400/30 px-2 py-1">
                     {web3Status.network}
                   </Badge>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={copyAddress}
-                    className="h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-800"
+                    className="h-7 w-7 p-0 hover:bg-cyan-500/20 transition-all duration-300"
                   >
-                    <Copy className="h-3 w-3" />
+                    <Copy className="h-3 w-3 text-cyan-300" />
                   </Button>
                 </div>
                 <Button
@@ -205,7 +205,7 @@ export function Header() {
                   size="sm"
                   onClick={() => disconnectWallet.mutate()}
                   disabled={disconnectWallet.isPending}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-300 dark:border-red-700"
+                  className="px-4 py-2 cyber-glass dark:cyber-glass-dark text-red-300 hover:text-red-100 border-red-400/30 hover:border-red-400 transition-all duration-300"
                 >
                   {disconnectWallet.isPending ? "Disconnecting..." : "Disconnect"}
                 </Button>
@@ -214,24 +214,24 @@ export function Header() {
               <Button
                 onClick={() => connectWallet.mutate()}
                 disabled={connectWallet.isPending}
-                className="flex items-center space-x-2 gradient-brand text-white hover:opacity-90 transition-opacity"
+                className="cyber-button flex items-center space-x-2"
               >
                 <Wallet className="w-4 h-4" />
                 <span>
-                  {connectWallet.isPending ? "Connecting..." : "Connect MetaMask"}
+                  {connectWallet.isPending ? "Connecting..." : "Connect Wallet"}
                 </span>
               </Button>
             )}
 
             {/* Real-time Status Indicator */}
-            <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-og-slate-50 dark:bg-og-slate-800 border border-og-slate-200 dark:border-og-slate-700">
+            <div className="flex items-center space-x-2 px-3 py-2 rounded-xl cyber-glass dark:cyber-glass-dark border border-cyan-400/20">
               {wsConnected ? (
-                <Wifi className="h-4 w-4 text-green-500" />
+                <Wifi className="h-4 w-4 text-cyan-400 pulse-glow" />
               ) : (
-                <WifiOff className="h-4 w-4 text-red-500" />
+                <WifiOff className="h-4 w-4 text-red-400" />
               )}
-              <span className="text-xs text-og-slate-600 dark:text-og-slate-400 font-medium">
-                {wsConnected ? "Live" : "Offline"}
+              <span className="text-xs font-medium text-cyan-200">
+                {wsConnected ? "ONLINE" : "OFFLINE"}
               </span>
             </div>
 
@@ -240,24 +240,27 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-og-slate-100 dark:hover:bg-og-slate-800 transition-colors"
+              className="p-3 rounded-xl cyber-glass dark:cyber-glass-dark hover:neon-border-cyan transition-all duration-300"
             >
-              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              {theme === "light" ? 
+                <Moon className="h-4 w-4 text-cyan-300" /> : 
+                <Sun className="h-4 w-4 text-yellow-300" />
+              }
             </Button>
 
             {/* Notifications */}
             <Button
               variant="ghost"
               size="icon"
-              className="relative p-2 rounded-lg hover:bg-og-slate-100 dark:hover:bg-og-slate-800 transition-colors"
+              className="relative p-3 rounded-xl cyber-glass dark:cyber-glass-dark hover:neon-border-magenta transition-all duration-300"
             >
-              <Bell className="h-4 w-4" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+              <Bell className="h-4 w-4 text-magenta-300" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-magenta-400 rounded-full pulse-glow shadow-lg shadow-magenta-400/50"></div>
             </Button>
 
             {/* Profile */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 avatar-gradient-1 rounded-full"></div>
+              <div className="w-10 h-10 avatar-gradient-1 rounded-full ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 transition-all duration-300 float-animation"></div>
             </div>
           </div>
         </div>
