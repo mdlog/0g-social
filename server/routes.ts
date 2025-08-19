@@ -516,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if 0G Storage service is properly configured
       const hasPrivateKey = !!process.env.ZG_PRIVATE_KEY;
       const rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-      const indexerUrl = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet.0g.ai';
+      const indexerUrl = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
       
       // Try to test connection to indexer
       let indexerConnected = false;

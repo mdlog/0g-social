@@ -48,7 +48,7 @@ class ZGStorageService {
   constructor() {
     // 0G Galileo Testnet V3 configuration - updated endpoints for Chain ID 16601
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet.0g.ai';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
 
     this.initializeClients();
@@ -84,11 +84,14 @@ class ZGStorageService {
       try {
         console.log('[0G Storage] Testing indexer connectivity...');
         // Simple test to see if indexer responds
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         const testResult = await fetch(`${this.indexerRpc}/status`, { 
           method: 'GET',
-          timeout: 10000,
+          signal: controller.signal,
           headers: { 'Content-Type': 'application/json' }
         });
+        clearTimeout(timeoutId);
         
         if (testResult.ok) {
           console.log('[0G Storage] ✅ Indexer connection successful');
