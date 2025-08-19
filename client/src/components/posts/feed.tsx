@@ -17,15 +17,19 @@ export function Feed() {
   const { data: posts, isLoading, error, refetch } = useQuery<PostWithAuthor[]>({
     queryKey: ["/api/posts/feed", limit, offset],
     queryFn: async () => {
+      console.log(`🔄 Fetching feed: limit=${limit}, offset=${offset}`);
       const response = await fetch(`/api/posts/feed?limit=${limit}&offset=${offset}`);
       if (!response.ok) throw new Error("Failed to fetch posts");
-      return response.json();
+      const data = await response.json();
+      console.log(`✅ Feed fetched: ${data.length} posts`);
+      return data;
     },
     staleTime: 0, // Always consider data stale for immediate refresh
     gcTime: 0, // Don't cache for immediate updates
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    refetchInterval: 5000, // Aggressive polling every 5 seconds as fallback
   });
 
   const loadMore = () => {

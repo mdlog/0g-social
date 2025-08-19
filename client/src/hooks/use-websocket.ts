@@ -35,12 +35,34 @@ export function useWebSocket() {
           
           switch (message.type) {
             case 'new_post':
-              // Invalidate ALL post-related queries for immediate refresh
-              queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
-              // Also invalidate user profile queries to update post counts
-              queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
+              // Force immediate refresh of ALL queries related to posts
               console.log('📨 New post received, refreshing feed...');
+              
+              // Invalidate all post queries with exact matching
+              queryClient.invalidateQueries({ 
+                predicate: (query) => {
+                  const queryKey = query.queryKey as string[];
+                  return queryKey[0] === '/api/posts' || queryKey[0] === '/api/posts/feed';
+                }
+              });
+              
+              // Also force refetch user profiles for post counts
+              queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
+              
+              // Force immediate refetch instead of just invalidating
+              const refetchPromise = queryClient.refetchQueries({ 
+                predicate: (query) => {
+                  const queryKey = query.queryKey as string[];
+                  return queryKey[0] === '/api/posts/feed';
+                }
+              });
+              
+              console.log('🔄 Forcing refetch of feed queries...');
+              refetchPromise.then(() => {
+                console.log('✅ Feed refetch completed');
+              }).catch((error) => {
+                console.error('❌ Feed refetch failed:', error);
+              });
               break;
             
             case 'post_liked':
