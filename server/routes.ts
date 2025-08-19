@@ -73,6 +73,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const postData = insertPostSchema.parse(req.body);
       
+      // Verify Web3 signature if provided
+      if (postData.signature && postData.message && postData.address) {
+        const ethers = await import('ethers');
+        
+        try {
+          // Verify the signature matches the expected address
+          const recoveredAddress = ethers.verifyMessage(postData.message, postData.signature);
+          
+          if (recoveredAddress.toLowerCase() !== postData.address.toLowerCase()) {
+            return res.status(401).json({
+              message: "Invalid signature",
+              details: "Signature does not match the provided address"
+            });
+          }
+          
+          // Verify the signature is recent (within 5 minutes)
+          const signatureAge = Date.now() - (postData.timestamp || 0);
+          if (signatureAge > 5 * 60 * 1000) {
+            return res.status(401).json({
+              message: "Signature expired",
+              details: "Signature must be created within the last 5 minutes"
+            });
+          }
+          
+          // Verify the signed message contains the post content
+          if (!postData.message.includes(postData.content)) {
+            return res.status(401).json({
+              message: "Invalid signature content",
+              details: "Signed message does not contain the post content"
+            });
+          }
+          
+          console.log(`✅ Valid signature verified for address: ${postData.address}`);
+          
+        } catch (signatureError: any) {
+          return res.status(401).json({
+            message: "Signature verification failed",
+            details: signatureError.message
+          });
+        }
+      }
+      
       // Store content on 0G Storage
       const storageResult = await zgStorageService.storeContent(postData.content, {
         type: 'post',

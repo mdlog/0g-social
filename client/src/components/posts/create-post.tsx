@@ -7,6 +7,16 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ImageIcon, Database, Loader2, Wallet } from "lucide-react";
 
+// Extend Window interface for MetaMask
+declare global {
+  interface Window {
+    ethereum?: {
+      request: (args: { method: string; params?: any[] }) => Promise<any>;
+      isMetaMask?: boolean;
+    };
+  }
+}
+
 export function CreatePost() {
   const [content, setContent] = useState("");
   const { toast } = useToast();
@@ -27,7 +37,42 @@ export function CreatePost() {
 
   const createPostMutation = useMutation({
     mutationFn: async (data: { content: string }) => {
-      return await apiRequest("POST", "/api/posts", data);
+      // Step 1: Request MetaMask signature
+      if (!window.ethereum) {
+        throw new Error("MetaMask not detected. Please install MetaMask to continue.");
+      }
+
+      try {
+        // Connect to MetaMask
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        
+        // Create message to sign
+        const timestamp = Date.now();
+        const message = `0G Social Post Signature\n\nContent: ${data.content}\nTimestamp: ${timestamp}\n\nBy signing this message, you authorize posting this content to the 0G Storage network.`;
+        
+        // Request signature from user
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const account = accounts[0];
+        
+        const signature = await window.ethereum.request({
+          method: 'personal_sign',
+          params: [message, account],
+        });
+
+        // Step 2: Send post with signature to backend
+        return await apiRequest("POST", "/api/posts", {
+          content: data.content,
+          signature,
+          message,
+          timestamp,
+          address: account
+        });
+      } catch (error: any) {
+        if (error.code === 4001) {
+          throw new Error("Signature cancelled by user");
+        }
+        throw error;
+      }
     },
     onSuccess: (data: any) => {
       setContent("");
@@ -39,8 +84,7 @@ export function CreatePost() {
         }
       });
       
-      // Reset offset to show newest posts first
-      setOffset?.(0);
+      // Posts will be shown in the latest order after refresh
       
       // Show success message with 0G Storage information
       toast({
@@ -51,9 +95,19 @@ export function CreatePost() {
       });
     },
     onError: (error: any) => {
-      const errorMessage = error.code === "WALLET_NOT_CONNECTED" 
-        ? "Please connect your wallet to create posts"
-        : error.message;
+      let errorMessage = "Failed to create post";
+      
+      if (error.code === "WALLET_NOT_CONNECTED") {
+        errorMessage = "Please connect your wallet to create posts";
+      } else if (error.message?.includes("MetaMask")) {
+        errorMessage = error.message;
+      } else if (error.message?.includes("Signature")) {
+        errorMessage = error.message;
+      } else if (error.code === 4001) {
+        errorMessage = "Signature cancelled by user";
+      } else {
+        errorMessage = error.message || "Failed to create post";
+      }
       
       toast({
         title: "Failed to create post",
@@ -164,10 +218,10 @@ export function CreatePost() {
                       {createPostMutation.isPending ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Storing on 0G...
+                          Sign & Store to 0G...
                         </>
                       ) : (
-                        "Post"
+                        "Sign & Post"
                       )}
                     </Button>
                   </div>
