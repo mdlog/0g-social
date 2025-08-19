@@ -337,7 +337,7 @@ export function PostCard({ post }: PostCardProps) {
                       <Shield className="w-4 h-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="futuristic-card dark:futuristic-card-dark max-w-lg fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-50">
+                  <DialogContent className="futuristic-card dark:futuristic-card-dark max-w-lg !fixed !left-[50%] !top-[50%] !translate-x-[-50%] !translate-y-[-50%] !z-[100]">
                     <BlockchainVerification 
                       storageHash={post.storageHash || undefined}
                       transactionHash={post.transactionHash || undefined}

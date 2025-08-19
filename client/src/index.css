@@ -302,6 +302,25 @@
     border: 1px solid var(--cyber-yellow);
     box-shadow: 0 0 10px rgba(255, 255, 0, 0.2);
   }
+
+  /* Force dialog center positioning */
+  [data-radix-dialog-content] {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 100 !important;
+  }
+
+  /* Custom animations */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.4); }
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
   
   .ai-recommendation-badge span {
     @apply font-medium;
