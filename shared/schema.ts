@@ -126,8 +126,6 @@ export type Repost = typeof reposts.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
 
-// User profile type for UI components
-export type UserProfile = User;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertFollow = z.infer<typeof insertFollowSchema>;
 export type InsertLike = z.infer<typeof insertLikeSchema>;
@@ -141,8 +139,9 @@ export type PostWithAuthor = Post & {
   isReposted: boolean;
 };
 
+// User profile type for UI components
 export type UserProfile = User & {
-  isFollowing: boolean;
+  isFollowing?: boolean;
 };
 
 // 0G Storage content metadata interface

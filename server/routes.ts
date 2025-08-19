@@ -90,9 +90,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         followersCount: 0,
         postsCount: 0
       });
+      console.log(`Created new user for wallet ${walletConnection.address}: ${user.id}`);
+    } else {
+      console.log(`Found existing user for wallet ${walletConnection.address}: ${user.id}, avatar: ${user.avatar}`);
     }
 
     // Note: getUserByWalletAddress already recalculates post count for accuracy
+    // Force no-cache for user data to ensure avatar updates are reflected immediately
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
+    console.log(`Returning user data with avatar field:`, JSON.stringify({ id: user.id, avatar: user.avatar }));
     res.json(user);
   });
 
@@ -695,10 +704,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectStorageService = new ObjectStorageService();
       const avatarPath = objectStorageService.normalizeObjectEntityPath(req.body.avatarURL);
 
-      // Update user avatar
+      // Update user avatar with additional logging
+      console.log(`Updating avatar for user ${user.id} with path: ${avatarPath}`);
       const updatedUser = await storage.updateUserProfile(user.id, { 
         avatar: avatarPath 
       });
+      
+      console.log(`Avatar updated successfully. User avatar field:`, updatedUser.avatar);
       
       res.json({
         avatar: avatarPath,

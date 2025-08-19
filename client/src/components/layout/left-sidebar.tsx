@@ -50,11 +50,21 @@ export function LeftSidebar() {
           <Card>
             <CardContent className="p-6">
               <div className="text-center">
+                {/* Debug: log currentUser.avatar value */}
+                {console.log("LeftSidebar: currentUser.avatar value:", currentUser.avatar)}
                 <Avatar className="w-16 h-16 mx-auto mb-3">
                   <AvatarImage 
                     src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
                     alt={currentUser.displayName} 
                     className="object-cover"
+                    onError={(e) => {
+                      console.error("Avatar image failed to load:", currentUser.avatar);
+                      console.error("Full URL:", `${window.location.origin}${currentUser.avatar}`);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log("Avatar image loaded successfully:", currentUser.avatar);
+                    }}
                   />
                   <AvatarFallback className="avatar-gradient-1 text-white font-semibold">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
