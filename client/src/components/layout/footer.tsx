@@ -1,127 +1,169 @@
-import { Zap, Github, Twitter, Globe, Shield, Database, Cpu } from "lucide-react";
-import { Link } from "wouter";
+import { Github, Twitter, Globe, Heart, Shield, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-purple-500/20 bg-black/80 backdrop-blur-xl">
-      <div className="container mx-auto px-4 py-8">
+    <footer className="bg-white dark:bg-og-slate-800 border-t border-og-slate-200 dark:border-og-slate-700 mt-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
+          {/* Brand Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg gradient-cyber-primary flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">0G</span>
               </div>
-              <div>
-                <h3 className="font-bold gradient-neon-text">0G Social</h3>
-                <p className="text-xs text-cyan-400/80">Decentralized Network</p>
-              </div>
+              <h3 className="text-xl font-bold gradient-text">0G Social</h3>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Platform media sosial terdesentralisasi pertama yang dibangun di atas infrastruktur 0G Chain dengan penyimpanan on-chain yang sepenuhnya transparan.
+            <p className="text-og-slate-600 dark:text-og-slate-400 text-sm">
+              The first decentralized social media platform with user-owned AI feeds. 
+              Built on 0G Chain infrastructure for the future of Web3.
             </p>
+            <div className="flex items-center space-x-2">
+              <Shield className="w-4 h-4 text-og-primary" />
+              <span className="text-sm text-og-slate-600 dark:text-og-slate-400">
+                100% Decentralized & Secure
+              </span>
+            </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Platform Links */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-cyan-300">Quick Links</h4>
+            <h4 className="font-semibold text-og-slate-900 dark:text-og-slate-100">Platform</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/" className="text-gray-400 hover:text-cyan-300 transition-colors">
-                  Home Feed
-                </Link>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Home
+                </a>
               </li>
               <li>
-                <Link href="/discover" className="text-gray-400 hover:text-cyan-300 transition-colors">
-                  Discover
-                </Link>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Explore
+                </a>
               </li>
               <li>
-                <Link href="/communities" className="text-gray-400 hover:text-cyan-300 transition-colors">
-                  Communities
-                </Link>
-              </li>
-              <li>
-                <Link href="/ai-recommendations" className="text-gray-400 hover:text-cyan-300 transition-colors">
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
                   AI Recommendations
-                </Link>
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Community
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Developer API
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* 0G Infrastructure */}
+          {/* 0G Chain Links */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-green-300">0G Infrastructure</h4>
+            <h4 className="font-semibold text-og-slate-900 dark:text-og-slate-100">0G Chain</h4>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center space-x-2">
-                <Database className="w-4 h-4 text-green-400" />
-                <span className="text-gray-400">0G Storage</span>
+              <li>
+                <a href="https://0g.ai" target="_blank" rel="noopener noreferrer" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Official Website
+                </a>
               </li>
-              <li className="flex items-center space-x-2">
-                <Cpu className="w-4 h-4 text-blue-400" />
-                <span className="text-gray-400">0G Compute</span>
+              <li>
+                <a href="https://docs.0g.ai" target="_blank" rel="noopener noreferrer" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Documentation
+                </a>
               </li>
-              <li className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 text-purple-400" />
-                <span className="text-gray-400">0G DA</span>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Newton Testnet
+                </a>
               </li>
-              <li className="flex items-center space-x-2">
-                <Globe className="w-4 h-4 text-cyan-400" />
-                <span className="text-gray-400">0G Chain</span>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Staking
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Validator
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Social Links */}
+          {/* Support & Community */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-magenta-300">Community</h4>
-            <div className="flex space-x-3">
-              <a
-                href="https://github.com/0glabs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              <a
-                href="https://twitter.com/0G_labs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="https://0g.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-              >
-                <Globe className="w-5 h-5" />
-              </a>
-            </div>
-            <p className="text-xs text-gray-500">
-              Join the decentralized revolution
-            </p>
+            <h4 className="font-semibold text-og-slate-900 dark:text-og-slate-100">Support</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  User Guide
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-og-slate-600 dark:text-og-slate-400 hover:text-og-primary transition-colors">
+                  System Status
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <p className="text-xs text-gray-500">
-            © 2025 0G Social. Built on 0G Chain infrastructure.
-          </p>
-          <div className="flex space-x-6 text-xs">
-            <a href="#" className="text-gray-500 hover:text-cyan-300 transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-gray-500 hover:text-cyan-300 transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="text-gray-500 hover:text-cyan-300 transition-colors">
-              Documentation
-            </a>
+        {/* Network Stats Bar */}
+        <div className="mt-8 pt-8 border-t border-og-slate-200 dark:border-og-slate-700">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-6 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-og-slate-600 dark:text-og-slate-400">Status: Online</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Zap className="w-3 h-3 text-og-secondary" />
+                <span className="text-og-slate-600 dark:text-og-slate-400">24.7K Active Users</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Heart className="w-3 h-3 text-red-500" />
+                <span className="text-og-slate-600 dark:text-og-slate-400">1.2M Posts Today</span>
+              </div>
+            </div>
+            
+            {/* Social Links */}
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Twitter className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Github className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Globe className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-8 pt-8 border-t border-og-slate-200 dark:border-og-slate-700">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between text-sm text-og-slate-600 dark:text-og-slate-400">
+            <p>© 2025 0G Social. Built with ❤️ for the decentralized future of Web3.</p>
+            <div className="flex items-center space-x-4 mt-2 md:mt-0">
+              <span>Powered by 0G Chain</span>
+              <div className="w-4 h-4 gradient-brand rounded"></div>
+            </div>
           </div>
         </div>
       </div>

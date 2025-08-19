@@ -27,8 +27,6 @@ import {
 import { useTheme } from "@/hooks/use-theme";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -90,7 +88,6 @@ export function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
-      <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -449,7 +446,6 @@ export function SettingsPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

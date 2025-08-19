@@ -5,8 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Users, Target, RefreshCw } from "lucide-react";
 import { PostCard } from "@/components/posts/post-card";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 
 export function AIRecommendationsPage() {
   const [refreshing, setRefreshing] = useState(false);
@@ -32,7 +30,6 @@ export function AIRecommendationsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
-      <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -177,7 +174,6 @@ export function AIRecommendationsPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
