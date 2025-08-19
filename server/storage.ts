@@ -1,7 +1,7 @@
 import { type User, type Post, type Follow, type Like, type Comment, type Repost, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type InsertRepost, type PostWithAuthor, type UserProfile, type UpdateUserProfile } from "@shared/schema";
 import { db } from "./db";
 import { users, posts, follows, likes, comments, reposts } from "@shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -116,6 +116,13 @@ export class DatabaseStorage implements IStorage {
   // Post methods
   async createPost(insertPost: InsertPost & { storageHash?: string; transactionHash?: string; authorId: string }): Promise<Post> {
     const [post] = await db.insert(posts).values(insertPost).returning();
+    
+    // Increment the author's posts count
+    await db
+      .update(users)
+      .set({ postsCount: sql`${users.postsCount} + 1` })
+      .where(eq(users.id, insertPost.authorId));
+    
     return post;
   }
 

@@ -15,6 +15,15 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## Post Count Display Fix (August 19, 2025)
+- **Issue**: User profile cards were not displaying correct post counts after post creation
+- **Root Cause**: Database storage method was not incrementing users.postsCount field when posts were created
+- **Solution**: 
+  - Added automatic increment of postsCount in createPost method using SQL increment
+  - Fixed existing post counts with database UPDATE query to match actual post count
+  - Added proper sql import from drizzle-orm to prevent TypeScript errors
+- **Result**: Profile cards now correctly show accurate post counts that update automatically when users create posts
+
 ## Dynamic User Profile Based on Wallet Connection (August 19, 2025)
 - **Feature**: User profile now dynamically matches the connected wallet address
 - **Auto-Creation**: New user profiles automatically created for first-time wallet connections
