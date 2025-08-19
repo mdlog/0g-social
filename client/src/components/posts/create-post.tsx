@@ -31,9 +31,16 @@ export function CreatePost() {
     },
     onSuccess: (data: any) => {
       setContent("");
-      // Invalidate both posts queries to refresh the feed
-      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/posts/feed"] });
+      // Invalidate all posts queries with broad matching to refresh the feed
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return typeof key === 'string' && (key.includes('/api/posts') || key.includes('/api/posts/feed'));
+        }
+      });
+      
+      // Reset offset to show newest posts first
+      setOffset?.(0);
       
       // Show success message with 0G Storage information
       toast({

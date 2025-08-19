@@ -10,13 +10,15 @@ export function Feed() {
   const [offset, setOffset] = useState(0);
   const limit = 10;
 
-  const { data: posts, isLoading, error } = useQuery<PostWithAuthor[]>({
-    queryKey: ["/api/posts/feed", { limit, offset }],
+  const { data: posts, isLoading, error, refetch } = useQuery<PostWithAuthor[]>({
+    queryKey: ["/api/posts/feed", limit, offset],
     queryFn: async () => {
       const response = await fetch(`/api/posts/feed?limit=${limit}&offset=${offset}`);
       if (!response.ok) throw new Error("Failed to fetch posts");
       return response.json();
     },
+    staleTime: 0, // Always consider data stale for immediate refresh
+    cacheTime: 0, // Don't cache for immediate updates
   });
 
   const loadMore = () => {
