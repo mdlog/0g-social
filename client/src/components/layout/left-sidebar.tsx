@@ -4,9 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function LeftSidebar() {
-  const { data: currentUser, isError } = useQuery<{displayName: string; username: string; postsCount: number; followingCount: number; followersCount: number}>({
+  const { data: currentUser, isError, refetch } = useQuery<{displayName: string; username: string; postsCount: number; followingCount: number; followersCount: number}>({
     queryKey: ["/api/users/me"],
     retry: false, // Don't retry on 401 errors
+    refetchInterval: 5000, // Check every 5 seconds for wallet changes
+    queryFn: async () => {
+      const res = await fetch("/api/users/me", {
+        credentials: "include",
+      });
+      
+      if (res.status === 401) {
+        // Return null when wallet not connected instead of throwing error
+        return null;
+      }
+      
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
+      
+      return await res.json();
+    },
   });
 
   const { data: chainStatus } = useQuery<{network: string; blockHeight: number; gasPrice: string}>({
@@ -27,7 +44,7 @@ export function LeftSidebar() {
     <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
         {/* User Profile Card - Only show when wallet connected */}
-        {currentUser && !isError ? (
+        {currentUser ? (
           <Card>
             <CardContent className="p-6">
               <div className="text-center">
