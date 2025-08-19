@@ -130,10 +130,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = parseInt(req.query.offset as string) || 0;
     
-    // Use connected wallet address for personalized feed, fallback to general feed
+    // Use global feed for social media experience - show ALL posts from ALL users
     const walletData = req.session.walletConnection;
-    const userId = walletData?.address || "general";
-    const posts = await storage.getPersonalizedFeed(userId, limit, offset);
+    const currentUserId = walletData?.address || undefined; // For like/repost status
+    const posts = await storage.getGlobalFeed(currentUserId, limit, offset);
     res.json(posts);
   });
 

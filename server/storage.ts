@@ -15,6 +15,7 @@ export interface IStorage {
   getPosts(limit?: number, offset?: number): Promise<Post[]>;
   getPostsByUser(userId: string, limit?: number, offset?: number): Promise<Post[]>;
   getPersonalizedFeed(userId: string, limit?: number, offset?: number): Promise<PostWithAuthor[]>;
+  getGlobalFeed(currentUserId?: string, limit?: number, offset?: number): Promise<PostWithAuthor[]>;
   deletePost(id: string): Promise<void>;
   
   // Follows
@@ -268,6 +269,54 @@ export class MemStorage implements IStorage {
       if (author) {
         const isLiked = await this.isPostLiked(userId, post.id);
         const isReposted = await this.isPostReposted(userId, post.id);
+        postsWithAuthor.push({
+          ...post,
+          author,
+          isLiked,
+          isReposted,
+        });
+      }
+    }
+    
+    return postsWithAuthor;
+  }
+
+  async getGlobalFeed(currentUserId?: string, limit = 10, offset = 0): Promise<PostWithAuthor[]> {
+    // Get ALL posts from ALL users - this is a true global social media feed
+    const posts = await this.getPosts(limit, offset);
+    const postsWithAuthor: PostWithAuthor[] = [];
+    
+    for (const post of posts) {
+      let author = await this.getUser(post.authorId);
+      
+      // Handle wallet address authors (Web3 posts)
+      if (!author && post.authorId.startsWith('0x')) {
+        author = await this.getUserByWalletAddress(post.authorId);
+        
+        // If still no user found, create a mock author for display
+        if (!author) {
+          author = {
+            id: post.authorId,
+            username: `user_${post.authorId.substring(0, 8)}`,
+            displayName: `User ${post.authorId.substring(0, 8)}...`,
+            email: null,
+            bio: null,
+            avatar: null,
+            walletAddress: post.authorId,
+            isVerified: true, // Wallet-verified users
+            followingCount: 0,
+            followersCount: 0,
+            postsCount: 1,
+            createdAt: new Date()
+          };
+        }
+      }
+      
+      if (author) {
+        // For global feed, we check likes/reposts against current user if available
+        const isLiked = currentUserId ? await this.isPostLiked(currentUserId, post.id) : false;
+        const isReposted = currentUserId ? await this.isPostReposted(currentUserId, post.id) : false;
+        
         postsWithAuthor.push({
           ...post,
           author,
