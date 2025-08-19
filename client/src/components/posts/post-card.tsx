@@ -322,7 +322,7 @@ export function PostCard({ post }: PostCardProps) {
                 </Button>
                 
                 {/* Blockchain Verification Button - available for all posts */}
-                <Dialog>
+                <Dialog onOpenChange={(open) => console.log('Dialog state changed:', open)}>
                   <DialogTrigger asChild>
                     <Button
                       variant="ghost"
@@ -333,6 +333,7 @@ export function PostCard({ post }: PostCardProps) {
                           : "text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
                       }`}
                       title="Verify on Blockchain"
+                      onClick={() => console.log('Shield clicked for post:', post.id, 'Storage:', post.storageHash, 'TX:', post.transactionHash)}
                     >
                       <Shield className="w-4 h-4" />
                     </Button>
