@@ -15,6 +15,13 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## Dynamic User Profile Based on Wallet Connection (August 19, 2025)
+- **Feature**: User profile now dynamically matches the connected wallet address
+- **Auto-Creation**: New user profiles automatically created for first-time wallet connections
+- **Wallet Integration**: Profile includes wallet address and auto-verification for connected users  
+- **Session Management**: Each wallet connection creates a unique user session with proper profile data
+- **User Experience**: Seamless transition between different wallet addresses showing correct user info
+
 ## Demo Posts Removal & Empty State Enhancement (August 19, 2025)
 - **Feature**: Removed all demo/sample posts from the system per user request
 - **Clean Feed**: Only authentic user-created posts now appear in feeds

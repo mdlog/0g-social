@@ -10,10 +10,36 @@ import { zgChainService } from "./services/zg-chain";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Auth/Users
+  // Auth/Users - Dynamic profile based on connected wallet
   app.get("/api/users/me", async (req, res) => {
-    // Mock current user (in real app, get from session/auth)
-    const user = await storage.getUser("user1");
+    const walletConnection = getWalletConnection(req);
+    
+    if (!walletConnection.connected || !walletConnection.address) {
+      // Return default user when no wallet connected
+      const defaultUser = await storage.getUser("user1");
+      return res.json(defaultUser);
+    }
+
+    // Try to find existing user by wallet address
+    let user = await storage.getUserByWalletAddress(walletConnection.address);
+    
+    if (!user) {
+      // Create new user profile for this wallet address
+      const walletShort = walletConnection.address.slice(0, 6) + '...' + walletConnection.address.slice(-4);
+      user = await storage.createUser({
+        username: `user_${walletShort.toLowerCase()}`,
+        displayName: `0G User ${walletShort}`,
+        email: null,
+        bio: `Decentralized user on 0G Chain • Wallet: ${walletShort}`,
+        avatar: null,
+        walletAddress: walletConnection.address,
+        isVerified: true, // Auto-verify wallet-connected users
+        followingCount: 0,
+        followersCount: 0,
+        postsCount: 0
+      });
+    }
+
     res.json(user);
   });
 
@@ -131,8 +157,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         commentsCount: 0,
         sharesCount: 0,
         isAiRecommended: Math.random() > 0.7,
-        storageHash: storageResult.success ? storageResult.hash : null,
-        transactionHash: storageResult.success ? storageResult.transactionHash : null,
+        storageHash: storageResult.success ? storageResult.hash || undefined : undefined,
+        transactionHash: storageResult.success ? storageResult.transactionHash || undefined : undefined,
         createdAt: new Date()
       };
 

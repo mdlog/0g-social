@@ -133,6 +133,12 @@ export class MemStorage implements IStorage {
     return Array.from(this.users.values()).find(user => user.username === username);
   }
 
+  async getUserByWalletAddress(walletAddress: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => 
+      user.walletAddress && user.walletAddress.toLowerCase() === walletAddress.toLowerCase()
+    );
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = {
