@@ -134,9 +134,24 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => 
+    const user = Array.from(this.users.values()).find(user => 
       user.walletAddress && user.walletAddress.toLowerCase() === walletAddress.toLowerCase()
     );
+    
+    // If user exists, recalculate their post count to ensure accuracy
+    if (user) {
+      const actualPostCount = Array.from(this.posts.values()).filter(
+        post => post.authorId === user.id || post.authorId === walletAddress
+      ).length;
+      
+      // Update post count if it doesn't match
+      if (user.postsCount !== actualPostCount) {
+        user.postsCount = actualPostCount;
+        this.users.set(user.id, user);
+      }
+    }
+    
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -193,8 +208,13 @@ export class MemStorage implements IStorage {
     
     this.posts.set(id, post);
     
-    // Update user's post count
-    const user = await this.getUser(insertPost.authorId);
+    // Update user's post count - handle both user ID and wallet address
+    let user = await this.getUser(insertPost.authorId);
+    if (!user && insertPost.authorId.startsWith('0x')) {
+      // If authorId is a wallet address, find user by wallet
+      user = await this.getUserByWalletAddress(insertPost.authorId);
+    }
+    
     if (user) {
       await this.updateUser(user.id, { postsCount: (user.postsCount || 0) + 1 });
     }

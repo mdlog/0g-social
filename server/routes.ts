@@ -43,6 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
 
+    // Note: getUserByWalletAddress already recalculates post count for accuracy
     res.json(user);
   });
 
