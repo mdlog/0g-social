@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function LeftSidebar() {
-  const { data: currentUser } = useQuery<{displayName: string; username: string; postsCount: number; followingCount: number; followersCount: number}>({
+  const { data: currentUser, isError } = useQuery<{displayName: string; username: string; postsCount: number; followingCount: number; followersCount: number}>({
     queryKey: ["/api/users/me"],
+    retry: false, // Don't retry on 401 errors
   });
 
   const { data: chainStatus } = useQuery<{network: string; blockHeight: number; gasPrice: string}>({
@@ -25,41 +26,61 @@ export function LeftSidebar() {
   return (
     <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
-        {/* User Profile Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="w-16 h-16 avatar-gradient-1 rounded-full mx-auto mb-3"></div>
-              <h3 className="font-semibold text-lg">{currentUser?.displayName || "Alex Chen"}</h3>
-              <p className="text-og-slate-600 dark:text-og-slate-400 text-sm mb-3">
-                @{currentUser?.username || "alexc"}.0g
-              </p>
-              
-              {/* Decentralized Identity Badge */}
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <div className="verified-badge">
-                  <Shield className="text-white w-3 h-3" />
-                  <span className="text-xs">Verified DID</span>
+        {/* User Profile Card - Only show when wallet connected */}
+        {currentUser && !isError ? (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 avatar-gradient-1 rounded-full mx-auto mb-3"></div>
+                <h3 className="font-semibold text-lg">{currentUser.displayName}</h3>
+                <p className="text-og-slate-600 dark:text-og-slate-400 text-sm mb-3">
+                  @{currentUser.username}.0g
+                </p>
+                
+                {/* Decentralized Identity Badge */}
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <div className="verified-badge">
+                    <Shield className="text-white w-3 h-3" />
+                    <span className="text-xs">Verified DID</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-lg font-semibold">{currentUser?.postsCount || 342}</p>
-                  <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Posts</p>
-                </div>
-                <div>
-                  <p className="text-lg font-semibold">{currentUser?.followingCount || 150}</p>
-                  <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Following</p>
-                </div>
-                <div>
-                  <p className="text-lg font-semibold">{currentUser?.followersCount || 2400}</p>
-                  <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Followers</p>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-lg font-semibold">{currentUser.postsCount || 0}</p>
+                    <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Posts</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold">{currentUser.followingCount || 0}</p>
+                    <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Following</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold">{currentUser.followersCount || 0}</p>
+                    <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Followers</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-og-slate-200 dark:bg-og-slate-700 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <Shield className="text-og-slate-400 w-6 h-6" />
+                </div>
+                <h3 className="font-semibold text-lg text-og-slate-600 dark:text-og-slate-400">Connect Wallet</h3>
+                <p className="text-og-slate-500 dark:text-og-slate-500 text-sm mb-4">
+                  Connect your wallet to access your profile
+                </p>
+                
+                <p className="text-xs text-og-slate-400 dark:text-og-slate-600">
+                  Your profile will appear here after wallet connection
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Navigation Menu */}
         <Card>

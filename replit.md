@@ -20,6 +20,7 @@ Preferred communication style: Simple, everyday language.
 - **Auto-Creation**: New user profiles automatically created for first-time wallet connections
 - **Wallet Integration**: Profile includes wallet address and auto-verification for connected users  
 - **Session Management**: Each wallet connection creates a unique user session with proper profile data
+- **Disconnect Handling**: Profile card hides when wallet disconnected, showing "Connect Wallet" message
 - **User Experience**: Seamless transition between different wallet addresses showing correct user info
 
 ## Demo Posts Removal & Empty State Enhancement (August 19, 2025)

@@ -15,9 +15,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const walletConnection = getWalletConnection(req);
     
     if (!walletConnection.connected || !walletConnection.address) {
-      // Return default user when no wallet connected
-      const defaultUser = await storage.getUser("user1");
-      return res.json(defaultUser);
+      // Return 401 when no wallet connected to indicate authentication required
+      return res.status(401).json({
+        message: "Wallet connection required",
+        details: "Please connect your wallet to access user profile",
+        code: "WALLET_NOT_CONNECTED"
+      });
     }
 
     // Try to find existing user by wallet address
