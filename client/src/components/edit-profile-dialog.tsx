@@ -2,33 +2,48 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Edit2, Upload } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ObjectUploader } from "@/components/ObjectUploader";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { updateUserProfileSchema, type UpdateUserProfile, type User } from "@shared/schema";
-import { Edit2, Upload } from "lucide-react";
+import { updateUserProfileSchema, type UpdateUserProfile, type UserProfile } from "@shared/schema";
 
 interface EditProfileDialogProps {
-  user: User;
+  user: UserProfile;
   trigger?: React.ReactNode;
 }
 
 export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
-  const { toast } = useToast();
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const form = useForm<UpdateUserProfile>({
     resolver: zodResolver(updateUserProfileSchema),
     defaultValues: {
-      username: user.username,
-      displayName: user.displayName,
+      displayName: user.displayName || "",
+      username: user.username || "",
       bio: user.bio || "",
       avatar: user.avatar || "",
     },
@@ -36,7 +51,8 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateUserProfile) => {
-      return apiRequest("/api/users/me", {
+      console.log("Updating profile with data:", data);
+      return await apiRequest("/api/users/me", {
         method: "PUT",
         body: JSON.stringify(data),
         headers: {
@@ -44,74 +60,113 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
         },
       });
     },
-    onSuccess: (updatedUser) => {
+    onSuccess: (result) => {
+      console.log("Profile update successful:", result);
       queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/posts/feed"] });
+      setOpen(false);
+      setAvatarPreview(null);
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
       });
-      setOpen(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Profile update error:", error);
       toast({
-        title: "Update Failed",
-        description: "Failed to update profile. Please try again.",
+        title: "Update Failed", 
+        description: `Failed to update profile: ${error.message || "Unknown error"}`,
         variant: "destructive",
       });
-      console.error("Profile update error:", error);
     },
   });
 
-  const avatarUploadMutation = useMutation({
-    mutationFn: async (avatarURL: string) => {
-      return apiRequest("/api/users/me/avatar", {
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Avatar image must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setUploading(true);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Get upload URL
+      const response = await apiRequest("/api/objects/upload", {
+        method: "POST",
+      });
+
+      // Upload file
+      const uploadResponse = await fetch(response.uploadURL, {
         method: "PUT",
-        body: JSON.stringify({ avatarURL }),
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.status}`);
+      }
+
+      // Update avatar on backend
+      const avatarResponse = await apiRequest("/api/users/me/avatar", {
+        method: "PUT",
+        body: JSON.stringify({ avatarURL: response.uploadURL }),
         headers: {
           "Content-Type": "application/json",
         },
       });
-    },
-    onSuccess: (result) => {
-      form.setValue("avatar", result.avatar);
-      queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+
+      // Update form value
+      form.setValue("avatar", avatarResponse.avatar);
+      
       toast({
-        title: "Avatar Updated",
+        title: "Avatar uploaded",
         description: "Your profile picture has been updated.",
       });
-    },
-    onError: (error) => {
+
+    } catch (error: any) {
+      console.error("Avatar upload error:", error);
+      setAvatarPreview(null);
       toast({
-        title: "Upload Failed",
-        description: "Failed to update avatar. Please try again.",
+        title: "Upload failed",
+        description: `Failed to upload avatar: ${error.message}`,
         variant: "destructive",
       });
-      console.error("Avatar upload error:", error);
-    },
-  });
-
-  const onSubmit = (data: UpdateUserProfile) => {
-    updateProfileMutation.mutate(data);
-  };
-
-  const handleAvatarUpload = async () => {
-    try {
-      const response = await apiRequest("/api/objects/upload", {
-        method: "POST",
-      });
-      return {
-        method: "PUT" as const,
-        url: response.uploadURL,
-      };
-    } catch (error) {
-      console.error("Failed to get upload URL:", error);
-      throw error;
+    } finally {
+      setUploading(false);
+      // Reset file input
+      event.target.value = "";
     }
   };
 
-  const handleAvatarComplete = (result: { uploadURL: string; file: File }) => {
-    avatarUploadMutation.mutate(result.uploadURL);
+  const onSubmit = (data: UpdateUserProfile) => {
+    console.log("Form submission data:", data);
+    updateProfileMutation.mutate(data);
   };
 
   return (
@@ -134,23 +189,38 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
           {/* Avatar Section */}
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={form.watch("avatar") || user.avatar || ""} />
-              <AvatarFallback>
+              <AvatarImage 
+                src={avatarPreview || form.watch("avatar") || user.avatar || ""} 
+                alt={user.displayName} 
+              />
+              <AvatarFallback className="avatar-gradient-1 text-white font-semibold">
                 {user.displayName.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
-            <ObjectUploader
-              maxNumberOfFiles={1}
-              maxFileSize={5 * 1024 * 1024} // 5MB
-              acceptedFileTypes={["image/*"]}
-              onGetUploadParameters={handleAvatarUpload}
-              onComplete={handleAvatarComplete}
-              buttonClassName="w-full"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {avatarUploadMutation.isPending ? "Uploading..." : "Change Photo"}
-            </ObjectUploader>
+            <div className="relative">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                disabled={uploading}
+                className="hidden"
+                id="avatar-upload"
+              />
+              <label htmlFor="avatar-upload">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  asChild
+                >
+                  <span className="cursor-pointer">
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploading ? "Uploading..." : "Change Photo"}
+                  </span>
+                </Button>
+              </label>
+            </div>
           </div>
 
           {/* Profile Form */}
@@ -158,12 +228,12 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="username"
+                name="displayName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Display Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter username" {...field} />
+                      <Input placeholder="Enter your display name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -172,12 +242,12 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
 
               <FormField
                 control={form.control}
-                name="displayName"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Display Name</FormLabel>
+                    <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter display name" {...field} />
+                      <Input placeholder="Enter your username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,9 +262,9 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Tell us about yourself..."
-                        className="min-h-[80px]"
-                        {...field}
+                        placeholder="Tell us about yourself" 
+                        rows={3}
+                        {...field} 
                       />
                     </FormControl>
                     <FormMessage />
@@ -202,14 +272,7 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
                 )}
               />
 
-              <div className="flex space-x-2 pt-4">
-                <Button
-                  type="submit"
-                  disabled={updateProfileMutation.isPending}
-                  className="flex-1"
-                >
-                  {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
-                </Button>
+              <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -217,6 +280,13 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
                   className="flex-1"
                 >
                   Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateProfileMutation.isPending}
+                  className="flex-1"
+                >
+                  {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>
