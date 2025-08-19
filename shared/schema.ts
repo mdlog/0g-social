@@ -61,11 +61,21 @@ export const reposts = pgTable("reposts", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Insert schemas
+// Insert schemas  
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
 });
+
+// Profile update schema (for editing profile data)
+export const updateUserProfileSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  walletAddress: true, // Cannot change wallet address
+  followingCount: true,
+  followersCount: true,
+  postsCount: true,
+}).partial(); // All fields optional for updates
 
 export const insertPostSchema = createInsertSchema(posts).omit({
   id: true,
@@ -114,6 +124,10 @@ export type Comment = typeof comments.$inferSelect;
 export type Repost = typeof reposts.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
+
+// User profile type for UI components
+export type UserProfile = User;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertFollow = z.infer<typeof insertFollowSchema>;
 export type InsertLike = z.infer<typeof insertLikeSchema>;

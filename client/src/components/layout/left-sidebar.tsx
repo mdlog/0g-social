@@ -2,9 +2,11 @@ import { Home, Bot, Compass, Users, Bookmark, Settings, Shield } from "lucide-re
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EditProfileDialog } from "@/components/edit-profile-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function LeftSidebar() {
-  const { data: currentUser, isError, refetch } = useQuery<{displayName: string; username: string; postsCount: number; followingCount: number; followersCount: number}>({
+  const { data: currentUser, isError, refetch } = useQuery<{id: string; displayName: string; username: string; email: string | null; bio: string | null; avatar: string | null; walletAddress: string | null; isVerified: boolean; followingCount: number; followersCount: number; postsCount: number; createdAt: Date | null}>({
     queryKey: ["/api/users/me"],
     retry: false, // Don't retry on 401 errors
     refetchInterval: 5000, // Check every 5 seconds for wallet changes
@@ -48,7 +50,12 @@ export function LeftSidebar() {
           <Card>
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-16 h-16 avatar-gradient-1 rounded-full mx-auto mb-3"></div>
+                <Avatar className="w-16 h-16 mx-auto mb-3">
+                  <AvatarImage src={currentUser.avatar || ""} alt={currentUser.displayName} />
+                  <AvatarFallback className="avatar-gradient-1 text-white font-semibold">
+                    {currentUser.displayName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <h3 className="font-semibold text-lg">{currentUser.displayName}</h3>
                 <p className="text-og-slate-600 dark:text-og-slate-400 text-sm mb-3">
                   @{currentUser.username}.0g
@@ -62,7 +69,7 @@ export function LeftSidebar() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-4 text-center mb-4">
                   <div>
                     <p className="text-lg font-semibold">{currentUser.postsCount || 0}</p>
                     <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Posts</p>
@@ -76,6 +83,9 @@ export function LeftSidebar() {
                     <p className="text-xs text-og-slate-600 dark:text-og-slate-400">Followers</p>
                   </div>
                 </div>
+                
+                {/* Edit Profile Button */}
+                <EditProfileDialog user={currentUser} />
               </div>
             </CardContent>
           </Card>

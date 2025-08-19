@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema } from "@shared/schema";
+import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema } from "@shared/schema";
+import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics } from "./services/ai";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
@@ -612,6 +613,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     walletConnection.chainId = null;
 
     res.json({ success: true });
+  });
+
+  // Profile management endpoints
+  app.put("/api/users/me", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          message: "Wallet connection required",
+          details: "Please connect your wallet to update profile"
+        });
+      }
+
+      // Validate request body
+      const parseResult = updateUserProfileSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          message: "Invalid profile data",
+          errors: parseResult.error.errors 
+        });
+      }
+
+      // Get current user
+      let user = await storage.getUserByWalletAddress(walletConnection.address);
+      
+      if (!user) {
+        return res.status(404).json({
+          message: "User profile not found"
+        });
+      }
+
+      // Update user profile
+      const updatedUser = await storage.updateUserProfile(user.id, parseResult.data);
+      
+      res.json(updatedUser);
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Object storage endpoints for avatar upload
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Upload URL error:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
+  // Update avatar after upload
+  app.put("/api/users/me/avatar", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          message: "Wallet connection required"
+        });
+      }
+
+      if (!req.body.avatarURL) {
+        return res.status(400).json({ error: "avatarURL is required" });
+      }
+
+      // Get current user
+      let user = await storage.getUserByWalletAddress(walletConnection.address);
+      
+      if (!user) {
+        return res.status(404).json({
+          message: "User profile not found"
+        });
+      }
+
+      // Normalize object path for storage
+      const objectStorageService = new ObjectStorageService();
+      const avatarPath = objectStorageService.normalizeObjectEntityPath(req.body.avatarURL);
+
+      // Update user avatar
+      const updatedUser = await storage.updateUserProfile(user.id, { 
+        avatar: avatarPath 
+      });
+      
+      res.json({
+        avatar: avatarPath,
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error("Avatar update error:", error);
+      res.status(500).json({ error: "Failed to update avatar" });
+    }
+  });
+
+  // Serve private objects (avatars)
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      
+      if (!objectFile) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Object download error:", error);
+      res.status(500).json({ error: "Failed to download file" });
+    }
   });
 
   return httpServer;
