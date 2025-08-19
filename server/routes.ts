@@ -123,19 +123,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create the post in our system regardless of 0G Storage status (graceful degradation)
       const newPost = {
-        id: Date.now(),
+        id: Date.now().toString(),
         content: postData.content,
         authorId: walletData.address,
-        author: `User ${walletData.address.substring(0, 8)}...`,
-        avatar: `avatar-gradient-${Math.floor(Math.random() * 5) + 1}`,
-        timestamp: new Date().toISOString(),
-        likes: 0,
-        comments: 0,
-        reposts: 0,
+        imageUrl: null,
+        likesCount: 0,
+        commentsCount: 0,
+        sharesCount: 0,
         isAiRecommended: Math.random() > 0.7,
-        storageHash: storageResult.success ? storageResult.hash : undefined,
-        transactionHash: storageResult.success ? storageResult.transactionHash : undefined,
-        verified: true
+        storageHash: storageResult.success ? storageResult.hash : null,
+        transactionHash: storageResult.success ? storageResult.transactionHash : null,
+        createdAt: new Date()
       };
 
       // Use connected wallet address as author

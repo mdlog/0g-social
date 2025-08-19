@@ -80,9 +80,19 @@ export function CreatePost() {
       queryClient.invalidateQueries({ 
         predicate: (query) => {
           const key = query.queryKey[0];
-          return typeof key === 'string' && (key.includes('/api/posts') || key.includes('/api/posts/feed'));
+          return typeof key === 'string' && key.includes('/api/posts');
         }
       });
+      
+      // Force immediate refetch of the current feed with a slight delay to ensure backend processing
+      setTimeout(() => {
+        queryClient.refetchQueries({
+          predicate: (query) => {
+            const key = query.queryKey[0];
+            return typeof key === 'string' && key === '/api/posts/feed';
+          }
+        });
+      }, 100);
       
       // Show success message with 0G Storage information
       if (data.storageStatus === "pending") {

@@ -205,6 +205,7 @@ export class MemStorage implements IStorage {
     const post: Post = {
       ...insertPost,
       id,
+      imageUrl: insertPost.imageUrl || null,
       storageHash: insertPost.storageHash || null,
       transactionHash: insertPost.transactionHash || null,
       likesCount: 0,
@@ -248,7 +249,26 @@ export class MemStorage implements IStorage {
     const postsWithAuthor: PostWithAuthor[] = [];
     
     for (const post of posts) {
-      const author = await this.getUser(post.authorId);
+      let author = await this.getUser(post.authorId);
+      
+      // If no user found, create a mock author for wallet addresses (Web3 posts)
+      if (!author && post.authorId.startsWith('0x')) {
+        author = {
+          id: post.authorId,
+          username: `user_${post.authorId.substring(0, 8)}`,
+          displayName: `User ${post.authorId.substring(0, 8)}...`,
+          email: null,
+          bio: null,
+          avatar: null,
+          walletAddress: post.authorId,
+          isVerified: true, // Wallet-verified users
+          followingCount: 0,
+          followersCount: 0,
+          postsCount: 1,
+          createdAt: new Date()
+        };
+      }
+      
       if (author) {
         const isLiked = await this.isPostLiked(userId, post.id);
         const isReposted = await this.isPostReposted(userId, post.id);

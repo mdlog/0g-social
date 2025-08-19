@@ -18,7 +18,7 @@ export function Feed() {
       return response.json();
     },
     staleTime: 0, // Always consider data stale for immediate refresh
-    cacheTime: 0, // Don't cache for immediate updates
+    gcTime: 0, // Don't cache for immediate updates (updated from cacheTime)
   });
 
   const loadMore = () => {
