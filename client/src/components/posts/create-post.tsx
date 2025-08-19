@@ -239,6 +239,13 @@ export function CreatePost() {
     e.preventDefault();
     if (!content.trim()) return;
     
+    console.log("📤 Creating post with data:", {
+      content: content.trim(),
+      mediaURL: uploadedMediaURL,
+      mediaType: selectedFile?.type,
+      mediaName: selectedFile?.name
+    });
+    
     createPostMutation.mutate({ 
       content: content.trim(),
       mediaURL: uploadedMediaURL || undefined,

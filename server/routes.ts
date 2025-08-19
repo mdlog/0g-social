@@ -225,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (postData.mediaURL) {
         try {
           const mediaResult = await zgStorageService.confirmMediaUpload(postData.mediaURL, {
-            type: 'media',
+            type: 'image',
             userId: user.id,
             originalName: postData.mediaName || 'uploaded_media',
             mimeType: postData.mediaType || 'image/jpeg'

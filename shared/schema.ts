@@ -94,7 +94,10 @@ export const insertPostSchema = createInsertSchema(posts).omit({
   signature: z.string().optional(),
   message: z.string().optional(),
   timestamp: z.number().optional(),
-  address: z.string().optional()
+  address: z.string().optional(),
+  // Media upload fields
+  mediaURL: z.string().optional(),
+  mediaName: z.string().optional()
 });
 
 export const insertFollowSchema = createInsertSchema(follows).omit({
