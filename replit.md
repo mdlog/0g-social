@@ -35,6 +35,16 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## Avatar Display Consistency Fix (August 19, 2025)
+- **Issue**: Profile photo inconsistency between sidebar and post cards - sidebar showed uploaded user photos while post cards showed only gradient backgrounds
+- **Root Cause**: Post card component was using gradient div instead of Avatar component with actual user photos
+- **Solution**: 
+  - Updated post-card.tsx to use Avatar component with AvatarImage and AvatarFallback
+  - Added proper imports for Avatar components from shadcn/ui
+  - Now uses same avatar logic as sidebar: uploaded photo first, gradient fallback if no photo
+  - Maintains same styling and sizing for consistency
+- **Result**: All profile photos now display consistently across the platform - both sidebar and post cards show actual user uploaded avatars
+
 ## Post Count Display Fix (August 19, 2025)
 - **Issue**: User profile cards were not displaying correct post counts after post creation
 - **Root Cause**: Database storage method was not incrementing users.postsCount field when posts were created

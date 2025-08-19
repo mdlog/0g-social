@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { BlockchainVerification } from "@/components/blockchain-verification";
@@ -117,7 +118,16 @@ export function PostCard({ post }: PostCardProps) {
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <article className="flex space-x-3">
-          <div className={`w-10 h-10 ${getAvatarClass(post.authorId)} rounded-full flex-shrink-0`}></div>
+          <Avatar className="w-10 h-10 flex-shrink-0">
+            <AvatarImage 
+              src={post.author.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
+              alt={post.author.displayName} 
+              className="object-cover"
+            />
+            <AvatarFallback className={`${getAvatarClass(post.authorId)} text-white font-semibold text-sm`}>
+              {post.author.displayName.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
               <h4 className="font-semibold">{post.author.displayName}</h4>
