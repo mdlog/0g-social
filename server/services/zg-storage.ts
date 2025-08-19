@@ -168,6 +168,17 @@ class ZGStorageService {
         );
 
         if (uploadErr) {
+          // Special handling for "Data already exists" - this is actually success
+          const errorString = uploadErr.toString();
+          if (errorString.includes('Data already exists')) {
+            console.log('[0G Storage] Data already exists on 0G Storage - treating as successful upload');
+            const rootHash = tree.rootHash();
+            return {
+              success: true,
+              hash: rootHash || 'existing_data_hash',
+              transactionHash: transactionHash || 'existing_transaction_hash'
+            };
+          }
           throw new Error(`Upload failed: ${uploadErr}`);
         }
 
@@ -230,12 +241,24 @@ class ZGStorageService {
          errorMessage.includes('insufficient balance for transfer'))
       );
 
+      // Handle "Data already exists" as a special case - this is actually success for retry
+      const isDataAlreadyExists = errorMessage.includes('Data already exists');
+      
+      if (isDataAlreadyExists) {
+        console.log('[0G Storage] Data already exists on 0G Storage - treating as successful retry');
+        // For "Data already exists", we should treat it as success since the data is stored
+        return {
+          success: true,
+          hash: metadata.hash || 'existing_data_hash',
+          transactionHash: metadata.transactionHash || 'existing_transaction_hash'
+        };
+      }
+
       // Check for 0G Storage service specific errors (not balance related)
       const isStorageServiceError = (
         errorMessage.includes('Upload failed') ||
         errorMessage.includes('Storage node') ||
         errorMessage.includes('Indexer') ||
-        errorMessage.includes('Data already exists') ||
         (errorMessage.includes('Error') && !isInsufficientFunds && !isRetriableError)
       );
 

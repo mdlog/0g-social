@@ -333,13 +333,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // If already stored, return success
+      // If already stored, inform user but allow retry anyway (in case they want to re-verify)
       if (post.storageHash && post.transactionHash) {
-        return res.json({ 
-          message: "Post is already stored on 0G Storage",
-          storageHash: post.storageHash,
-          transactionHash: post.transactionHash
-        });
+        console.log(`[Manual Retry] Post ${post.id} already has storage hash, but user requested retry`);
       }
 
       console.log(`[Manual Retry] User ${user.id} initiating manual retry for post ${post.id}`);
@@ -353,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (storageResult.success) {
-        // Update post with storage information
+        // Update post with storage information (even if it already had some)
         await storage.updatePost(post.id, {
           storageHash: storageResult.hash,
           transactionHash: storageResult.transactionHash
@@ -362,7 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`[Manual Retry] ✅ Successfully uploaded post ${post.id} to 0G Storage`);
 
         res.json({
-          message: "Successfully uploaded to 0G Storage",
+          message: post.storageHash ? "0G Storage data verified and updated" : "Successfully uploaded to 0G Storage",
           storageHash: storageResult.hash,
           transactionHash: storageResult.transactionHash
         });

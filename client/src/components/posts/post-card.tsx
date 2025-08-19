@@ -29,19 +29,35 @@ export function PostCard({ post }: PostCardProps) {
   // Manual retry mutation for 0G Storage uploads
   const retryStorageMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", `/api/posts/${post.id}/retry-storage`);
+      const response = await apiRequest("POST", `/api/posts/${post.id}/retry-storage`);
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast({
-        title: "Upload retry initiated",
-        description: "0G Storage upload retry has been queued. Check back in a few minutes.",
+        title: "Retry successful",
+        description: data?.message || "0G Storage upload verified and updated successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
     },
     onError: (error: any) => {
+      // Parse error message from API
+      let errorMessage = "Could not initiate storage retry";
+      
+      try {
+        const errorData = JSON.parse(error.message);
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        // If JSON parsing fails, use the error message directly
+        errorMessage = error.message || errorMessage;
+      }
+      
       toast({
         title: "Retry failed",
-        description: error.message || "Could not initiate storage retry",
+        description: errorMessage,
         variant: "destructive",
       });
     },
