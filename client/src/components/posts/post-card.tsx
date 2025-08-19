@@ -134,7 +134,7 @@ export function PostCard({ post }: PostCardProps) {
     <Card className="futuristic-card dark:futuristic-card-dark hover:neon-border-cyan transition-all duration-300 slide-in-cyber">
       <CardContent className="p-6">
         <article className="flex space-x-4">
-          <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 transition-all duration-300">
+          <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 avatar-smooth">
             <AvatarImage 
               src={post.author.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
               alt={post.author.displayName} 

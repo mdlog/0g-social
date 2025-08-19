@@ -312,14 +312,24 @@
     z-index: 100 !important;
   }
 
-  /* Custom animations */
+  /* Custom animations - smoother and less frequent */
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); }
-    50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.4); }
+    0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.4); }
+    50% { box-shadow: 0 0 12px rgba(34, 197, 94, 0.6), 0 0 20px rgba(34, 197, 94, 0.3); }
   }
 
   .pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
+    animation: pulse-glow 4s ease-in-out infinite;
+  }
+
+  /* Smooth avatar transitions */
+  .avatar-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .avatar-smooth:hover {
+    transform: scale(1.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .ai-recommendation-badge span {
@@ -328,34 +338,6 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-  }
-
-  /* Pulse Animation */
-  .pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { 
-      box-shadow: 0 0 5px var(--cyber-cyan), 0 0 10px var(--cyber-cyan);
-    }
-    50% { 
-      box-shadow: 0 0 20px var(--cyber-cyan), 0 0 30px var(--cyber-magenta);
-    }
-  }
-
-  /* Floating Animation */
-  .float-animation {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { 
-      transform: translateY(0px);
-    }
-    50% { 
-      transform: translateY(-10px);
-    }
   }
 
   /* Slide In Animation */
@@ -373,4 +355,3 @@
       transform: translateX(0) scale(1);
     }
   }
-}

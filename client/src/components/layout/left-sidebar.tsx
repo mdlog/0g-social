@@ -53,9 +53,8 @@ export function LeftSidebar() {
           <Card className="futuristic-card dark:futuristic-card-dark neon-border-cyan">
             <CardContent className="p-6">
               <div className="text-center">
-                {/* Debug: log currentUser.avatar value */}
-                {console.log("LeftSidebar: currentUser.avatar value:", currentUser.avatar)}
-                <Avatar className="w-20 h-20 mx-auto mb-4 ring-2 ring-cyan-400/40 hover:ring-cyan-400/70 transition-all duration-300 float-animation">
+
+                <Avatar className="w-20 h-20 mx-auto mb-4 ring-2 ring-cyan-400/40 hover:ring-cyan-400/70 avatar-smooth">
                   <AvatarImage 
                     src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
                     alt={currentUser.displayName} 
