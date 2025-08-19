@@ -84,13 +84,13 @@ export function Feed() {
                 <Brain className="text-white w-8 h-8" />
               </div>
               <h3 className="text-xl font-semibold text-og-slate-900 dark:text-og-slate-100 mb-2">
-                Feed siap untuk konten Anda!
+                Your Feed is Ready for Content!
               </h3>
               <p className="text-og-slate-600 dark:text-og-slate-400 mb-4 max-w-md mx-auto">
-                Belum ada post di feed. Buat post pertama Anda dengan MetaMask signature untuk memulai berbagi di 0G Social yang terdesentralisasi.
+                No posts in the feed yet. Create your first post with MetaMask signature to start sharing on decentralized 0G Social.
               </p>
               <p className="text-sm text-og-slate-500 dark:text-og-slate-500">
-                📝 Hubungkan wallet → Tulis post → Sign dengan MetaMask → Post muncul di sini
+                📝 Connect wallet → Write post → Sign with MetaMask → Post appears here
               </p>
             </div>
           )}
