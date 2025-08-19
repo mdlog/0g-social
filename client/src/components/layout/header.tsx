@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Bell, Moon, Sun, Search, Wallet, Copy, ExternalLink } from "lucide-react";
+import { Bell, Moon, Sun, Search, Wallet, Copy, ExternalLink, Wifi, WifiOff } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { useWebSocket } from "@/hooks/use-websocket";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { connected: wsConnected } = useWebSocket();
 
   const { data: walletStatus } = useQuery<{connected: boolean; address: string; balance: string}>({
     queryKey: ["/api/web3/wallet"],
@@ -220,6 +222,18 @@ export function Header() {
                 </span>
               </Button>
             )}
+
+            {/* Real-time Status Indicator */}
+            <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-og-slate-50 dark:bg-og-slate-800 border border-og-slate-200 dark:border-og-slate-700">
+              {wsConnected ? (
+                <Wifi className="h-4 w-4 text-green-500" />
+              ) : (
+                <WifiOff className="h-4 w-4 text-red-500" />
+              )}
+              <span className="text-xs text-og-slate-600 dark:text-og-slate-400 font-medium">
+                {wsConnected ? "Live" : "Offline"}
+              </span>
+            </div>
 
             {/* Theme Toggle */}
             <Button

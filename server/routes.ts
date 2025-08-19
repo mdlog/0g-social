@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema } from "@shared/schema";
 import { generateAIInsights, generateTrendingTopics } from "./services/ai";
@@ -7,8 +8,55 @@ import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
 import { zgDAService } from "./services/zg-da";
 import { zgChainService } from "./services/zg-chain";
+import { verifyMessage } from "ethers";
+
+// Helper function to get wallet connection from session
+function getWalletConnection(req: any) {
+  if (!req.session.walletConnection) {
+    req.session.walletConnection = {
+      connected: false,
+      address: null,
+      balance: null,
+      network: null,
+      chainId: null
+    };
+  }
+  return req.session.walletConnection;
+}
+
+// WebSocket connection storage
+const connectedClients = new Set<WebSocket>();
+
+// Helper function to broadcast to all connected clients
+function broadcastToAll(message: any) {
+  const messageStr = JSON.stringify(message);
+  connectedClients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(messageStr);
+    }
+  });
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const httpServer = createServer(app);
+  
+  // Setup WebSocket server on /ws path to avoid conflicts with Vite HMR
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws) => {
+    console.log('New WebSocket client connected');
+    connectedClients.add(ws);
+    
+    ws.on('close', () => {
+      console.log('WebSocket client disconnected');
+      connectedClients.delete(ws);
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      connectedClients.delete(ws);
+    });
+  });
   
   // Auth/Users - Dynamic profile based on connected wallet
   app.get("/api/users/me", async (req, res) => {
@@ -168,6 +216,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use connected wallet address as author
       const post = await storage.createPost(newPost);
+
+      // Broadcast new post to all connected WebSocket clients for real-time updates
+      broadcastToAll({
+        type: 'new_post',
+        data: post,
+        timestamp: Date.now()
+      });
 
       // If 0G Storage failed, still return success with helpful message
       if (!storageResult.success) {
@@ -559,6 +614,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true });
   });
 
-  const httpServer = createServer(app);
   return httpServer;
 }
