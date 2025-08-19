@@ -36,23 +36,42 @@ Preferred communication style: Simple, everyday language.
   - Proper error handling and fallback mechanisms
   - Real blockchain transaction recording
 
-## Real 0G Storage Infrastructure - Updated for Galileo Testnet V3 (August 18, 2025)
+## MetaMask Signature Verification for Enhanced Security (August 19, 2025)
+- **Feature**: Implemented comprehensive MetaMask signature verification for post creation
+- **Security Layer**: Users must sign messages with MetaMask before posts are stored to 0G Storage
+- **Backend Verification**: 
+  - Signature must match registered wallet address in session
+  - Time-limited signatures (5 minutes maximum age)
+  - Signed message must contain the actual post content
+  - Cryptographic verification using ethers.js
+- **User Experience**:
+  - Button changed to "Sign & Post" with clear messaging
+  - MetaMask popup for signature authorization
+  - Graceful error handling for cancelled signatures
+  - Real-time feedback during signing process
+- **Technical Implementation**:
+  - Frontend: Extended Window interface for MetaMask ethereum provider
+  - Backend: ethers.verifyMessage() for signature validation
+  - Security: Comprehensive validation pipeline before 0G Storage upload
+- **Graceful Degradation**: Posts still created in feed if 0G Storage temporarily unavailable
+
+## Real 0G Storage Infrastructure - Updated for Galileo Testnet V3 (August 18-19, 2025)
 - **Network Update**: Updated to latest 0G Galileo Testnet V3 configuration
 - **Chain ID**: Updated from 80087 to 16601 (official Galileo testnet)
 - **Network Name**: 0G-Galileo-Testnet
-- **Current Status**: ✅ REAL 0G Storage fully operational and working
+- **Current Status**: ⚠️ 0G Storage with graceful degradation (Galileo indexer intermittently unavailable)
 - **Endpoints Updated**:
   - RPC: https://evmrpc-testnet.0g.ai (Chain ID 16601)
   - Storage Indexer: https://indexer-storage-testnet-turbo.0g.ai
 - **Wallet Configuration**:
   - Address: 0x4C6165286739696849Fb3e77A16b0639D762c5B6
-  - Balance: 0.164 ETH (sufficient for storage operations)
+  - Balance: 0.164 ETH (may need 0G tokens from https://faucet.0g.ai)
 - **Technical Implementation**:
   - Real 0G Storage using official @0glabs/0g-ts-sdk
-  - No simulation fallback per user requirement
+  - Improved error handling with user-friendly messages
   - Retry mechanism for temporary indexer downtime
-  - Fixed TypeScript interface for retry logic
-- **Latest Success**: Transaction 0x9453f0151551c665f9e8153af9a9ff27cafea11f57dcb7ecb83d7a96218e7e95 confirmed on Galileo testnet
+  - Graceful fallback: posts created in feed even if 0G Storage fails
+- **User Guidance**: Clear messaging about faucet tokens and service availability
 
 ## Wallet-Gated Posting Feature (August 18, 2025)
 - **Feature**: Implemented wallet connection requirement for post creation

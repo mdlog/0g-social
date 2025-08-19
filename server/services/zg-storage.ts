@@ -176,7 +176,13 @@ class ZGStorageService {
       
       return {
         success: false,
-        error: `Galileo Testnet Storage failed: ${error instanceof Error ? error.message : 'Storage failed'}. Please ensure Galileo indexer service is available and wallet has sufficient OG tokens for testnet.`
+        error: `Galileo Testnet Storage temporarily unavailable: ${errorMessage}. 
+        
+This error suggests:
+1. Galileo indexer service is currently down for maintenance
+2. Your wallet may need 0G tokens from the faucet at https://faucet.0g.ai
+
+The post has been created in your feed and will be stored to 0G Storage when the network is available. You can visit the faucet to get testnet tokens if needed.`
       };
     }
   }

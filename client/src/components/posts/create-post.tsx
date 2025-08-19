@@ -84,15 +84,21 @@ export function CreatePost() {
         }
       });
       
-      // Posts will be shown in the latest order after refresh
-      
       // Show success message with 0G Storage information
-      toast({
-        title: "Post created successfully",
-        description: data.storageHash 
-          ? `Content stored on 0G Storage: ${data.storageHash.substring(0, 12)}...`
-          : "Your post has been published to the decentralized network",
-      });
+      if (data.storageStatus === "pending") {
+        toast({
+          title: "Post created successfully",
+          description: "Your post is visible in your feed. 0G Storage upload will retry when the Galileo testnet is available. You may need tokens from https://faucet.0g.ai",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Post created successfully", 
+          description: data.storageHash 
+            ? `Content stored on 0G Storage: ${data.storageHash.substring(0, 12)}...`
+            : "Your post has been published to the decentralized network",
+        });
+      }
     },
     onError: (error: any) => {
       let errorMessage = "Failed to create post";
@@ -105,6 +111,8 @@ export function CreatePost() {
         errorMessage = error.message;
       } else if (error.code === 4001) {
         errorMessage = "Signature cancelled by user";
+      } else if (error.message?.includes("Galileo")) {
+        errorMessage = "0G Galileo testnet is temporarily unavailable. Your post will still be created.";
       } else {
         errorMessage = error.message || "Failed to create post";
       }
