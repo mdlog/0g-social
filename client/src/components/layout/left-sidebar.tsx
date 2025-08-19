@@ -35,7 +35,7 @@ export function LeftSidebar() {
 
   const navItems = [
     { icon: Home, label: "Home Feed", href: "/", active: true },
-    { icon: Bot, label: "AI Recommendations", href: "/ai" },
+    { icon: Bot, label: "AI Recommendations", href: "/ai-recommendations" },
     { icon: Compass, label: "Discover", href: "/discover" },
     { icon: Users, label: "Communities", href: "/communities" },
     { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
