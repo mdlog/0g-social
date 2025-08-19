@@ -14,9 +14,6 @@ export function BlockchainVerification({ storageHash, transactionHash, postId }:
   const [verifying, setVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<any>(null);
 
-  // Debug log
-  console.log('BlockchainVerification component loaded:', { storageHash, transactionHash, postId });
-
   const verifyOnChain = async () => {
     if (!storageHash || !transactionHash) return;
     
