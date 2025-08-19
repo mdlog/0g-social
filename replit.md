@@ -70,7 +70,7 @@ Preferred communication style: Simple, everyday language.
 - **Current Status**: ⚠️ 0G Storage with graceful degradation (Galileo indexer intermittently unavailable)
 - **Endpoints Updated**:
   - RPC: https://evmrpc-testnet.0g.ai (Chain ID 16601)
-  - Storage Indexer: https://indexer-storage-testnet-turbo.0g.ai
+  - Storage Indexer: https://indexer-storage-testnet-turbo.0g.ai (confirmed by user)
 - **Wallet Configuration**:
   - Address: 0x4C6165286739696849Fb3e77A16b0639D762c5B6
   - Balance: 0.164 ETH (may need 0G tokens from https://faucet.0g.ai)
