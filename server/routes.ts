@@ -203,17 +203,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Get user by wallet address to get their proper user ID
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
       // Store content on 0G Storage with wallet signature verification
       const storageResult = await zgStorageService.storeContent(postData.content, {
         type: 'post',
-        userId: walletData.address
+        userId: user.id
       });
 
       // Create the post in our system regardless of 0G Storage status (graceful degradation)
       const newPost = {
-        id: Date.now().toString(),
         content: postData.content,
-        authorId: walletData.address,
+        authorId: user.id, // Use proper user UUID, not wallet address
         imageUrl: null,
         likesCount: 0,
         commentsCount: 0,
@@ -224,7 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdAt: new Date()
       };
 
-      // Use connected wallet address as author
+      // Create the post with proper user reference
       const post = await storage.createPost(newPost);
 
       // Broadcast new post to all connected WebSocket clients for real-time updates
@@ -247,7 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Record creation on 0G DA
-      await zgDAService.recordInteraction('post', walletData.address, post.id, {
+      await zgDAService.recordInteraction('post', user.id, post.id, {
         content: postData.content,
         storageHash: storageResult.hash
       });
