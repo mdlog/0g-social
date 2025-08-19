@@ -15,6 +15,12 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## Demo Posts Removal (August 19, 2025)
+- **Feature**: Removed all demo/sample posts from the system per user request
+- **Clean Feed**: Only authentic user-created posts now appear in feeds
+- **Real Content**: Feed displays only posts created through wallet-connected MetaMask signatures
+- **User Experience**: Clean, authentic social media feed without placeholder content
+
 ## Real 0G Storage Infrastructure Implementation (August 18, 2025)
 - **Feature**: Fully implemented authentic 0G Storage infrastructure using official TypeScript SDK
 - **Implementation**: 
