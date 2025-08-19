@@ -15,11 +15,13 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
-## Demo Posts Removal (August 19, 2025)
+## Demo Posts Removal & Empty State Enhancement (August 19, 2025)
 - **Feature**: Removed all demo/sample posts from the system per user request
 - **Clean Feed**: Only authentic user-created posts now appear in feeds
 - **Real Content**: Feed displays only posts created through wallet-connected MetaMask signatures
-- **User Experience**: Clean, authentic social media feed without placeholder content
+- **Empty State**: Added helpful empty state message when no posts exist
+- **User Guidance**: Clear instructions for creating first post with wallet connection
+- **Note**: In-memory storage means posts reset on server restart (by design for development)
 
 ## Real 0G Storage Infrastructure Implementation (August 18, 2025)
 - **Feature**: Fully implemented authentic 0G Storage infrastructure using official TypeScript SDK

@@ -62,19 +62,36 @@ export function Feed() {
         </div>
       ) : (
         <>
-          {posts?.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-          
-          {posts && posts.length > 0 && (
-            <div className="text-center py-6">
-              <Button
-                onClick={loadMore}
-                variant="outline"
-                className="px-6 py-3 bg-white dark:bg-og-slate-800 border border-og-slate-200 dark:border-og-slate-700 rounded-xl hover:shadow-md transition-all"
-              >
-                Load More Posts
-              </Button>
+          {posts && posts.length > 0 ? (
+            <>
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+              
+              <div className="text-center py-6">
+                <Button
+                  onClick={loadMore}
+                  variant="outline"
+                  className="px-6 py-3 bg-white dark:bg-og-slate-800 border border-og-slate-200 dark:border-og-slate-700 rounded-xl hover:shadow-md transition-all"
+                >
+                  Load More Posts
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 gradient-brand rounded-full flex items-center justify-center">
+                <Brain className="text-white w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-semibold text-og-slate-900 dark:text-og-slate-100 mb-2">
+                Feed siap untuk konten Anda!
+              </h3>
+              <p className="text-og-slate-600 dark:text-og-slate-400 mb-4 max-w-md mx-auto">
+                Belum ada post di feed. Buat post pertama Anda dengan MetaMask signature untuk memulai berbagi di 0G Social yang terdesentralisasi.
+              </p>
+              <p className="text-sm text-og-slate-500 dark:text-og-slate-500">
+                📝 Hubungkan wallet → Tulis post → Sign dengan MetaMask → Post muncul di sini
+              </p>
             </div>
           )}
         </>
