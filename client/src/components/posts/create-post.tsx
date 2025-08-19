@@ -7,6 +7,15 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ImageIcon, Database, Loader2, Wallet, X, Video } from "lucide-react";
 
+// Helper function for formatting file sizes correctly
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
 // Extend Window interface for MetaMask
 declare global {
   interface Window {
@@ -338,7 +347,7 @@ export function CreatePost() {
                     </button>
                   </div>
                   <p className="text-xs text-og-slate-500 mt-1">
-                    {selectedFile?.name} ({(selectedFile?.size || 0 / 1024 / 1024).toFixed(1)} MB)
+                    {selectedFile?.name} ({formatFileSize(selectedFile?.size || 0)})
                   </p>
                 </div>
               )}
