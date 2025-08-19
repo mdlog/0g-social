@@ -486,6 +486,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint to check 0G Storage connectivity and status
+  app.get("/api/zg/storage/status", async (req, res) => {
+    try {
+      // Check if 0G Storage service is properly configured
+      const hasPrivateKey = !!process.env.ZG_PRIVATE_KEY;
+      const rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
+      const indexerUrl = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
+      
+      // Try to test connection to indexer
+      let indexerConnected = false;
+      let indexerError = null;
+      
+      try {
+        const response = await fetch(indexerUrl, { 
+          method: 'GET',
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+        indexerConnected = response.ok || response.status < 500;
+      } catch (error: any) {
+        indexerError = error.message;
+      }
+      
+      res.json({
+        configured: hasPrivateKey,
+        indexerConnected,
+        indexerError,
+        endpoints: {
+          rpc: rpcUrl,
+          indexer: indexerUrl
+        },
+        status: hasPrivateKey && indexerConnected ? 'operational' : 'degraded',
+        issues: [
+          ...(!hasPrivateKey ? ['No ZG_PRIVATE_KEY configured - storage operations will fail'] : []),
+          ...(!indexerConnected ? [`Galileo indexer unavailable: ${indexerError || 'connection failed'}`] : [])
+        ]
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: "Failed to check 0G Storage status",
+        error: error.message
+      });
+    }
+  });
+
   // 0G Compute - User AI Management
   app.post("/api/zg/compute/deploy", async (req, res) => {
     try {
