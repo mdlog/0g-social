@@ -159,7 +159,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-og-slate-200 dark:border-og-slate-700">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between text-sm text-og-slate-600 dark:text-og-slate-400">
-            <p>© 2025 0G Social. Built with ❤️ for the decentralized future of Web3.</p>
+            <p>© 2025 DeSocialAI. Built with ❤️ for the decentralized future of Web3.</p>
             <div className="flex items-center space-x-4 mt-2 md:mt-0">
               <span>Powered by 0G Chain</span>
               <div className="w-4 h-4 gradient-brand rounded"></div>

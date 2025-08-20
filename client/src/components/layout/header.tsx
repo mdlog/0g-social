@@ -194,7 +194,7 @@ export function Header() {
               <span className="text-white font-bold text-sm neon-text">0G</span>
             </div>
             <h1 className="text-xl font-bold gradient-neon-text">
-              0G Social
+              DeSocialAI
             </h1>
           </div>
 
