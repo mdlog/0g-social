@@ -5,6 +5,9 @@
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- Created comprehensive 6-wave development roadmap for full decentralization (2025-08-20)
+- Successfully moved Personal AI Feed to right sidebar, replacing AI Insights section
+- Removed duplicate Personal AI Feed from bottom page while preserving 0G infrastructure info
 - Set dark mode as default theme for first-time users (2025-08-20)
 - Enhanced session debugging with wallet connection tracking and reset functionality
 - Added "Reset" button in header for clearing stuck wallet session data
