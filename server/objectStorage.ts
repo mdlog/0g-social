@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import type { Response } from "express";
 
-// Real object storage service using Replit's object storage
+// Object storage service for 0G Social platform
 export class ObjectStorageService {
   constructor() {}
 
@@ -174,7 +174,7 @@ export class ObjectStorageService {
     method: "GET" | "PUT" | "DELETE" | "HEAD";
     ttlSec: number;
   }): Promise<string> {
-    const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+    const SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
     
     const request = {
       bucket_name: bucketName,
@@ -185,7 +185,7 @@ export class ObjectStorageService {
 
     try {
       const response = await fetch(
-        `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
+        `${SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
         {
           method: "POST",
           headers: {

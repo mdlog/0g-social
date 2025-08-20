@@ -462,7 +462,7 @@ Your post is saved locally. Please check your connection or try again later.`;
     const fullPath = `${privateObjectDir}/media/${objectId}`;
 
     // Return URL that can be used for direct upload
-    return `${process.env.REPLIT_DOMAINS ? 'https://' + process.env.REPLIT_DOMAINS.split(',')[0] : 'http://localhost:5173'}/api/upload-direct/${objectId}`;
+    return `${process.env.NODE_ENV === 'production' ? 'https://api.0gsocial.com' : 'http://localhost:5173'}/api/upload-direct/${objectId}`;
   }
 
   /**
