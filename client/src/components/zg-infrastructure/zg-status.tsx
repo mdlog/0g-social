@@ -1,22 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { 
   Database, 
   Cpu, 
   Shield, 
   Activity, 
-  Users, 
   HardDrive,
-  Zap,
-  CheckCircle,
-  AlertCircle,
-  Play,
-  Pause
+  CheckCircle
 } from "lucide-react";
-import { useState } from "react";
 
 interface ZGStorageStats {
   totalStorage: string;
@@ -40,14 +32,7 @@ interface ZGDAStats {
   dataAvailability: number;
 }
 
-interface ComputeInstance {
-  instanceId: string;
-  userId: string;
-  status: 'running' | 'stopped' | 'deploying' | 'error';
-  cpuUsage: number;
-  memoryUsage: number;
-  lastActive: string;
-}
+
 
 interface Web3Status {
   connected: boolean;
@@ -61,8 +46,6 @@ interface Web3Status {
 }
 
 export function ZGInfrastructureStatus() {
-  const [isDeploying, setIsDeploying] = useState(false);
-
   const { data: storageStats } = useQuery<ZGStorageStats>({
     queryKey: ["/api/zg/storage/stats"],
     refetchInterval: 30000,
@@ -78,125 +61,13 @@ export function ZGInfrastructureStatus() {
     refetchInterval: 5000,
   });
 
-  const { data: userInstance, refetch: refetchInstance } = useQuery<ComputeInstance>({
-    queryKey: ["/api/zg/compute/instance"],
-    refetchInterval: 5000,
-  });
-
   const { data: web3Status } = useQuery<Web3Status>({
     queryKey: ["/api/web3/status"],
     refetchInterval: 1000, // Update every second for real-time block height
   });
 
-  const deployAI = async () => {
-    setIsDeploying(true);
-    try {
-      const response = await fetch("/api/zg/compute/deploy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          algorithmType: "engagement",
-          preferences: {
-            contentTypes: ["text", "image"],
-            topics: ["blockchain", "ai", "tech", "0g"],
-            engagement_threshold: 5,
-            recency_weight: 0.7,
-            diversity_factor: 0.3
-          }
-        })
-      });
-      
-      if (response.ok) {
-        await refetchInstance();
-      }
-    } catch (error) {
-      console.error("Failed to deploy AI:", error);
-    } finally {
-      setIsDeploying(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* User AI Instance */}
-      <Card className="border-og-slate-200 dark:border-og-slate-700">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Zap className="w-5 h-5 text-og-primary" />
-            <span>Your Personal AI Feed</span>
-            {userInstance && (
-              <Badge 
-                variant={userInstance.status === 'running' ? 'default' : 'secondary'}
-                className="ml-auto"
-              >
-                {userInstance.status === 'running' && <CheckCircle className="w-3 h-3 mr-1" />}
-                {userInstance.status === 'stopped' && <Pause className="w-3 h-3 mr-1" />}
-                {userInstance.status === 'error' && <AlertCircle className="w-3 h-3 mr-1" />}
-                {userInstance.status}
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {userInstance ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-og-slate-600 dark:text-og-slate-400">CPU Usage</span>
-                    <span className="font-medium">{Math.round(userInstance.cpuUsage)}%</span>
-                  </div>
-                  <Progress value={userInstance.cpuUsage} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-og-slate-600 dark:text-og-slate-400">Memory Usage</span>
-                    <span className="font-medium">{Math.round(userInstance.memoryUsage)}%</span>
-                  </div>
-                  <Progress value={userInstance.memoryUsage} className="h-2" />
-                </div>
-              </div>
-              
-              <div className="bg-og-slate-50 dark:bg-og-slate-800 rounded-lg p-3 text-sm">
-                <div className="flex items-center space-x-2 mb-2">
-                  <HardDrive className="w-4 h-4 text-og-primary" />
-                  <span className="font-medium">Instance Details</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-og-slate-600 dark:text-og-slate-400">
-                  <div>ID: {userInstance.instanceId.slice(0, 12)}...</div>
-                  <div>Last Active: {new Date(userInstance.lastActive).toLocaleTimeString()}</div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center space-y-4">
-              <div className="text-og-slate-600 dark:text-og-slate-400">
-                <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>Your personal AI feed is not yet deployed</p>
-                <p className="text-xs mt-1">Deploy AI to get personalized recommendations</p>
-              </div>
-              <Button 
-                onClick={deployAI} 
-                disabled={isDeploying}
-                className="gradient-brand text-white"
-              >
-                {isDeploying ? (
-                  <>
-                    <Activity className="w-4 h-4 mr-2 animate-spin" />
-                    Deploying...
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" />
-                    Deploy AI Feed
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       <div className="text-center">
         <h2 className="text-xl font-semibold text-og-slate-900 dark:text-white">Status Infrastruktur 0G</h2>
       </div>
