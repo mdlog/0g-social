@@ -1,4 +1,4 @@
-import { Brain, TrendingUp, Cpu, Sparkles } from "lucide-react";
+import { Brain, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,53 +46,40 @@ export function RightSidebar() {
   return (
     <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
-        {/* Your Personal AI Feed */}
+        {/* AI Insights */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-sm">
-              <Cpu className="text-cyan-400 w-4 h-4 flex-shrink-0" />
-              <span className="leading-tight">Your Personal AI Feed</span>
-              <Sparkles className="text-purple-400 w-3 h-3 flex-shrink-0" />
+              <Brain className="text-og-accent w-4 h-4 flex-shrink-0" />
+              <span className="leading-tight">AI Insights</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="p-3 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-400/20 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <p className="text-xs text-cyan-300 font-medium">Running on 0G Compute</p>
+            {aiInsights?.slice(0, 3).map((insight, index) => (
+              <div key={index} className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
+                <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
+                  {insight.message}
+                </p>
               </div>
-              <p className="text-sm text-slate-300">
-                Your AI algorithm curated 23 new posts based on your interests in DeFi and blockchain scaling
-              </p>
-            </div>
-            
-            <div className="p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-400/20 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <Brain className="w-3 h-3 text-purple-400" />
-                <p className="text-xs text-purple-300 font-medium">AI Learning</p>
-              </div>
-              <p className="text-sm text-slate-300">
-                Your algorithm improved engagement prediction by 15% after analyzing your interactions
-              </p>
-            </div>
-            
-            <div className="p-3 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-400/20 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <Sparkles className="w-3 h-3 text-blue-400" />
-                <p className="text-xs text-blue-300 font-medium">Personalized</p>
-              </div>
-              <p className="text-sm text-slate-300">
-                New content discovered: 0G Storage efficiency updates and Layer 2 scaling solutions
-              </p>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full mt-3 border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/10 hover:text-cyan-200"
-            >
-              Configure Your AI
-            </Button>
+            )) || (
+              <>
+                <div className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
+                    Your engagement with blockchain posts increased 45% this week
+                  </p>
+                </div>
+                <div className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
+                    Recommended: Follow @0g_chain for latest updates
+                  </p>
+                </div>
+                <div className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
+                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
+                    Trending topic in your network: #DecentralizedAI
+                  </p>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
