@@ -5,6 +5,9 @@
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- Set dark mode as default theme for first-time users (2025-08-20)
+- Enhanced session debugging with wallet connection tracking and reset functionality
+- Added "Reset" button in header for clearing stuck wallet session data
 - Added comprehensive README.md documentation (2025-08-20)
 - Fixed text sizing issues in profile cards and sidebar components for better layout
 - Comprehensive database cleanup - retained only 10 fully verified posts with authentic blockchain hashes
