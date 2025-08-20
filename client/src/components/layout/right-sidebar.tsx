@@ -49,9 +49,9 @@ export function RightSidebar() {
         {/* AI Insights */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Brain className="text-og-accent w-4 h-4" />
-              <span>AI Insights</span>
+            <CardTitle className="flex items-center space-x-2 text-sm">
+              <Brain className="text-og-accent w-4 h-4 flex-shrink-0" />
+              <span className="leading-tight">AI Insights</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -123,7 +123,7 @@ export function RightSidebar() {
         {/* Suggested Follows */}
         <Card>
           <CardHeader>
-            <CardTitle>Who to Follow</CardTitle>
+            <CardTitle className="text-sm leading-tight">Who to Follow</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {suggestedUsers.map((user) => (
@@ -150,7 +150,7 @@ export function RightSidebar() {
         {/* Network Stats */}
         <Card>
           <CardHeader>
-            <CardTitle>Network Activity</CardTitle>
+            <CardTitle className="text-sm leading-tight">Network Activity</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex justify-between">
