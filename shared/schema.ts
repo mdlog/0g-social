@@ -63,6 +63,13 @@ export const reposts = pgTable("reposts", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Session table for connect-pg-simple
+export const sessions = pgTable("session", {
+  sid: varchar("sid").primaryKey(),
+  sess: text("sess").notNull(),
+  expire: timestamp("expire").notNull(),
+});
+
 // Insert schemas  
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
