@@ -31,20 +31,30 @@ export function Header() {
 
   const connectWallet = useMutation({
     mutationFn: async () => {
+      console.log('🔗 Starting wallet connection process...');
+      
       if (typeof window.ethereum !== 'undefined') {
         try {
+          console.log('✅ MetaMask detected');
+          
           // Request account access
+          console.log('📝 Requesting account access...');
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          console.log('✅ Accounts received:', accounts);
           
           // Switch to 0G Chain if not already connected
+          console.log('🔄 Switching to 0G Chain...');
           try {
             await window.ethereum.request({
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: '0x40D9' }], // 16601 in hex
             });
+            console.log('✅ Successfully switched to 0G Chain');
           } catch (switchError: any) {
+            console.log('⚠️ Chain switch failed:', switchError);
             // Chain not added to MetaMask, add it
             if (switchError.code === 4902) {
+              console.log('➕ Adding 0G Chain to MetaMask...');
               await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [{
@@ -59,15 +69,18 @@ export function Header() {
                   blockExplorerUrls: ['https://chainscan-newton.0g.ai'],
                 }],
               });
+              console.log('✅ 0G Chain added successfully');
             }
           }
 
           // Send wallet connection to backend
+          console.log('📤 Sending wallet data to backend...');
           const response = await fetch('/api/web3/connect', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include', // Include cookies for session
             body: JSON.stringify({
               address: accounts[0],
               chainId: '16601',
@@ -75,15 +88,24 @@ export function Header() {
             }),
           });
 
+          console.log('📥 Backend response status:', response.status);
+          
           if (!response.ok) {
-            throw new Error('Failed to register wallet connection');
+            const errorText = await response.text();
+            console.error('❌ Backend error:', errorText);
+            throw new Error(`Failed to register wallet connection: ${errorText}`);
           }
 
+          const result = await response.json();
+          console.log('✅ Wallet connection successful:', result);
+          
           return { success: true, account: accounts[0] };
         } catch (error: any) {
+          console.error('❌ Wallet connection failed:', error);
           throw new Error(error.message || 'Failed to connect wallet');
         }
       } else {
+        console.error('❌ MetaMask not detected');
         throw new Error('MetaMask is not installed');
       }
     },
@@ -111,6 +133,7 @@ export function Header() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies for session
       });
 
       if (!response.ok) {
@@ -143,6 +166,7 @@ export function Header() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies for session
       });
 
       if (!response.ok) {

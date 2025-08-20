@@ -845,20 +845,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       walletConnection.network = network || "0G-Galileo-Testnet";
       walletConnection.chainId = chainId || "16601";
 
-      // Force session save
-      req.session.save((err) => {
-        if (err) {
-          console.error('[WALLET CONNECT] Session save error:', err);
-        } else {
-          console.log(`[WALLET CONNECT] ✅ Session saved for wallet: ${address}`);
-        }
+      // Force session save with promise wrapper
+      const saveSession = () => new Promise((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error('[WALLET CONNECT] Session save error:', err);
+            reject(err);
+          } else {
+            console.log(`[WALLET CONNECT] ✅ Session saved for wallet: ${address}`);
+            resolve(true);
+          }
+        });
       });
+
+      await saveSession();
 
       res.json({
         success: true,
         wallet: walletConnection
       });
     } catch (error: any) {
+      console.error('[WALLET CONNECT] Error:', error);
       res.status(500).json({ message: error.message });
     }
   });

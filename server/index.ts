@@ -26,9 +26,9 @@ app.use(session({
   }),
   secret: process.env.SESSION_SECRET || 'zg-social-dev-secret-key',
   resave: false,
-  saveUninitialized: false, // Changed to false for better security
+  saveUninitialized: true, // Allow uninitialized sessions for wallet connection
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Secure in production
+    secure: false, // Disable secure for now to fix deployment issues
     httpOnly: false, // Allow client-side access for debugging
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'lax' // Allow cross-origin cookies
