@@ -4,6 +4,14 @@
 # User Preferences
 Preferred communication style: Simple, everyday language.
 
+# Recent Changes
+- Added comprehensive README.md documentation (2025-08-20)
+- Fixed text sizing issues in profile cards and sidebar components for better layout
+- Comprehensive database cleanup - retained only 10 fully verified posts with authentic blockchain hashes
+- Resolved text overflow issues in "POSTS", "FOLLOWING", "FOLLOWERS" labels using truncate and smaller font sizes
+- Fixed text sizing for all sidebar components: "Trending in 0G Community", "AI Insights", "Who to Follow", "Network Activity"
+- Modern cyberpunk/sci-fi UI design implementation completed
+
 # System Architecture
 
 ## Frontend Architecture
