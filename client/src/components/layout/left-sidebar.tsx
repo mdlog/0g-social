@@ -85,18 +85,18 @@ export function LeftSidebar() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-center mb-5">
-                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark">
+                <div className="grid grid-cols-3 gap-2 text-center mb-5">
+                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
                     <p className="text-lg font-bold text-cyan-300">{currentUser.postsCount || 0}</p>
-                    <p className="text-xs text-cyan-400/80">POSTS</p>
+                    <p className="text-[0.55rem] font-medium leading-none text-cyan-400/80 truncate">POSTS</p>
                   </div>
-                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark">
+                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
                     <p className="text-lg font-bold text-magenta-300">{currentUser.followingCount || 0}</p>
-                    <p className="text-xs text-magenta-400/80">FOLLOWING</p>
+                    <p className="text-[0.55rem] font-medium leading-none text-magenta-400/80 truncate">FOLLOWING</p>
                   </div>
-                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark">
+                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
                     <p className="text-lg font-bold text-yellow-300">{currentUser.followersCount || 0}</p>
-                    <p className="text-xs text-yellow-400/80">FOLLOWERS</p>
+                    <p className="text-[0.55rem] font-medium leading-none text-yellow-400/80 truncate">FOLLOWERS</p>
                   </div>
                 </div>
                 
