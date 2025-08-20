@@ -86,9 +86,9 @@ export function RightSidebar() {
         {/* Trending Topics */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4" />
-              <span>Trending in 0G Community</span>
+            <CardTitle className="flex items-center space-x-2 text-sm">
+              <TrendingUp className="w-4 h-4 flex-shrink-0" />
+              <span className="leading-tight">Trending in 0G Community</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
