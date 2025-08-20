@@ -1,14 +1,10 @@
-import { Brain, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PersonalAIFeed } from "@/components/personal-ai-feed";
 
 export function RightSidebar() {
-  const { data: aiInsights } = useQuery<Array<{message: string; type: string; confidence: number}>>({
-    queryKey: ["/api/ai/insights"],
-    refetchInterval: 300000, // 5 minutes
-  });
-
   const { data: trending } = useQuery<Array<{topic: string; posts: string}>>({
     queryKey: ["/api/ai/trending"],
     refetchInterval: 300000,
@@ -46,42 +42,8 @@ export function RightSidebar() {
   return (
     <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
-        {/* AI Insights */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-sm">
-              <Brain className="text-og-accent w-4 h-4 flex-shrink-0" />
-              <span className="leading-tight">AI Insights</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {aiInsights?.slice(0, 3).map((insight, index) => (
-              <div key={index} className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
-                <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
-                  {insight.message}
-                </p>
-              </div>
-            )) || (
-              <>
-                <div className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
-                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
-                    Your engagement with blockchain posts increased 45% this week
-                  </p>
-                </div>
-                <div className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
-                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
-                    Recommended: Follow @0g_chain for latest updates
-                  </p>
-                </div>
-                <div className="p-3 bg-og-slate-50 dark:bg-og-slate-700 rounded-lg">
-                  <p className="text-sm text-og-slate-600 dark:text-og-slate-400">
-                    Trending topic in your network: #DecentralizedAI
-                  </p>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        {/* Personal AI Feed */}
+        <PersonalAIFeed />
 
         {/* Trending Topics */}
         <Card>

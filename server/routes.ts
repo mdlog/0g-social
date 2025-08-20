@@ -538,6 +538,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Personal AI Feed endpoints
+  app.post("/api/ai/feed/deploy", async (req, res) => {
+    try {
+      // Simulate AI Feed deployment on 0G Compute
+      const deploymentResult = await zgComputeService.deployUserInstance("user1", {
+        instanceType: "ai-feed",
+        algorithm: "personalized-content-filter",
+        resources: {
+          cpu: "2 cores",
+          memory: "4GB",
+          storage: "10GB"
+        }
+      });
+      
+      res.json({ 
+        success: true, 
+        deploymentId: deploymentResult.instanceId,
+        status: "deployed",
+        message: "AI Feed successfully deployed on 0G Compute" 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to deploy AI feed" });
+    }
+  });
+
+  app.get("/api/ai/feed/status", async (req, res) => {
+    try {
+      const instance = await zgComputeService.getUserInstance("user1");
+      res.json({
+        deployed: !!instance,
+        status: instance?.status || "not_deployed",
+        instanceId: instance?.id || null
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to get AI feed status" });
+    }
+  });
+
   // Network Stats
   app.get("/api/stats", async (req, res) => {
     const stats = await storage.getNetworkStats();
