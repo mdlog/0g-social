@@ -269,4 +269,4 @@
 
 ---
 
-*Roadmap ini dirancang untuk mencapai visi 0G Social sebagai platform media sosial yang benar-benar terdesentralisasi, di mana users memiliki kontrol penuh atas data dan algoritma mereka.*
+*This roadmap is designed to achieve 0G Social's vision as a truly decentralised social media platform, where users have complete control over their data and algorithms.*
