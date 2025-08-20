@@ -5,7 +5,8 @@
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
-- Replaced "AI Insights" with "Your Personal AI Feed" component featuring 0G Compute integration (2025-08-20)
+- Removed "Your Personal AI Feed" component from bottom section of home page (2025-08-20)
+- Replaced "AI Insights" with "Your Personal AI Feed" component in right sidebar featuring 0G Compute integration (2025-08-20)
 - Set dark mode as default theme for first-time users (2025-08-20)
 - Enhanced session debugging with wallet connection tracking and reset functionality
 - Added "Reset" button in header for clearing stuck wallet session data

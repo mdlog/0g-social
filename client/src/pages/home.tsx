@@ -6,7 +6,7 @@ import { RightSidebar } from "@/components/layout/right-sidebar";
 import { Footer } from "@/components/layout/footer";
 import { Feed } from "@/components/posts/feed";
 import { CreatePost } from "@/components/posts/create-post";
-import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
+
 
 export default function Home() {
   return (
@@ -26,10 +26,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 0G Infrastructure Status - Bottom Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-og-slate-50 dark:bg-og-slate-900/50">
-        <ZGInfrastructureStatus />
-      </div>
+
 
       <Footer />
 
