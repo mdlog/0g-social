@@ -1,30 +1,30 @@
-# 0G Social - Roadmap Desentralisasi Penuh
-## Platform Media Sosial Terdesentralisasi dengan 0G Chain Infrastructure
+# 0G Social - Complete Decentralization Roadmap
+## Decentralized Social Media Platform with 0G Chain Infrastructure
 
 ---
 
 ## 🌊 **WAVE 1: Foundation & Core Features** 
 ### *Aug 15 - Sep 2 (Build Phase)*
 
-#### **Minggu 1-2: Core Infrastructure**
-- ✅ **Autentikasi Web3 Lengkap**
-  - MetaMask integration dengan multi-wallet support
-  - Signature-based authentication tanpa password
-  - Session management yang aman dengan wallet address
+#### **Week 1-2: Core Infrastructure**
+- ✅ **Complete Web3 Authentication**
+  - MetaMask integration with multi-wallet support
+  - Signature-based authentication without password
+  - Secure session management with wallet address
 
-- ✅ **Sistem Posting On-Chain**
-  - Create, edit, delete posts dengan hash verification
-  - 0G Storage integration untuk konten multimedia
+- ✅ **On-Chain Posting System**
+  - Create, edit, delete posts with hash verification
+  - 0G Storage integration for multimedia content
   - Real-time blockchain confirmation
 
-- ✅ **Interaksi Sosial Dasar**
-  - Like, comment, repost dengan on-chain recording
-  - Follow/unfollow system dengan 0G DA tracking
-  - Profile customization dengan NFT avatar support
+- ✅ **Basic Social Interactions**
+  - Like, comment, repost with on-chain recording
+  - Follow/unfollow system with 0G DA tracking
+  - Profile customization with NFT avatar support
 
-#### **Fitur Tambahan Wave 1:**
+#### **Additional Wave 1 Features:**
 - **Content Verification System**
-  - Blockchain hash verification untuk setiap post
+  - Blockchain hash verification for every post
   - Tamper-proof content with 0G Chain signatures
   - Content authenticity badges
 
@@ -38,7 +38,7 @@
 ## 🌊 **WAVE 2: Advanced Social Features**
 ### *Sep 6 - Sep 26 (Build Phase)*
 
-#### **Minggu 1: Enhanced User Experience**
+#### **Week 1: Enhanced User Experience**
 - **Advanced Profile System**
   - Dynamic NFT profile pictures
   - Reputation system based on on-chain activity
@@ -50,7 +50,7 @@
   - Search functionality across 0G Storage
   - Content categorization with AI tagging
 
-#### **Minggu 2: Social Graph Enhancement**
+#### **Week 2: Social Graph Enhancement**
 - **Community Features**
   - Create and join communities/groups
   - Community governance with token voting
@@ -62,9 +62,9 @@
   - Content sharing across communities
   - Bookmarks and collections
 
-#### **Minggu 3: Content Monetization**
+#### **Week 3: Content Monetization**
 - **Creator Economy Foundation**
-  - Tip system dengan 0G tokens
+  - Tip system with 0G tokens
   - Premium content subscriptions
   - NFT content minting directly from posts
   - Revenue sharing smart contracts
@@ -74,14 +74,14 @@
 ## 🌊 **WAVE 3: AI Integration & Personalization**
 ### *Sep 17 - Oct 10 (Build Phase)*
 
-#### **Minggu 1: Personal AI System**
-- **Individual AI Instances pada 0G Compute**
+#### **Week 1: Personal AI System**
+- **Individual AI Instances on 0G Compute**
   - Deploy personal AI feed algorithms
   - Custom content filtering preferences
   - Learning from user behavior patterns
   - Privacy-preserving AI training
 
-#### **Minggu 2: Advanced AI Features**
+#### **Week 2: Advanced AI Features**
 - **Content Generation AI**
   - AI-assisted post writing
   - Automated hashtag suggestions
@@ -94,7 +94,7 @@
   - Community guideline enforcement
   - Appeal system with human review
 
-#### **Minggu 3: Predictive Features**
+#### **Week 3: Predictive Features**
 - **Intelligent Recommendations**
   - User discovery based on interests
   - Content prediction and curation
@@ -106,14 +106,14 @@
 ## 🌊 **WAVE 4: Governance & DAO Features**
 ### *Oct 1 - Oct 24 (Build Phase)*
 
-#### **Minggu 1: DAO Infrastructure**
+#### **Week 1: DAO Infrastructure**
 - **Governance Token System**
   - 0G Social governance token (0GS)
   - Voting power based on contribution
   - Proposal creation and voting mechanisms
   - Treasury management
 
-#### **Minggu 2: Community Governance**
+#### **Week 2: Community Governance**
 - **Decentralized Moderation**
   - Community-driven content moderation
   - Jury system for disputes
@@ -126,7 +126,7 @@
   - Developer incentive programs
   - Open-source contribution rewards
 
-#### **Minggu 3: Advanced DAO Features**
+#### **Week 3: Advanced DAO Features**
 - **Cross-Platform Integration**
   - Bridge to other social platforms
   - Multi-chain compatibility
@@ -138,7 +138,7 @@
 ## 🌊 **WAVE 5: Enterprise & Scaling**
 ### *Oct 15 - Nov 7 (Build Phase)*
 
-#### **Minggu 1: Enterprise Features**
+#### **Week 1: Enterprise Features**
 - **Business Account Types**
   - Verified business profiles
   - Advertising system with transparent pricing
@@ -151,14 +151,14 @@
   - Custom app marketplace
   - Revenue sharing for developers
 
-#### **Minggu 2: Performance Optimization**
+#### **Week 2: Performance Optimization**
 - **Scalability Solutions**
   - Layer 2 integration for faster transactions
   - Content delivery network optimization
   - Database sharding and optimization
   - Mobile app performance enhancement
 
-#### **Minggu 3: Global Expansion**
+#### **Week 3: Global Expansion**
 - **Multi-Language Support**
   - Localization for major languages
   - Cultural adaptation features
@@ -170,21 +170,21 @@
 ## 🌊 **WAVE 6: Complete Decentralization**
 ### *Oct 25 - Nov 14 (Final Build Phase)*
 
-#### **Minggu 1: Infrastructure Decentralization**
+#### **Week 1: Infrastructure Decentralization**
 - **Node Network Launch**
   - Community-run infrastructure nodes
   - Incentivized hosting rewards
   - Redundancy and failover systems
   - Geographic distribution
 
-#### **Minggu 2: Data Sovereignty**
+#### **Week 2: Data Sovereignty**
 - **Complete 0G Integration**
   - 100% on-chain data storage
   - User-controlled data encryption
   - Export/import personal data
   - Right to be forgotten implementation
 
-#### **Minggu 3: Final Polish & Launch**
+#### **Week 3: Final Polish & Launch**
 - **Platform Independence**
   - Remove centralized dependencies
   - Community-controlled updates
@@ -193,7 +193,7 @@
 
 ---
 
-## 🎯 **Fitur Kunci Per Wave**
+## 🎯 **Key Features Per Wave**
 
 ### **Wave 1**: Foundation
 - Web3 Authentication, Basic Posting, Core Social Features
@@ -215,16 +215,16 @@
 
 ---
 
-## 🔧 **Teknologi Stack Per Wave**
+## 🔧 **Technology Stack Per Wave**
 
-### **Infrastructure yang Berkembang:**
-- **0G Storage**: Content hosting yang semakin terdesentralisasi
-- **0G Compute**: AI processing yang makin distributed
-- **0G DA**: Data availability yang makin robust
-- **0G Chain**: Smart contracts yang makin kompleks
+### **Evolving Infrastructure:**
+- **0G Storage**: Increasingly decentralized content hosting
+- **0G Compute**: Increasingly distributed AI processing
+- **0G DA**: Increasingly robust data availability
+- **0G Chain**: Increasingly complex smart contracts
 
 ### **Frontend Evolution:**
-- Wave 1-2: React dengan Web3 integration
+- Wave 1-2: React with Web3 integration
 - Wave 3-4: AI-enhanced UI/UX
 - Wave 5-6: Fully decentralized frontend hosting
 
@@ -269,4 +269,4 @@
 
 ---
 
-*Roadmap ini dirancang untuk mencapai visi 0G Social sebagai platform media sosial yang benar-benar terdesentralisasi, di mana users memiliki kontrol penuh atas data dan algoritma mereka.*
+*This roadmap is designed to achieve the vision of 0G Social as a truly decentralized social media platform, where users have full control over their data and algorithms.*

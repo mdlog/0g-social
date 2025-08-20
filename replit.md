@@ -5,6 +5,16 @@
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Production Deployment Fixes (2025-08-20)**: Successfully applied all deployment fixes for production readiness
+  - Replaced MemoryStore with PostgreSQL session store using connect-pg-simple
+  - Added comprehensive error handling and logging for startup failures  
+  - Created session table in database schema with automatic migration
+  - Added graceful shutdown handlers for SIGTERM and SIGINT
+  - Database connection now properly tested on startup with retry logic
+- **Documentation Standardization (2025-08-20)**: Translated 0G_SOCIAL_ROADMAP.md from Indonesian to English
+  - Updated all section headers, feature descriptions, and technical specifications
+  - Maintained consistency with project's English-first documentation approach
+  - Ensured roadmap aligns with international development standards
 - **Platform Independence Achievement (2025-08-20)**: Completely removed all platform references from codebase to ensure 0G Social stands as an independent decentralized platform
   - Removed development banner and external scripts from client/index.html
   - Updated object storage service comments and variable names (SIDECAR_ENDPOINT)
