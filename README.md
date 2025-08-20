@@ -1,4 +1,3 @@
-
 # 0G Social
 
 A fully decentralized, on-chain social media platform built on 0G Chain infrastructure, where users truly own their data and AI feeds.
