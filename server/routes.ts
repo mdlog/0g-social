@@ -1069,8 +1069,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve private objects (avatars) - moved to /api path to avoid Vite catch-all
   app.get("/api/objects/:objectPath(*)", async (req, res) => {
-    console.log(`🔍 AVATAR REQUEST: ${req.method} ${req.path}`);
-    console.log(`🔍 Full URL: ${req.protocol}://${req.get('host')}${req.originalUrl}`);
     try {
       const objectStorageService = new ObjectStorageService();
       // Convert /api/objects/... to /objects/... for object storage service
@@ -1078,16 +1076,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
       
       if (!objectFile) {
-        console.error(`❌ Object file not found for path: ${objectPath}`);
         return res.status(404).json({ error: "File not found" });
       }
       
-      console.log(`✅ Successfully found object file, serving: ${objectPath}`);
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
-      console.error("❌ Object download error:", error);
-      console.error("❌ Request path:", req.path);
-      console.error("❌ Object path:", req.path.replace('/api', ''));
+      console.error("Object download error:", error);
       res.status(500).json({ error: "Failed to download file" });
     }
   });
