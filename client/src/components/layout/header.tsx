@@ -136,6 +136,40 @@ export function Header() {
     },
   });
 
+  const clearSession = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/web3/clear-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to clear session');
+      }
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Session Cleared",
+        description: "Session data cleared. Please reconnect your wallet.",
+      });
+      // Clear all cached data
+      queryClient.clear();
+      // Reload page to force fresh start
+      setTimeout(() => window.location.reload(), 1000);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Clear Session Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const copyAddress = () => {
     if (walletStatus?.address) {
       navigator.clipboard.writeText(walletStatus.address);
@@ -200,15 +234,27 @@ export function Header() {
                     <Copy className="h-3 w-3 text-cyan-300" />
                   </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => disconnectWallet.mutate()}
-                  disabled={disconnectWallet.isPending}
-                  className="px-4 py-2 cyber-glass dark:cyber-glass-dark text-red-300 hover:text-red-100 border-red-400/30 hover:border-red-400 transition-all duration-300"
-                >
-                  {disconnectWallet.isPending ? "Disconnecting..." : "Disconnect"}
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => clearSession.mutate()}
+                    disabled={clearSession.isPending}
+                    className="px-3 py-2 cyber-glass dark:cyber-glass-dark text-yellow-300 hover:text-yellow-100 border-yellow-400/30 hover:border-yellow-400 transition-all duration-300"
+                    title="Clear session if wallet data seems stuck"
+                  >
+                    {clearSession.isPending ? "Clearing..." : "Reset"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => disconnectWallet.mutate()}
+                    disabled={disconnectWallet.isPending}
+                    className="px-4 py-2 cyber-glass dark:cyber-glass-dark text-red-300 hover:text-red-100 border-red-400/30 hover:border-red-400 transition-all duration-300"
+                  >
+                    {disconnectWallet.isPending ? "Disconnecting..." : "Disconnect"}
+                  </Button>
+                </div>
               </div>
             ) : (
               <Button

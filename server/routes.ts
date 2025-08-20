@@ -765,6 +765,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/web3/wallet", (req, res) => {
     const walletConnection = getWalletConnection(req);
     
+    // Debug session data
+    console.log('[DEBUG] Session wallet data:', JSON.stringify(walletConnection));
+    console.log('[DEBUG] Session ID:', req.sessionID);
+    
     if (!walletConnection.connected) {
       return res.status(404).json({
         connected: false,
@@ -793,11 +797,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const mockBalance = "0.000 0G"; // Could fetch real balance here
 
       const walletConnection = getWalletConnection(req);
+      
+      // Clear old session data when connecting new wallet
+      console.log(`[WALLET CONNECT] Previous wallet: ${walletConnection.address} → New wallet: ${address}`);
+      
       walletConnection.connected = true;
       walletConnection.address = address;
       walletConnection.balance = mockBalance;
       walletConnection.network = network || "0G-Galileo-Testnet";
       walletConnection.chainId = chainId || "16601";
+
+      // Force session save
+      req.session.save((err) => {
+        if (err) {
+          console.error('[WALLET CONNECT] Session save error:', err);
+        } else {
+          console.log(`[WALLET CONNECT] ✅ Session saved for wallet: ${address}`);
+        }
+      });
 
       res.json({
         success: true,
@@ -810,13 +827,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/web3/disconnect", (req, res) => {
     const walletConnection = getWalletConnection(req);
+    
+    console.log(`[WALLET DISCONNECT] Disconnecting wallet: ${walletConnection.address}`);
+    
     walletConnection.connected = false;
     walletConnection.address = null;
     walletConnection.balance = null;
     walletConnection.network = null;
     walletConnection.chainId = null;
 
+    // Force session save for disconnect
+    req.session.save((err) => {
+      if (err) {
+        console.error('[WALLET DISCONNECT] Session save error:', err);
+      } else {
+        console.log('[WALLET DISCONNECT] ✅ Session cleared');
+      }
+    });
+
     res.json({ success: true });
+  });
+
+  // Clear session endpoint for debugging wallet issues
+  app.post("/api/web3/clear-session", (req, res) => {
+    console.log('[CLEAR SESSION] Clearing session data...');
+    
+    // Destroy entire session to force fresh start
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('[CLEAR SESSION] Error destroying session:', err);
+        return res.status(500).json({ error: "Failed to clear session" });
+      }
+      
+      console.log('[CLEAR SESSION] ✅ Session destroyed');
+      res.json({ 
+        success: true, 
+        message: "Session cleared. Please reconnect your wallet." 
+      });
+    });
   });
 
   // Profile management endpoints
