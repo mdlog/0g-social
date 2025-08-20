@@ -64,7 +64,21 @@ export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    
+    if (!user) return undefined;
+    
+    // Recalculate actual post count based on posts that still exist in database
+    const userPosts = await db.select().from(posts).where(eq(posts.authorId, user.id));
+    const actualPostCount = userPosts.length;
+    
+    // Update user's postsCount if it doesn't match the actual count
+    if (user.postsCount !== actualPostCount) {
+      console.log(`Updating post count for user ${user.id}: ${user.postsCount} -> ${actualPostCount}`);
+      await db.update(users).set({ postsCount: actualPostCount }).where(eq(users.id, user.id));
+      user.postsCount = actualPostCount;
+    }
+    
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -75,8 +89,10 @@ export class DatabaseStorage implements IStorage {
   async getUserByWalletAddress(walletAddress: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.walletAddress, walletAddress));
     
+    if (!user) return undefined;
+    
     // Migration: Convert old /objects/... paths to /api/objects/... for existing users
-    if (user && user.avatar && user.avatar.startsWith('/objects/')) {
+    if (user.avatar && user.avatar.startsWith('/objects/')) {
       console.log(`Migrating avatar path for user ${user.id}: ${user.avatar} -> /api${user.avatar}`);
       const migratedPath = `/api${user.avatar}`;
       // Update database with new path
@@ -84,7 +100,18 @@ export class DatabaseStorage implements IStorage {
       user.avatar = migratedPath;
     }
     
-    return user || undefined;
+    // Recalculate actual post count based on posts that still exist in database
+    const userPosts = await db.select().from(posts).where(eq(posts.authorId, user.id));
+    const actualPostCount = userPosts.length;
+    
+    // Update user's postsCount if it doesn't match the actual count
+    if (user.postsCount !== actualPostCount) {
+      console.log(`Updating post count for user ${user.id}: ${user.postsCount} -> ${actualPostCount}`);
+      await db.update(users).set({ postsCount: actualPostCount }).where(eq(users.id, user.id));
+      user.postsCount = actualPostCount;
+    }
+    
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
