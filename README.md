@@ -1,10 +1,10 @@
-# 0G Social
+# DeSocialAI
 
 A fully decentralized, on-chain social media platform built on 0G Chain infrastructure, where users truly own their data and AI feeds.
 
 ## Overview
 
-0G Social represents the future of social networking - a platform where users maintain complete control over their data, content, and algorithms. Built on the cutting-edge 0G blockchain infrastructure, it eliminates corporate algorithm control and delivers true decentralization.
+DeSocialAI represents the future of social networking - a platform where users maintain complete control over their data, content, and algorithms. Built on the cutting-edge 0G blockchain infrastructure, it eliminates corporate algorithm control and delivers true decentralization.
 
 ### Key Features
 
@@ -59,7 +59,7 @@ A fully decentralized, on-chain social media platform built on 0G Chain infrastr
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd 0g-social
+   cd desocialai
    ```
 
 2. **Install dependencies**
@@ -70,7 +70,7 @@ A fully decentralized, on-chain social media platform built on 0G Chain infrastr
 3. **Set up environment variables**
    Create a `.env` file with the following variables:
    ```env
-   DATABASE_URL=postgresql://username:password@localhost:5432/og_social
+   DATABASE_URL=postgresql://username:password@localhost:5432/desocialai
    OPENAI_API_KEY=your_openai_api_key
    ZG_PRIVATE_KEY=your_0g_private_key
    SESSION_SECRET=your_session_secret

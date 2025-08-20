@@ -12,7 +12,7 @@ export function Footer() {
               <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">0G</span>
               </div>
-              <h3 className="text-xl font-bold gradient-text">0G Social</h3>
+              <h3 className="text-xl font-bold gradient-text">DeSocialAI</h3>
             </div>
             <p className="text-og-slate-600 dark:text-og-slate-400 text-sm">
               The first decentralized social media platform with user-owned AI feeds. 

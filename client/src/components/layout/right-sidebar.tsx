@@ -50,7 +50,7 @@ export function RightSidebar() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-sm">
               <TrendingUp className="w-4 h-4 flex-shrink-0" />
-              <span className="leading-tight">Trending in 0G Community</span>
+              <span className="leading-tight">Trending in DeSocialAI</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">

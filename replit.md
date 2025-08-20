@@ -1,10 +1,16 @@
 # Overview
-0G Social is a fully decentralized, on-chain social media platform built on 0G Chain infrastructure, where users truly own their data and AI feeds. It features on-chain content storage, user-owned AI algorithms running on 0G Compute, transparent data availability on 0G DA, and verification on 0G Chain, eliminating corporate algorithm control. This project aims to shift the paradigm to truly decentralized, user-controlled social networking.
+DeSocialAI is a fully decentralized, on-chain social media platform built on 0G Chain infrastructure, where users truly own their data and AI feeds. It features on-chain content storage, user-owned AI algorithms running on 0G Compute, transparent data availability on 0G DA, and verification on 0G Chain, eliminating corporate algorithm control. This project aims to shift the paradigm to truly decentralized, user-controlled social networking.
 
 # User Preferences
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Application Rebranding (2025-08-20)**: Successfully rebranded application from "0G Social" to "DeSocialAI"
+  - Updated all documentation files (README.md, roadmap, replit.md)
+  - Changed application name throughout frontend components
+  - Updated HTML title and meta description
+  - Changed governance token from "0GS" to "DSAI" 
+  - Updated footer branding and sidebar trending section
 - **Production Deployment Fixes (2025-08-20)**: Successfully applied all deployment fixes for production readiness
   - Replaced MemoryStore with PostgreSQL session store using connect-pg-simple
   - Added comprehensive error handling and logging for startup failures  
@@ -15,7 +21,7 @@ Preferred communication style: Simple, everyday language.
   - Updated all section headers, feature descriptions, and technical specifications
   - Maintained consistency with project's English-first documentation approach
   - Ensured roadmap aligns with international development standards
-- **Platform Independence Achievement (2025-08-20)**: Completely removed all platform references from codebase to ensure 0G Social stands as an independent decentralized platform
+- **Platform Independence Achievement (2025-08-20)**: Completely removed all platform references from codebase to ensure DeSocialAI stands as an independent decentralized platform
   - Removed development banner and external scripts from client/index.html
   - Updated object storage service comments and variable names (SIDECAR_ENDPOINT)
   - Replaced environment-specific URL generation with production-ready domain handling
@@ -30,7 +36,7 @@ Preferred communication style: Simple, everyday language.
 - Fixed text sizing issues in profile cards and sidebar components for better layout
 - Comprehensive database cleanup - retained only 10 fully verified posts with authentic blockchain hashes
 - Resolved text overflow issues in "POSTS", "FOLLOWING", "FOLLOWERS" labels using truncate and smaller font sizes
-- Fixed text sizing for all sidebar components: "Trending in 0G Community", "AI Insights", "Who to Follow", "Network Activity"
+- Fixed text sizing for all sidebar components: "Trending in DeSocialAI", "AI Insights", "Who to Follow", "Network Activity"
 - Modern cyberpunk/sci-fi UI design implementation completed
 
 # System Architecture

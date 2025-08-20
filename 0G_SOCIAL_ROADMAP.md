@@ -1,4 +1,4 @@
-# 0G Social - Complete Decentralization Roadmap
+# DeSocialAI - Complete Decentralization Roadmap
 ## Decentralized Social Media Platform with 0G Chain Infrastructure
 
 ---
@@ -108,7 +108,7 @@
 
 #### **Week 1: DAO Infrastructure**
 - **Governance Token System**
-  - 0G Social governance token (0GS)
+  - DeSocialAI governance token (DSAI)
   - Voting power based on contribution
   - Proposal creation and voting mechanisms
   - Treasury management
@@ -269,4 +269,4 @@
 
 ---
 
-*This roadmap is designed to achieve the vision of 0G Social as a truly decentralized social media platform, where users have full control over their data and algorithms.*
+*This roadmap is designed to achieve the vision of DeSocialAI as a truly decentralized social media platform, where users have full control over their data and algorithms.*
