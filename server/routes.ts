@@ -827,12 +827,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (result.success) {
         res.json({ 
           success: true, 
-          message: `Successfully added ${amount} OG to compute account` 
+          message: `Berhasil menambahkan ${amount} OG ke akun 0G Compute`,
+          txHash: result.txHash
         });
       } else {
-        res.status(500).json({ 
-          error: "Failed to add funds",
-          details: result.error
+        res.status(400).json({ 
+          error: result.error || "Gagal menambahkan dana"
         });
       }
     } catch (error: any) {

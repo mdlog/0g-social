@@ -1,12 +1,15 @@
-import { Bot, Play, Users, Zap, Check, TrendingUp, UserPlus, AlertCircle, CheckCircle2, Activity } from "lucide-react";
+import { Bot, Play, Users, Zap, Check, TrendingUp, UserPlus, AlertCircle, CheckCircle2, Activity, Plus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export function PersonalAIFeed() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [fundAmount, setFundAmount] = useState("0.1");
 
   // Query AI feed status
   const { data: feedStatus } = useQuery<{deployed: boolean; status: string; instanceId?: string; mode?: string}>({
@@ -87,6 +90,57 @@ export function PersonalAIFeed() {
     },
   });
 
+  const addFunds = useMutation({
+    mutationFn: async (amount: string) => {
+      const response = await fetch('/api/zg/compute/fund', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Gagal menambahkan dana');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Akun 0G Compute Berhasil Dibuat",
+        description: `${data.message}. Anda sekarang dapat menggunakan layanan 0G Compute autentik!`,
+      });
+      
+      // Reset fund amount
+      setFundAmount("0.1");
+      
+      // Refresh compute status
+      queryClient.invalidateQueries({ queryKey: ["/api/zg/compute/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/zg/compute/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/ai/feed/status"] });
+    },
+    onError: (error: Error) => {
+      // Handle setup manual instructions
+      if (error.message.includes('Setup Manual Diperlukan')) {
+        toast({
+          title: "Setup Manual 0G Compute",
+          description: "Lihat instruksi lengkap di console browser (F12) atau gunakan mode simulasi.",
+          variant: "default",
+        });
+        console.log("=== INSTRUKSI SETUP 0G COMPUTE ===");
+        console.log(error.message);
+      } else {
+        toast({
+          title: "Gagal Menambahkan Dana",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    },
+  });
+
   return (
     <Card className="cyber-glass dark:cyber-glass-dark border-0 neon-border-cyan">
       <CardHeader>
@@ -130,6 +184,50 @@ export function PersonalAIFeed() {
                     </span>
                   )}
                 </div>
+                
+                {/* Setup 0G Compute Account jika diperlukan */}
+                {computeStatus?.mode === 'real' && computeStatus?.connection === false && (
+                  <div className="mt-3 p-3 cyber-glass dark:cyber-glass-dark rounded-lg border border-orange-500/30">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <AlertCircle className="w-4 h-4 text-orange-400" />
+                      <p className="text-xs font-medium text-orange-100">Setup Akun 0G Compute</p>
+                    </div>
+                    <p className="text-xs text-orange-200/70 mb-3">
+                      Akun 0G Compute belum dibuat. Tambahkan dana untuk menggunakan layanan autentik.
+                    </p>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="number"
+                        min="0.1"
+                        step="0.1"
+                        value={fundAmount}
+                        onChange={(e) => setFundAmount(e.target.value)}
+                        placeholder="0.1"
+                        className="h-8 text-xs bg-black/20 border-orange-500/30 text-orange-100"
+                      />
+                      <span className="text-xs text-orange-300 whitespace-nowrap">OG</span>
+                      <Button
+                        onClick={() => addFunds.mutate(fundAmount)}
+                        disabled={addFunds.isPending}
+                        size="sm"
+                        className="h-8 text-xs bg-orange-600/80 hover:bg-orange-500/80 text-white"
+                      >
+                        {addFunds.isPending ? (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Setup...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-1">
+                            <Plus className="w-3 h-3" />
+                            <span>Setup Akun</span>
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -205,6 +303,54 @@ export function PersonalAIFeed() {
                   </span>
                 )}
               </div>
+              
+              {/* Setup 0G Compute Account jika diperlukan */}
+              {computeStatus?.mode === 'real' && !computeStatus?.connection && (
+                <div className="mt-4 p-3 cyber-glass dark:cyber-glass-dark rounded-lg border border-orange-500/30">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Wallet className="w-4 h-4 text-orange-400" />
+                    <p className="text-xs font-medium text-orange-100">Setup Akun 0G Compute</p>
+                  </div>
+                  <p className="text-xs text-orange-200/70 mb-3">
+                    Untuk menggunakan 0G Compute autentik, tambahkan dana ke akun Anda (minimal 0.1 OG). 
+                    Proses ini akan membuat akun baru pada blockchain 0G.
+                  </p>
+                  <p className="text-xs text-orange-300/60 mb-3">
+                    💡 Tips: Jika tombol setup tidak berfungsi, lihat instruksi manual di console browser (F12).
+                  </p>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="number"
+                      min="0.1"
+                      step="0.1"
+                      value={fundAmount}
+                      onChange={(e) => setFundAmount(e.target.value)}
+                      placeholder="0.1"
+                      className="h-8 text-xs bg-black/20 border-orange-500/30 text-orange-100 placeholder:text-orange-300/50"
+                    />
+                    <span className="text-xs text-orange-300 whitespace-nowrap">OG</span>
+                    <Button
+                      onClick={() => addFunds.mutate(fundAmount)}
+                      disabled={addFunds.isPending}
+                      size="sm"
+                      className="h-8 text-xs bg-orange-600/80 hover:bg-orange-500/80 text-white"
+                    >
+                      {addFunds.isPending ? (
+                        <div className="flex items-center space-x-1">
+                          <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Setup...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-1">
+                          <Plus className="w-3 h-3" />
+                          <span>Buat Akun</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Deploy Button */}
