@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema } from "@shared/schema";
 import { ObjectStorageService } from "./objectStorage";
-import { generateAIInsights, generateTrendingTopics } from "./services/ai";
+import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
 import { zgDAService } from "./services/zg-da";
@@ -519,6 +519,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true });
   });
 
+  // Personal AI Feed endpoints
+  app.post("/api/ai/feed/deploy", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          error: "Wallet connection required",
+          details: "Please connect your wallet to deploy AI feed"
+        });
+      }
+
+      // Simulate AI feed deployment on 0G Compute
+      const deploymentId = `ai-feed-${walletConnection.address.substring(2, 10)}-${Date.now()}`;
+      
+      // Store deployment status in session
+      if (!req.session.aiFeed) {
+        req.session.aiFeed = {};
+      }
+      
+      req.session.aiFeed = {
+        deployed: true,
+        deploymentId,
+        deployedAt: new Date().toISOString(),
+        status: 'active',
+        address: walletConnection.address
+      };
+
+      res.json({
+        success: true,
+        deploymentId,
+        status: 'active',
+        message: 'Personal AI feed deployed successfully on 0G Compute'
+      });
+    } catch (error) {
+      console.error('Error deploying AI feed:', error);
+      res.status(500).json({ error: 'Failed to deploy AI feed' });
+    }
+  });
+
+  app.get("/api/ai/feed/status", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.json({
+          deployed: false,
+          status: 'not_connected'
+        });
+      }
+
+      const aiFeed = req.session.aiFeed || { deployed: false };
+      
+      res.json({
+        deployed: aiFeed.deployed || false,
+        deploymentId: aiFeed.deploymentId,
+        deployedAt: aiFeed.deployedAt,
+        status: aiFeed.status || 'inactive'
+      });
+    } catch (error) {
+      console.error('Error checking AI feed status:', error);
+      res.status(500).json({ error: 'Failed to check AI feed status' });
+    }
+  });
+
+  app.get("/api/ai/feed/recommendations", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          error: "Wallet connection required"
+        });
+      }
+
+      const aiFeed = req.session.aiFeed;
+      if (!aiFeed?.deployed) {
+        return res.status(400).json({
+          error: "AI feed not deployed",
+          message: "Deploy your personal AI feed first"
+        });
+      }
+
+      // Generate personalized recommendations using OpenAI
+      const recommendations = await generatePersonalizedRecommendations(walletConnection.address);
+      
+      res.json(recommendations);
+    } catch (error) {
+      console.error('Error generating AI recommendations:', error);
+      res.status(500).json({ error: 'Failed to generate recommendations' });
+    }
+  });
+
   // AI Features
   app.get("/api/ai/insights", async (req, res) => {
     try {
@@ -535,44 +628,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(trending);
     } catch (error: any) {
       res.status(500).json({ message: "Failed to generate trending topics" });
-    }
-  });
-
-  // Personal AI Feed endpoints
-  app.post("/api/ai/feed/deploy", async (req, res) => {
-    try {
-      // Simulate AI Feed deployment on 0G Compute
-      const deploymentResult = await zgComputeService.deployUserInstance("user1", {
-        instanceType: "ai-feed",
-        algorithm: "personalized-content-filter",
-        resources: {
-          cpu: "2 cores",
-          memory: "4GB",
-          storage: "10GB"
-        }
-      });
-      
-      res.json({ 
-        success: true, 
-        deploymentId: deploymentResult.instanceId,
-        status: "deployed",
-        message: "AI Feed successfully deployed on 0G Compute" 
-      });
-    } catch (error: any) {
-      res.status(500).json({ message: "Failed to deploy AI feed" });
-    }
-  });
-
-  app.get("/api/ai/feed/status", async (req, res) => {
-    try {
-      const instance = await zgComputeService.getUserInstance("user1");
-      res.json({
-        deployed: !!instance,
-        status: instance?.status || "not_deployed",
-        instanceId: instance?.id || null
-      });
-    } catch (error: any) {
-      res.status(500).json({ message: "Failed to get AI feed status" });
     }
   });
 
