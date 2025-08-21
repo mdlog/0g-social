@@ -6,10 +6,10 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 - **0G Storage Network Switch (2025-08-21)**: Successfully switched from Newton testnet back to Galileo testnet for 0G Storage infrastructure
-  - Updated endpoint from storagescan-newton.0g.ai to storagescan-galileo.0g.ai
+  - Updated to correct indexer endpoint: indexer-storage-testnet-turbo.0g.ai
   - Changed Chain ID from 16600 to 16601 for Galileo testnet V3
   - Confirmed RPC connectivity and wallet balance (0.26 ETH available)
-  - Storage Scan Galileo endpoint accessible and working
+  - Testing upload functionality with proper indexer endpoint
 - **Application Rebranding (2025-08-20)**: Successfully rebranded application from "0G Social" to "DeSocialAI"
   - Updated all documentation files (README.md, roadmap, replit.md)
   - Changed application name throughout frontend components

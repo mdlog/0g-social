@@ -48,7 +48,7 @@ class ZGStorageService {
   constructor() {
     // 0G Galileo Testnet V3 configuration - Chain ID 16601 (switched back from Newton)
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://storagescan-galileo.0g.ai';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
 
     this.initializeClients();
@@ -104,7 +104,7 @@ class ZGStorageService {
       }
       
       console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
-      console.log('[0G Storage] Galileo Testnet V3 - Storage Scan:', this.indexerRpc);
+      console.log('[0G Storage] Galileo Testnet V3 - Indexer:', this.indexerRpc);
       console.log('[0G Storage] Wallet address:', this.signer.address);
       
       // Test wallet balance
