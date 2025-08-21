@@ -15,7 +15,7 @@ export function PersonalAIFeed() {
   });
 
   // Query AI recommendations (only when feed is deployed)
-  const { data: recommendations } = useQuery<Array<{
+  const { data: recommendations, isLoading: isLoadingRecommendations } = useQuery<Array<{
     id: string;
     type: 'topic' | 'user' | 'post';
     title: string;
@@ -26,6 +26,8 @@ export function PersonalAIFeed() {
     queryKey: ["/api/ai/feed/recommendations"],
     enabled: feedStatus?.deployed === true,
     refetchInterval: 300000, // Refresh recommendations every 5 minutes
+    retry: 3,
+    staleTime: 0, // Always fetch fresh data
   });
 
   const deployAIFeed = useMutation({
@@ -48,8 +50,15 @@ export function PersonalAIFeed() {
         title: "AI Feed Deployed",
         description: "Your personal AI feed is now active on 0G Compute",
       });
+      // Force refetch of both status and recommendations
       queryClient.invalidateQueries({ queryKey: ["/api/ai/feed/status"] });
       queryClient.invalidateQueries({ queryKey: ["/api/ai/feed/recommendations"] });
+      
+      // Also force immediate refetch
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ["/api/ai/feed/status"] });
+        queryClient.refetchQueries({ queryKey: ["/api/ai/feed/recommendations"] });
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
