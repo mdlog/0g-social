@@ -7,6 +7,7 @@ import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
+import { zgComputeRealService } from "./services/zg-compute-real";
 import { zgDAService } from "./services/zg-da";
 import { zgChainService } from "./services/zg-chain";
 import { verifyMessage } from "ethers";
@@ -531,10 +532,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Deploy AI using 0G Compute service (simulation mode until mainnet)
-      const result = await zgComputeService.deployUserAI(walletConnection.address, {
-        interests: ['blockchain', 'defi', 'web3'],
-        engagementLevel: 'high'
+      // Deploy AI using real 0G Compute service (with fallback to simulation)
+      const result = await zgComputeRealService.deployUserAI(walletConnection.address, {
+        userId: walletConnection.address,
+        algorithmType: 'engagement',
+        preferences: {
+          contentTypes: ['blockchain', 'defi', 'web3'],
+          topics: ['decentralized-ai', 'zero-knowledge', '0g-infrastructure'],
+          engagement_threshold: 0.8,
+          recency_weight: 0.7,
+          diversity_factor: 0.6
+        }
       });
 
       if (!result.success) {
@@ -613,8 +621,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Generate personalized recommendations using OpenAI
-      const recommendations = await generatePersonalizedRecommendations(walletConnection.address);
+      // Get user's posts for context
+      const userPosts = await storage.getPostsByUser(walletConnection.address, 5, 0);
+      
+      // Generate personalized recommendations using real 0G Compute (with OpenAI fallback)
+      const recommendations = await zgComputeRealService.generateRecommendations(walletConnection.address, userPosts);
       
       res.json(recommendations);
     } catch (error) {
@@ -761,7 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
       
-      const result = await zgComputeService.deployUserAI(userId, config);
+      const result = await zgComputeRealService.deployUserAI(userId, config);
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -769,13 +780,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/zg/compute/instance", async (req, res) => {
-    const instance = await zgComputeService.getUserInstance("user1");
-    res.json(instance);
+    try {
+      const instance = await zgComputeRealService.getUserInstance("user1");
+      res.json(instance);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to get compute instance" });
+    }
   });
 
   app.get("/api/zg/compute/stats", async (req, res) => {
-    const stats = await zgComputeService.getComputeStats();
-    res.json(stats);
+    try {
+      const stats = await zgComputeRealService.getComputeStats();
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to get compute stats" });
+    }
+  });
+
+  // New endpoints for real 0G Compute integration
+  app.get("/api/zg/compute/status", async (req, res) => {
+    try {
+      const status = zgComputeRealService.getEnvironmentStatus();
+      const connection = await zgComputeRealService.checkConnection();
+      
+      res.json({
+        ...status,
+        connection: connection.connected,
+        connectionError: connection.error,
+        details: connection.details
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to check compute status" });
+    }
+  });
+
+  app.post("/api/zg/compute/fund", async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      if (!amount || isNaN(parseFloat(amount))) {
+        return res.status(400).json({ error: "Valid amount required" });
+      }
+      
+      const result = await zgComputeRealService.addFunds(amount);
+      
+      if (result.success) {
+        res.json({ 
+          success: true, 
+          message: `Successfully added ${amount} OG to compute account` 
+        });
+      } else {
+        res.status(500).json({ 
+          error: "Failed to add funds",
+          details: result.error
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to add compute funds" });
+    }
   });
 
   app.post("/api/zg/compute/feed", async (req, res) => {

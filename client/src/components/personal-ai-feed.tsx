@@ -1,4 +1,4 @@
-import { Bot, Play, Users, Zap, Check, TrendingUp, UserPlus } from "lucide-react";
+import { Bot, Play, Users, Zap, Check, TrendingUp, UserPlus, AlertCircle, CheckCircle2, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -14,7 +14,21 @@ export function PersonalAIFeed() {
     refetchInterval: 30000, // Check status every 30 seconds
   });
 
-  const isSimulationMode = feedStatus?.mode === 'simulation';
+  // Query 0G Compute status for authentic integration info
+  const { data: computeStatus } = useQuery<{
+    isConfigured: boolean;
+    hasPrivateKey: boolean;
+    mode: string;
+    connection: boolean;
+    note: string;
+    details?: any;
+  }>({
+    queryKey: ["/api/zg/compute/status"],
+    refetchInterval: 60000, // Check compute status every minute
+  });
+
+  const isSimulationMode = feedStatus?.mode === 'simulation' || computeStatus?.mode !== 'real';
+  const isRealIntegration = computeStatus?.mode === 'real' && computeStatus?.connection;
 
   // Query AI recommendations (only when feed is deployed)
   const { data: recommendations, isLoading: isLoadingRecommendations } = useQuery<Array<{
@@ -51,8 +65,8 @@ export function PersonalAIFeed() {
       toast({
         title: "AI Feed Deployed",
         description: data.mode === 'simulation' 
-          ? "Personal AI deployed in simulation mode (awaiting 0G Compute mainnet)"
-          : "Your personal AI feed is now active on 0G Compute",
+          ? "Personal AI deployed in simulation mode using OpenAI GPT-4o"
+          : "Your personal AI feed is now running on authentic 0G Compute Network",
       });
       // Force refetch of both status and recommendations
       queryClient.invalidateQueries({ queryKey: ["/api/ai/feed/status"] });
@@ -95,20 +109,41 @@ export function PersonalAIFeed() {
               <div>
                 <p className="text-sm text-green-100 font-medium">AI Feed Active</p>
                 <p className="text-xs text-green-300/60">
-                  {isSimulationMode ? 'Development Mode (awaiting 0G Compute mainnet)' : 'Running on 0G Compute'}
+                  {isRealIntegration ? 'Running on 0G Compute Network' : 'Development Simulation Mode'}
                 </p>
-                {isSimulationMode && (
-                  <span className="inline-block mt-1 text-xs bg-yellow-900/20 text-yellow-400 px-2 py-1 rounded-full border border-yellow-600/30">
-                    SIMULATION
-                  </span>
-                )}
+                <div className="flex items-center justify-center mt-2 space-x-2">
+                  {isRealIntegration ? (
+                    <span className="inline-flex items-center space-x-1 text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full border border-green-500/40">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>REAL 0G COMPUTE</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center space-x-1 text-xs bg-yellow-900/20 text-yellow-400 px-2 py-1 rounded-full border border-yellow-600/30">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>SIMULATION</span>
+                    </span>
+                  )}
+                  {computeStatus?.hasPrivateKey && (
+                    <span className="inline-flex items-center space-x-1 text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full border border-blue-500/40">
+                      <Activity className="w-3 h-3" />
+                      <span>SDK READY</span>
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* AI Recommendations */}
             {recommendations && recommendations.length > 0 && (
               <div className="space-y-3 pt-4 border-t border-cyan-400/20">
-                <p className="text-xs font-medium text-cyan-100">Personalized for You</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-cyan-100">
+                    {isRealIntegration ? 'AI Recommendations (0G Compute)' : 'Recommendations (Simulation)'}
+                  </p>
+                  {isRealIntegration && (
+                    <span className="text-xs text-green-400 font-mono">AUTHENTIC</span>
+                  )}
+                </div>
                 
                 {recommendations.slice(0, 3).map((rec) => (
                   <div key={rec.id} className="flex items-start space-x-3 p-3 cyber-glass dark:cyber-glass-dark rounded-lg hover:bg-cyan-400/10 transition-colors cursor-pointer">
@@ -143,8 +178,33 @@ export function PersonalAIFeed() {
                 Personal AI Feed Available
               </p>
               <p className="text-xs text-cyan-300/60">
-                Deploy AI to get personalized recommendations
+                {computeStatus?.mode === 'real' 
+                  ? 'Deploy using authentic 0G Compute Network'
+                  : 'Deploy in simulation mode (awaiting 0G Compute mainnet)'
+                }
               </p>
+              
+              {/* Status indicators */}
+              <div className="flex items-center justify-center space-x-2 mt-3">
+                {computeStatus?.hasPrivateKey ? (
+                  <span className="inline-flex items-center space-x-1 text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full border border-green-500/40">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>SDK CONFIGURED</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center space-x-1 text-xs bg-gray-900/30 text-gray-400 px-2 py-1 rounded-full border border-gray-500/40">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>SDK READY</span>
+                  </span>
+                )}
+                
+                {computeStatus?.mode === 'real' && computeStatus?.connection && (
+                  <span className="inline-flex items-center space-x-1 text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full border border-blue-500/40">
+                    <Activity className="w-3 h-3" />
+                    <span>0G NETWORK</span>
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Deploy Button */}
@@ -172,8 +232,12 @@ export function PersonalAIFeed() {
               <div className="flex items-center space-x-3 p-2 cyber-glass dark:cyber-glass-dark rounded-lg">
                 <Bot className="w-4 h-4 text-purple-400 flex-shrink-0" />
                 <div className="text-xs">
-                  <p className="text-cyan-100 font-medium">Decentralized Processing</p>
-                  <p className="text-cyan-300/60">Runs on 0G Compute network</p>
+                  <p className="text-cyan-100 font-medium">
+                    {computeStatus?.mode === 'real' ? '0G Compute Processing' : 'Decentralized Processing'}
+                  </p>
+                  <p className="text-cyan-300/60">
+                    {computeStatus?.mode === 'real' ? 'Powered by official 0G SDK' : 'Runs on 0G Compute network'}
+                  </p>
                 </div>
               </div>
               
