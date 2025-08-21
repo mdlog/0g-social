@@ -46,9 +46,9 @@ class ZGStorageService {
   private indexer: Indexer | null = null;
 
   constructor() {
-    // 0G Newton Testnet configuration - Chain ID 16600 (updated from 16601)
+    // 0G Galileo Testnet V3 configuration - Chain ID 16601 (switched back from Newton)
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://storagescan-newton.0g.ai';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://storagescan-galileo.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
 
     this.initializeClients();
@@ -103,8 +103,8 @@ class ZGStorageService {
         console.warn('[0G Storage] ⚠️ Storage uploads may fail due to indexer connectivity issues');
       }
       
-      console.log('[0G Storage] Newton Testnet - RPC:', this.rpcUrl);
-      console.log('[0G Storage] Newton Testnet - Storage Scan:', this.indexerRpc);
+      console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
+      console.log('[0G Storage] Galileo Testnet V3 - Storage Scan:', this.indexerRpc);
       console.log('[0G Storage] Wallet address:', this.signer.address);
       
       // Test wallet balance
@@ -135,7 +135,7 @@ class ZGStorageService {
         throw new Error('Real 0G Storage required: Missing private key or indexer connection. Please ensure ZG_PRIVATE_KEY is set and indexer service is available.');
       }
 
-      console.log('[0G Storage] Using REAL Galileo testnet storage - no simulation fallback');
+      console.log('[0G Storage] Using REAL 0G Galileo testnet storage - no simulation fallback');
 
       // Create temporary file for 0G Storage upload
       const tempDir = path.join(process.cwd(), 'temp');
