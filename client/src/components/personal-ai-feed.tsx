@@ -9,10 +9,12 @@ export function PersonalAIFeed() {
   const queryClient = useQueryClient();
 
   // Query AI feed status
-  const { data: feedStatus } = useQuery<{deployed: boolean; status: string; instanceId?: string}>({
+  const { data: feedStatus } = useQuery<{deployed: boolean; status: string; instanceId?: string; mode?: string}>({
     queryKey: ["/api/ai/feed/status"],
     refetchInterval: 30000, // Check status every 30 seconds
   });
+
+  const isSimulationMode = feedStatus?.mode === 'simulation';
 
   // Query AI recommendations (only when feed is deployed)
   const { data: recommendations, isLoading: isLoadingRecommendations } = useQuery<Array<{
@@ -45,10 +47,12 @@ export function PersonalAIFeed() {
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "AI Feed Deployed",
-        description: "Your personal AI feed is now active on 0G Compute",
+        description: data.mode === 'simulation' 
+          ? "Personal AI deployed in simulation mode (awaiting 0G Compute mainnet)"
+          : "Your personal AI feed is now active on 0G Compute",
       });
       // Force refetch of both status and recommendations
       queryClient.invalidateQueries({ queryKey: ["/api/ai/feed/status"] });
@@ -90,7 +94,14 @@ export function PersonalAIFeed() {
               </div>
               <div>
                 <p className="text-sm text-green-100 font-medium">AI Feed Active</p>
-                <p className="text-xs text-green-300/60">Running on 0G Compute</p>
+                <p className="text-xs text-green-300/60">
+                  {isSimulationMode ? 'Development Mode (awaiting 0G Compute mainnet)' : 'Running on 0G Compute'}
+                </p>
+                {isSimulationMode && (
+                  <span className="inline-block mt-1 text-xs bg-yellow-900/20 text-yellow-400 px-2 py-1 rounded-full border border-yellow-600/30">
+                    SIMULATION
+                  </span>
+                )}
               </div>
             </div>
 

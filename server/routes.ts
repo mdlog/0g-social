@@ -531,27 +531,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Simulate AI feed deployment on 0G Compute
-      const deploymentId = `ai-feed-${walletConnection.address.substring(2, 10)}-${Date.now()}`;
-      
-      // Store deployment status in session
-      if (!req.session.aiFeed) {
-        req.session.aiFeed = {};
+      // Deploy AI using 0G Compute service (simulation mode until mainnet)
+      const result = await zgComputeService.deployUserAI(walletConnection.address, {
+        interests: ['blockchain', 'defi', 'web3'],
+        engagementLevel: 'high'
+      });
+
+      if (!result.success) {
+        return res.status(500).json({
+          error: 'Failed to deploy AI feed',
+          details: result.error
+        });
       }
       
+      // Store deployment status in session
       req.session.aiFeed = {
         deployed: true,
-        deploymentId,
+        deploymentId: result.instanceId,
         deployedAt: new Date().toISOString(),
         status: 'active',
-        address: walletConnection.address
+        address: walletConnection.address,
+        mode: result.mode
       };
 
       res.json({
         success: true,
-        deploymentId,
+        deploymentId: result.instanceId,
         status: 'active',
-        message: 'Personal AI feed deployed successfully on 0G Compute'
+        mode: result.mode,
+        message: result.mode === 'production' 
+          ? 'Personal AI feed deployed successfully on 0G Compute'
+          : 'Personal AI feed deployed in simulation mode (awaiting 0G Compute mainnet)'
       });
     } catch (error) {
       console.error('Error deploying AI feed:', error);
@@ -576,7 +586,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         deployed: aiFeed.deployed || false,
         deploymentId: aiFeed.deploymentId,
         deployedAt: aiFeed.deployedAt,
-        status: aiFeed.status || 'inactive'
+        status: aiFeed.status || 'inactive',
+        mode: aiFeed.mode || 'simulation'
       });
     } catch (error) {
       console.error('Error checking AI feed status:', error);

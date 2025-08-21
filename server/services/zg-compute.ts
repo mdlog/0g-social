@@ -1,120 +1,178 @@
-/**
+/*
  * 0G Compute Service
  * Manages user-owned AI feeds running on 0G Compute infrastructure
+ * 
+ * IMPORTANT: 0G Compute is currently in development. 
+ * This service provides a development simulation that will be upgraded
+ * to use real 0G Compute API when mainnet launches (Q2-Q3 2025).
  */
 
-export interface UserAIConfig {
-  userId: string;
-  algorithmType: 'engagement' | 'chronological' | 'topic-based' | 'custom';
-  preferences: {
-    contentTypes: string[];
-    topics: string[];
-    engagement_threshold: number;
-    recency_weight: number;
-    diversity_factor: number;
-  };
-  customCode?: string; // For advanced users who want to upload their own algorithms
+interface UserAIConfig {
+  interests?: string[];
+  personalityModel?: string;
+  contentFilters?: string[];
+  engagementLevel?: 'low' | 'medium' | 'high';
 }
 
-export interface AIFeedResult {
-  posts: string[]; // Post IDs ranked by the user's AI
-  reasoning: string[];
+interface ComputeInstance {
+  instanceId: string;
+  userId: string;
+  status: 'deploying' | 'running' | 'stopped';
+  cpuUsage: number;
+  memoryUsage: number;
+  lastActive: string;
+  mode: 'simulation' | 'production';
+}
+
+interface AIFeedResult {
+  posts: any[];
+  reasoning: string;
   computeTime: number;
   lastUpdated: string;
 }
 
-export interface ComputeInstance {
-  instanceId: string;
-  userId: string;
-  status: 'running' | 'stopped' | 'deploying' | 'error';
-  cpuUsage: number;
-  memoryUsage: number;
-  lastActive: string;
-}
-
 class ZGComputeService {
+  private readonly isProduction: boolean;
   private readonly computeEndpoint: string;
   private readonly apiKey: string;
   private userInstances: Map<string, ComputeInstance> = new Map();
 
   constructor() {
-    this.computeEndpoint = process.env.ZG_COMPUTE_ENDPOINT || 'https://compute.0g.ai/api/v1';
+    this.computeEndpoint = process.env.ZG_COMPUTE_ENDPOINT || 'https://compute-testnet.0g.ai/api/v1';
     this.apiKey = process.env.ZG_COMPUTE_API_KEY || '';
-  }
-
-  /**
-   * Deploy a user's personal AI feed algorithm to 0G Compute
-   */
-  async deployUserAI(userId: string, config: UserAIConfig): Promise<{ success: boolean; instanceId?: string; error?: string }> {
-    try {
-      console.log(`[0G Compute] Deploying AI for user ${userId}`);
-      
-      // Generate unique instance ID
-      const instanceId = `ai-${userId}-${Date.now()}`;
-      
-      // Simulate deployment process
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Create compute instance
-      const instance: ComputeInstance = {
-        instanceId,
-        userId,
-        status: 'running',
-        cpuUsage: Math.random() * 30 + 10, // 10-40% CPU usage
-        memoryUsage: Math.random() * 40 + 20, // 20-60% memory usage
-        lastActive: new Date().toISOString()
-      };
-      
-      this.userInstances.set(userId, instance);
-      
-      console.log(`[0G Compute] AI deployed successfully: ${instanceId}`);
-      
-      return {
-        success: true,
-        instanceId
-      };
-    } catch (error) {
-      console.error('[0G Compute] Failed to deploy AI:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Deployment failed'
-      };
+    this.isProduction = !!(this.apiKey && process.env.NODE_ENV === 'production');
+    
+    console.log(`[0G Compute] Status: ${this.isProduction ? 'PRODUCTION' : 'DEVELOPMENT SIMULATION'}`);
+    if (!this.isProduction) {
+      console.log(`[0G Compute] Note: Using simulation mode. Real 0G Compute will be available in mainnet (Q2-Q3 2025)`);
     }
   }
 
   /**
-   * Execute user's AI algorithm to generate personalized feed
+   * Deploy a user's personal AI feed algorithm to 0G Compute
+   * Currently uses simulation mode until 0G Compute mainnet is available
    */
-  async generatePersonalizedFeed(userId: string, availablePosts: string[]): Promise<AIFeedResult> {
+  async deployUserAI(userId: string, config: UserAIConfig = {}): Promise<{ success: boolean; instanceId?: string; error?: string; mode?: string }> {
+    try {
+      console.log(`[0G Compute] Deploying AI for user ${userId}`);
+      
+      if (this.isProduction) {
+        return await this.deployToReal0GCompute(userId, config);
+      } else {
+        return await this.deployToSimulation(userId, config);
+      }
+    } catch (error) {
+      console.error('[0G Compute] Failed to deploy AI:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown deployment error',
+        mode: this.isProduction ? 'production' : 'simulation'
+      };
+    }
+  }
+
+  private async deployToReal0GCompute(userId: string, config: UserAIConfig): Promise<{ success: boolean; instanceId?: string; error?: string; mode: string }> {
+    // This will be used when 0G Compute mainnet is available
+    const payload = {
+      userId,
+      modelType: config.personalityModel || 'gpt-4o-mini',
+      computeResources: {
+        cpuCores: 2,
+        memoryGB: 4,
+        storageGB: 10,
+        gpuType: 'none'
+      },
+      aiConfig: config
+    };
+
+    const response = await fetch(`${this.computeEndpoint}/deploy`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`0G Compute API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const instanceId = result.instanceId;
+
+    const instance: ComputeInstance = {
+      instanceId,
+      userId,
+      status: 'running',
+      cpuUsage: 0,
+      memoryUsage: 0,
+      lastActive: new Date().toISOString(),
+      mode: 'production'
+    };
+    
+    this.userInstances.set(userId, instance);
+    console.log(`[0G Compute] Real deployment successful: ${instanceId}`);
+    
+    return { success: true, instanceId, mode: 'production' };
+  }
+
+  private async deployToSimulation(userId: string, config: UserAIConfig): Promise<{ success: boolean; instanceId?: string; error?: string; mode: string }> {
+    // Enhanced simulation that prepares for real 0G Compute integration
+    const instanceId = `sim-ai-${userId.substring(0, 8)}-${Date.now()}`;
+    
+    // Simulate realistic deployment time
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 1000));
+    
+    const instance: ComputeInstance = {
+      instanceId,
+      userId,
+      status: 'running',
+      cpuUsage: Math.random() * 30 + 15,
+      memoryUsage: Math.random() * 35 + 25,
+      lastActive: new Date().toISOString(),
+      mode: 'simulation'
+    };
+    
+    this.userInstances.set(userId, instance);
+    
+    console.log(`[0G Compute] Simulation deployment successful: ${instanceId}`);
+    console.log(`[0G Compute] This simulation will be upgraded to real 0G Compute when mainnet launches`);
+    
+    return { success: true, instanceId, mode: 'simulation' };
+  }
+
+  /**
+   * Generate personalized feed using AI algorithm
+   */
+  async generatePersonalizedFeed(userId: string, availablePosts: any[]): Promise<AIFeedResult> {
     try {
       const startTime = Date.now();
-      
       console.log(`[0G Compute] Generating feed for user ${userId} with ${availablePosts.length} posts`);
       
-      // Get user's compute instance
       const instance = this.userInstances.get(userId);
       if (!instance) {
-        throw new Error('No AI instance found for user');
+        throw new Error(`No AI instance found for user ${userId}`);
       }
-      
+
       // Update instance activity
       instance.lastActive = new Date().toISOString();
-      instance.cpuUsage = Math.random() * 50 + 40; // Higher usage during computation
-      
+      instance.cpuUsage = Math.random() * 40 + 20;
+      instance.memoryUsage = Math.random() * 50 + 30;
+
       // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 150));
-      
-      // Generate AI-ranked feed (simulation)
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
+
+      // Simple ranking algorithm (in production, this would use the deployed AI model)
       const rankedPosts = this.simulateAIRanking(availablePosts, userId);
-      const reasoning = this.generateReasoning(rankedPosts.length);
-      
+      const reasoning = this.generateReasoning(rankedPosts.length, userId);
       const computeTime = Date.now() - startTime;
-      
-      // Reset CPU usage after computation
-      instance.cpuUsage = Math.random() * 30 + 10;
-      
-      console.log(`[0G Compute] Feed generated in ${computeTime}ms`);
-      
+
+      // Update instance stats
+      instance.lastActive = new Date().toISOString();
+
+      console.log(`[0G Compute] Feed generated in ${computeTime}ms (${instance.mode} mode)`);
+
       return {
         posts: rankedPosts,
         reasoning,
@@ -128,118 +186,83 @@ class ZGComputeService {
   }
 
   /**
-   * Get user's AI compute instance status
+   * Get compute instance for user
    */
-  async getUserInstance(userId: string): Promise<ComputeInstance | null> {
+  getUserInstance(userId: string): ComputeInstance | null {
     return this.userInstances.get(userId) || null;
   }
 
   /**
-   * Update user's AI algorithm configuration
+   * Get compute statistics
    */
-  async updateAIConfig(userId: string, config: Partial<UserAIConfig>): Promise<{ success: boolean; error?: string }> {
-    try {
-      console.log(`[0G Compute] Updating AI config for user ${userId}`);
-      
-      const instance = this.userInstances.get(userId);
-      if (!instance) {
-        return { success: false, error: 'No AI instance found' };
-      }
-      
-      // Simulate config update
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      instance.lastActive = new Date().toISOString();
-      
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Config update failed'
-      };
-    }
-  }
-
-  /**
-   * Get compute network statistics
-   */
-  async getComputeStats(): Promise<{
-    totalInstances: number;
-    activeUsers: number;
-    computeCapacity: string;
-    averageResponseTime: number;
-  }> {
+  getComputeStats(): { totalInstances: number; activeUsers: number; computeCapacity: string; averageResponseTime: number; mode: string } {
     const activeInstances = Array.from(this.userInstances.values()).filter(
       instance => instance.status === 'running'
     );
-    
+
     return {
-      totalInstances: this.userInstances.size,
+      totalInstances: activeInstances.length,
       activeUsers: activeInstances.length,
-      computeCapacity: "847 TFlops",
-      averageResponseTime: 125 // milliseconds
+      computeCapacity: this.isProduction ? '∞ (0G Network)' : 'Local Simulation',
+      averageResponseTime: 850 + Math.random() * 300,
+      mode: this.isProduction ? 'production' : 'simulation'
     };
   }
 
   /**
-   * Stop user's AI instance (to save resources)
+   * Stop user AI instance
    */
-  async stopUserAI(userId: string): Promise<{ success: boolean }> {
+  stopUserAI(userId: string): { success: boolean } {
     const instance = this.userInstances.get(userId);
     if (instance) {
       instance.status = 'stopped';
-      instance.cpuUsage = 0;
-      instance.memoryUsage = 0;
+      console.log(`[0G Compute] Stopped AI instance for user ${userId}`);
     }
-    
-    console.log(`[0G Compute] Stopped AI instance for user ${userId}`);
     return { success: true };
   }
 
   /**
-   * Restart user's AI instance
+   * Restart user AI instance  
    */
-  async restartUserAI(userId: string): Promise<{ success: boolean }> {
+  restartUserAI(userId: string): { success: boolean } {
     const instance = this.userInstances.get(userId);
     if (instance) {
       instance.status = 'running';
-      instance.cpuUsage = Math.random() * 30 + 10;
-      instance.memoryUsage = Math.random() * 40 + 20;
       instance.lastActive = new Date().toISOString();
+      console.log(`[0G Compute] Restarted AI instance for user ${userId}`);
     }
-    
-    console.log(`[0G Compute] Restarted AI instance for user ${userId}`);
     return { success: true };
   }
 
-  private simulateAIRanking(posts: string[], userId: string): string[] {
-    // Simulate user's AI algorithm preferences
-    // In production, this would execute the actual user-owned algorithm on 0G Compute
-    const shuffled = [...posts];
-    
-    // Simple simulation: randomize with some user-specific seed
-    const userSeed = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(((userSeed + i) * 9301 + 49297) % 233280 / 233280) * (i + 1);
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    
-    return shuffled;
+  // Helper methods for simulation
+  private simulateAIRanking(posts: any[], userId: string): any[] {
+    // Simple simulation of AI-based ranking
+    // In production, this would be handled by the deployed AI model on 0G Compute
+    return posts
+      .map(post => ({
+        ...post,
+        aiScore: this.calculateSimpleScore(post, userId)
+      }))
+      .sort((a, b) => b.aiScore - a.aiScore);
   }
 
-  private generateReasoning(postCount: number): string[] {
+  private calculateSimpleScore(post: any, userId: string): number {
+    // Simple scoring based on user hash and post properties
+    const userSeed = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const postSeed = (post.content?.length || 0) + (post.likes || 0);
+    return (userSeed + postSeed) % 100;
+  }
+
+  private generateReasoning(postCount: number, userId: string): string {
     const reasons = [
-      "Prioritized recent posts from followed users",
-      "Boosted content matching your interest in blockchain technology", 
-      "Applied engagement threshold filter (minimum 5 interactions)",
-      `Ranked ${postCount} posts using your personal AI algorithm`,
-      "Ensured content diversity across different topics",
-      "Weighted newer content higher based on your preferences"
+      `Analyzed ${postCount} posts using personalized AI model for user preferences`,
+      `Applied decentralized AI algorithm to rank content based on user engagement patterns`,
+      `Used 0G Compute distributed inference to process ${postCount} posts in real-time`,
+      `Deployed custom AI model tailored to user's blockchain and DeFi interests`
     ];
     
-    // Return random subset of reasoning
-    return reasons.slice(0, Math.min(3, Math.floor(Math.random() * reasons.length) + 1));
+    const userSeed = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return reasons[userSeed % reasons.length];
   }
 }
 

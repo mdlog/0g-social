@@ -5,6 +5,12 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **0G Compute Transparency Implementation (2025-08-21)**: Implemented transparent status system for 0G Compute infrastructure
+  - Created realistic simulation mode while awaiting 0G Compute mainnet (Q2-Q3 2025)
+  - Added proper environment detection (production vs development)
+  - Updated frontend to clearly display simulation status with badges
+  - Enhanced deployment messages to inform users about current implementation state
+  - OpenAI GPT-4o recommendations run locally in simulation mode, will transfer to real 0G Compute when available
 - **0G Storage Network Switch (2025-08-21)**: Successfully switched from Newton testnet back to Galileo testnet for 0G Storage infrastructure
   - Updated to correct indexer endpoint: indexer-storage-testnet-turbo.0g.ai
   - Changed Chain ID from 16600 to 16601 for Galileo testnet V3
