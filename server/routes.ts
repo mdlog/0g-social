@@ -840,6 +840,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Manual setup endpoint sebagai alternatif
+  app.post("/api/zg/compute/manual-setup", async (req, res) => {
+    try {
+      const { amount = "0.1" } = req.body;
+      
+      // Provide manual setup guidance
+      res.json({
+        success: false,
+        requiresManualSetup: true,
+        instructions: {
+          windows: `curl -X POST -H "Content-Type: application/json" -d "{\\"action\\":\\"add_account\\",\\"amount\\":\\"${amount}\\"}" http://localhost:8080/ledger`,
+          unix: `curl -X POST -H 'Content-Type: application/json' -d '{"action":"add_account","amount":"${amount}"}' http://localhost:8080/ledger`,
+          note: "Jalankan perintah di atas di terminal, kemudian refresh halaman ini"
+        },
+        fallback: "Sistem akan otomatis menggunakan mode simulasi jika setup manual tidak berhasil"
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to provide manual setup instructions" });
+    }
+  });
+
   app.post("/api/zg/compute/feed", async (req, res) => {
     try {
       const userId = "user1";
