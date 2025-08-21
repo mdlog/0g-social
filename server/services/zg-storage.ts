@@ -46,9 +46,9 @@ class ZGStorageService {
   private indexer: Indexer | null = null;
 
   constructor() {
-    // 0G Galileo Testnet V3 configuration - updated endpoints for Chain ID 16601
+    // 0G Newton Testnet configuration - Chain ID 16600 (updated from 16601)
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://storagescan-newton.0g.ai';
     this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
 
     this.initializeClients();
@@ -86,7 +86,7 @@ class ZGStorageService {
         // Simple test to see if indexer responds
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
-        const testResult = await fetch(`${this.indexerRpc}/status`, { 
+        const testResult = await fetch(`${this.indexerRpc}`, { 
           method: 'GET',
           signal: controller.signal,
           headers: { 'Content-Type': 'application/json' }
@@ -103,8 +103,8 @@ class ZGStorageService {
         console.warn('[0G Storage] ⚠️ Storage uploads may fail due to indexer connectivity issues');
       }
       
-      console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
-      console.log('[0G Storage] Galileo Testnet V3 - Indexer:', this.indexerRpc);
+      console.log('[0G Storage] Newton Testnet - RPC:', this.rpcUrl);
+      console.log('[0G Storage] Newton Testnet - Storage Scan:', this.indexerRpc);
       console.log('[0G Storage] Wallet address:', this.signer.address);
       
       // Test wallet balance
@@ -176,7 +176,7 @@ class ZGStorageService {
             return {
               success: true,
               hash: rootHash,
-              transactionHash: null  // Don't show fake transaction hash
+              transactionHash: undefined  // Don't show fake transaction hash
             };
           }
           throw new Error(`Upload failed: ${uploadErr}`);
@@ -250,8 +250,8 @@ class ZGStorageService {
         // Return null for hash/transactionHash to avoid displaying fake values
         return {
           success: true,
-          hash: null,
-          transactionHash: null
+          hash: undefined,
+          transactionHash: undefined
         };
       }
 
@@ -277,8 +277,7 @@ class ZGStorageService {
             // Recursive call with retry protection
             const retryResult = await this.storeContent(content, { 
               ...metadata, 
-              retryAttempt: true,
-              originalAttempt: attempt 
+              retryAttempt: true
             });
             
             if (retryResult.success) {
@@ -304,7 +303,7 @@ class ZGStorageService {
         isRetryable = false;
         userFriendlyMessage = `Insufficient 0G tokens for blockchain transaction.
 
-Wallet: ${this.indexer.rpcUrl || 'Unknown'}  
+Wallet: ${this.signer?.address || 'Unknown'}  
 Issue: Not enough 0G tokens to pay for transaction gas fees
 
 Solution:
@@ -351,10 +350,7 @@ Your post is saved locally. Please check your connection or try again later.`;
       
       return {
         success: false,
-        error: userFriendlyMessage,
-        retryable: isRetryable,
-        errorType: errorType,
-        rawError: errorMessage // Include raw error for debugging
+        error: userFriendlyMessage
       };
     }
   }
