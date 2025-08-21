@@ -9,13 +9,20 @@ export function PersonalAIFeed() {
   const queryClient = useQueryClient();
 
   // Query AI feed status
-  const { data: feedStatus } = useQuery({
+  const { data: feedStatus } = useQuery<{deployed: boolean; status: string; instanceId?: string}>({
     queryKey: ["/api/ai/feed/status"],
     refetchInterval: 30000, // Check status every 30 seconds
   });
 
   // Query AI recommendations (only when feed is deployed)
-  const { data: recommendations } = useQuery({
+  const { data: recommendations } = useQuery<Array<{
+    id: string;
+    type: 'topic' | 'user' | 'post';
+    title: string;
+    description: string;
+    confidence: number;
+    reason: string;
+  }>>({
     queryKey: ["/api/ai/feed/recommendations"],
     enabled: feedStatus?.deployed === true,
     refetchInterval: 300000, // Refresh recommendations every 5 minutes
@@ -83,7 +90,7 @@ export function PersonalAIFeed() {
               <div className="space-y-3 pt-4 border-t border-cyan-400/20">
                 <p className="text-xs font-medium text-cyan-100">Personalized for You</p>
                 
-                {recommendations.slice(0, 3).map((rec: any) => (
+                {recommendations.slice(0, 3).map((rec) => (
                   <div key={rec.id} className="flex items-start space-x-3 p-3 cyber-glass dark:cyber-glass-dark rounded-lg hover:bg-cyan-400/10 transition-colors cursor-pointer">
                     <div className="flex-shrink-0">
                       {rec.type === 'topic' && <TrendingUp className="w-4 h-4 text-cyan-400 mt-0.5" />}
