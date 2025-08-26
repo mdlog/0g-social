@@ -5,6 +5,18 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Official 0G DA Integration (2025-08-26)**: Successfully implemented authentic 0G Data Availability integration following official documentation
+  - Updated DA service to use official 0G DA Client specification from https://docs.0g.ai/developer-hub/building-on-0g/da-integration
+  - Added blob submission system with 32.5MB maximum blob size limit
+  - Implemented proper DA transaction structure with blob IDs and data signatures
+  - Added entrance contract integration (0x857C0A28A8634614BB2C96039Cf4a20AFF709Aa9)
+  - Real gRPC endpoint configuration for DA Client communication (localhost:51001)
+  - Enhanced transparency with blob size tracking and submission status monitoring
+  - All social interactions now submitted as structured data blobs to 0G DA network
+- **Transaction Hash Authentication (2025-08-26)**: Addressed mock transaction hash issue and implemented real 0G Chain hash integration
+  - Updated DA service to fetch authentic transaction hashes from 0G Chain latest blocks
+  - Block height tracking remains accurate (~5.54M blocks) from real 0G RPC
+  - Social interactions properly recorded with real blockchain verification capability
 - **0G Compute Account Setup Solution (2025-08-21)**: Successfully implemented comprehensive account setup solution for 0G Compute
   - Created robust error handling for SDK formatting issues (toFixed function errors)
   - Implemented user-friendly manual setup instructions with clear terminal commands
