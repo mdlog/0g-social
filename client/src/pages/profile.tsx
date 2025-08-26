@@ -9,6 +9,11 @@ import { Separator } from "@/components/ui/separator";
 import { PostCard } from "@/components/posts/post-card";
 import { useAuth } from "@/hooks/use-auth";
 import { EditProfileDialog } from "@/components/edit-profile-dialog";
+import { Header } from "@/components/layout/header";
+import { LeftSidebar } from "@/components/layout/left-sidebar";
+import { RightSidebar } from "@/components/layout/right-sidebar";
+import { Footer } from "@/components/layout/footer";
+import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
 import { 
   Calendar, 
   MapPin, 
@@ -39,19 +44,26 @@ export function ProfilePage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   
   // Extract username from params
-  const username = params.username || currentUser?.username;
-  const isOwnProfile = username === currentUser?.username;
+  const username = params.username;
+  const isOwnProfile = !username; // If no username in URL, it's own profile
   
   // Fetch user profile data
   const { data: profileUser, isLoading: profileLoading } = useQuery({
-    queryKey: ['users', 'profile', username],
+    queryKey: ['users', 'profile', username || 'me'],
     queryFn: async () => {
-      if (!username) return null;
-      const response = await fetch(`/api/users/profile/${username}`);
-      if (!response.ok) throw new Error('User not found');
-      return response.json();
+      if (isOwnProfile) {
+        // For own profile, use /api/users/me
+        const response = await fetch('/api/users/me');
+        if (!response.ok) throw new Error('User not found');
+        return response.json();
+      } else {
+        // For other users, use /api/users/profile/:username
+        const response = await fetch(`/api/users/profile/${username}`);
+        if (!response.ok) throw new Error('User not found');
+        return response.json();
+      }
     },
-    enabled: !!username,
+    enabled: isOwnProfile || !!username,
   });
 
   // Fetch user posts
@@ -115,15 +127,28 @@ export function ProfilePage() {
 
   if (!profileUser) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-4">User not found</h1>
-        <p className="text-muted-foreground">The profile you're looking for doesn't exist.</p>
+      <div className="min-h-screen">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <h1 className="text-2xl font-bold mb-4">User not found</h1>
+            <p className="text-muted-foreground">The profile you're looking for doesn't exist.</p>
+          </div>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="container max-w-4xl mx-auto p-4 space-y-6">
+    <div className="min-h-screen">
+      <Header />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <LeftSidebar />
+          
+          <main className="lg:col-span-6 space-y-6">
       {/* Profile Header */}
       <Card className="relative overflow-hidden">
         {/* Cover Image Background */}
@@ -351,6 +376,18 @@ export function ProfilePage() {
           ) : null
         }
       />
+          </main>
+          
+          <RightSidebar />
+        </div>
+      </div>
+
+      {/* 0G Infrastructure Status - Bottom Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-og-slate-50 dark:bg-og-slate-900/50">
+        <ZGInfrastructureStatus />
+      </div>
+
+      <Footer />
     </div>
   );
 }
