@@ -33,7 +33,18 @@ export function PostCard({ post }: PostCardProps) {
   // Fetch comments when showComments is true
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: ["/api/posts", post.id, "comments"],
-    queryFn: () => apiRequest("GET", `/api/posts/${post.id}/comments`),
+    queryFn: async () => {
+      console.log('[DEBUG] Fetching comments for post:', post.id);
+      const response = await fetch(`/api/posts/${post.id}/comments`, {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comments: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('[DEBUG] Received comments data:', data);
+      return data;
+    },
     enabled: showComments,
   });
 
