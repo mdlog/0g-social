@@ -28,7 +28,7 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const posts = pgTable("posts", {
+export const posts: any = pgTable("posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   authorId: varchar("author_id").notNull().references(() => users.id),
   content: text("content").notNull(),
@@ -40,8 +40,8 @@ export const posts = pgTable("posts", {
   // Wave 2: Advanced Content Features
   hashtags: jsonb("hashtags").default([]), // Array of hashtag strings
   communityId: varchar("community_id"), // Will add reference after communities table defined
-  parentPostId: varchar("parent_post_id").references(() => posts.id), // For threads/replies
-  quotedPostId: varchar("quoted_post_id").references(() => posts.id), // For quote posts
+  parentPostId: varchar("parent_post_id").references((): any => posts.id), // For threads/replies
+  quotedPostId: varchar("quoted_post_id").references((): any => posts.id), // For quote posts
   isNftContent: boolean("is_nft_content").default(false).notNull(),
   nftContractAddress: text("nft_contract_address"), // NFT mint address
   nftTokenId: text("nft_token_id"), // NFT token ID

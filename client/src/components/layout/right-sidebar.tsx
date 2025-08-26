@@ -13,6 +13,7 @@ function TrendingHashtagsContainer() {
     postsCount: number;
     trendingScore: number;
     isFollowing: boolean;
+    createdAt: Date | null;
   }>>({
     queryKey: ["/api/hashtags/trending"],
     refetchInterval: 300000, // 5 minutes

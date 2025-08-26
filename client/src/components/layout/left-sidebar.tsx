@@ -9,7 +9,28 @@ import { Link, useLocation } from "wouter";
 export function LeftSidebar() {
   const [location] = useLocation();
   
-  const { data: currentUser, isError, refetch } = useQuery<{id: string; displayName: string; username: string; email: string | null; bio: string | null; avatar: string | null; walletAddress: string | null; isVerified: boolean; followingCount: number; followersCount: number; postsCount: number; createdAt: Date | null}>({
+  const { data: currentUser, isError, refetch } = useQuery<{
+    id: string; 
+    displayName: string; 
+    username: string; 
+    email: string | null; 
+    bio: string | null; 
+    avatar: string | null; 
+    nftProfilePicture: string | null;
+    nftProfileContract: string | null;
+    nftProfileTokenId: string | null;
+    reputationScore: number;
+    skillBadges: any[];
+    verifiedLinks: any[];
+    isPremium: boolean;
+    premiumExpiresAt: Date | null;
+    walletAddress: string | null; 
+    isVerified: boolean; 
+    followingCount: number; 
+    followersCount: number; 
+    postsCount: number; 
+    createdAt: Date | null;
+  }>({
     queryKey: ["/api/users/me"],
     retry: false, // Don't retry on 401 errors
     refetchInterval: 5000, // Check every 5 seconds for wallet changes
