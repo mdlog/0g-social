@@ -156,28 +156,7 @@ export function ProfilePage() {
     );
   }
 
-  if (profileLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-pulse">Loading profile...</div>
-      </div>
-    );
-  }
 
-  if (!profileUser) {
-    return (
-      <div className="min-h-screen">
-        <Header />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col items-center justify-center min-h-[400px]">
-            <h1 className="text-2xl font-bold mb-4">User not found</h1>
-            <p className="text-muted-foreground">The profile you're looking for doesn't exist.</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

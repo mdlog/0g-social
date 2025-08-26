@@ -190,19 +190,19 @@ export function PostCard({ post }: PostCardProps) {
         <article className="flex space-x-4">
           <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 avatar-smooth">
             <AvatarImage 
-              src={post.author.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
-              alt={post.author.displayName} 
+              src={post.author?.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
+              alt={post.author?.displayName || "User"} 
               className="object-cover"
             />
             <AvatarFallback className={`${getAvatarClass(post.authorId)} text-white font-semibold text-sm shadow-lg`}>
-              {post.author.displayName.slice(0, 2).toUpperCase()}
+              {(post.author?.displayName || "U").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-3">
-              <h4 className="font-semibold text-cyan-100">{post.author.displayName}</h4>
-              <span className="gradient-neon-text text-sm">@{post.author.username}.0g</span>
-              {post.author.isVerified && (
+              <h4 className="font-semibold text-cyan-100">{post.author?.displayName || "Unknown User"}</h4>
+              <span className="gradient-neon-text text-sm">@{post.author?.username || "unknown"}.0g</span>
+              {post.author?.isVerified && (
                 <div className="verified-badge">
                   <Shield className="w-3 h-3" />
                   <span className="text-xs">VERIFIED</span>
