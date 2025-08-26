@@ -169,7 +169,7 @@ export function ProfilePage() {
       </div>
 
       {/* Main Profile Content */}
-      <div className="relative -mt-32 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative -mt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Profile Card */}
         <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-2xl">
