@@ -15,15 +15,24 @@ ENTRANCE_CONTRACT_ADDR=0xE75A073dA5bb7b0eC622170Fd268f35E675a957B
 GRPC_SERVER_PORT=51001
 ```
 
-### Langkah Selanjutnya - Jalankan DA Client Node:
+### Langkah Selanjutnya - Setup Docker DA Client Node:
 
-Untuk mengaktifkan 0G DA network yang sesungguhnya, jalankan perintah Docker berikut:
+1. **Buat file .env di komputer lokal Anda** dengan isi:
+```bash
+COMBINED_SERVER_CHAIN_RPC=https://0g-galileo-testnet.drpc.org/
+COMBINED_SERVER_PRIVATE_KEY=34ed02aef8bc02e3fddcc037f8892910d8bd14dd0b1c83f875b1fe40df9c2841
+ENTRANCE_CONTRACT_ADDR=0xE75A073dA5bb7b0eC622170Fd268f35E675a957B
+GRPC_SERVER_PORT=51001
+```
 
+2. **Jalankan Docker command**:
 ```bash
 docker run --env-file .env -p 51001:51001 0g-da-client
 ```
 
-**Status Saat Ini**: Aplikasi sudah siap menerima koneksi dari DA Client Node Docker.
+3. **Pilih `0g-da-client`** dari daftar Docker images yang tersedia (seperti yang terlihat di screenshot Anda).
+
+**Status Saat Ini**: Aplikasi DeSocialAI sudah siap menerima koneksi dari DA Client Node Docker di port 51001.
 
 ## 2. Konfigurasi Aplikasi
 
