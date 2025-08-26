@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { RainbowKitProviderWrapper } from "@/providers/rainbowkit-provider";
 import Home from "./pages/home";
+import { ProfilePage } from "./pages/profile";
 import { AIRecommendationsPage } from "./pages/ai-recommendations";
 import { DiscoverPage } from "./pages/discover";
 import { CommunitiesPage } from "./pages/communities";
@@ -19,6 +20,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/profile/:username" component={ProfilePage} />
+      <Route path="/profile" component={ProfilePage} />
       <Route path="/ai-recommendations" component={AIRecommendationsPage} />
       <Route path="/discover" component={DiscoverPage} />
       <Route path="/communities" component={CommunitiesPage} />

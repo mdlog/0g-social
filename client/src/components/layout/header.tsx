@@ -93,7 +93,17 @@ export function Header() {
 
             {/* Profile */}
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 avatar-gradient-1 rounded-full ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 transition-all duration-300 float-animation"></div>
+              {currentUser ? (
+                <Button
+                  variant="ghost"
+                  className="w-10 h-10 p-0 rounded-full"
+                  onClick={() => window.location.href = `/profile`}
+                >
+                  <div className="w-10 h-10 avatar-gradient-1 rounded-full ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 transition-all duration-300 float-animation"></div>
+                </Button>
+              ) : (
+                <div className="w-10 h-10 avatar-gradient-1 rounded-full ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 transition-all duration-300 float-animation"></div>
+              )}
             </div>
           </div>
         </div>

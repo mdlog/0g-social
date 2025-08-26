@@ -131,6 +131,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(users);
   });
 
+  // Profile endpoints
+  app.get("/api/users/profile/:username", async (req, res) => {
+    try {
+      const user = await storage.getUserByUsername(req.params.username);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/posts/user/:userId", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const posts = await storage.getPostsByUser(req.params.userId, limit, offset);
+      res.json(posts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/users/:userId/stats", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const stats = {
+        postsCount: user.postsCount || 0,
+        followersCount: user.followersCount || 0,
+        followingCount: user.followingCount || 0,
+        likesReceived: 0, // TODO: Calculate from actual likes
+      };
+
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/users/:userId/liked", async (req, res) => {
+    try {
+      // TODO: Implement liked posts functionality
+      res.json([]);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Follow/Unfollow endpoints
+  app.post("/api/users/:userId/follow", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData?.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const currentUser = await storage.getUserByWalletAddress(walletData.address);
+      if (!currentUser) {
+        return res.status(404).json({ message: "Current user not found" });
+      }
+
+      const targetUserId = req.params.userId;
+      if (currentUser.id === targetUserId) {
+        return res.status(400).json({ message: "Cannot follow yourself" });
+      }
+
+      const follow = await storage.followUser(currentUser.id, targetUserId);
+      res.json(follow);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/users/:userId/follow", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData?.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const currentUser = await storage.getUserByWalletAddress(walletData.address);
+      if (!currentUser) {
+        return res.status(404).json({ message: "Current user not found" });
+      }
+
+      const targetUserId = req.params.userId;
+      await storage.unfollowUser(currentUser.id, targetUserId);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Posts
   app.get("/api/posts", async (req, res) => {
     const limit = parseInt(req.query.limit as string) || 10;
