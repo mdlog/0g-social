@@ -35,6 +35,9 @@ export function PostCard({ post }: PostCardProps) {
     queryKey: ["/api/posts", post.id, "comments"],
     queryFn: () => apiRequest("GET", `/api/posts/${post.id}/comments`),
     enabled: showComments,
+    onSuccess: (data) => {
+      console.log('[DEBUG Frontend] Comments fetched:', data);
+    },
   });
 
   // Manual retry mutation for 0G Storage uploads
@@ -397,7 +400,7 @@ export function PostCard({ post }: PostCardProps) {
                   <div className="mb-4 text-center text-cyan-300/60">
                     Loading comments...
                   </div>
-                ) : comments.length > 0 ? (
+                ) : (console.log('[DEBUG Frontend] Rendering comments:', comments.length, comments) || comments.length > 0) ? (
                   <div className="mb-4 space-y-3 max-h-60 overflow-y-auto">
                     {comments.map((comment: any) => (
                       <div key={comment.id} className="flex space-x-3 p-3 rounded-xl cyber-glass dark:cyber-glass-dark">
