@@ -547,6 +547,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       console.log(`[0G DA] ✅ Comment recorded for user ${user.id} on post ${commentData.postId}`);
+      
+      // Get full comment data with author information for broadcasting
+      const fullCommentData = await storage.getCommentsByPost(commentData.postId);
+      const newCommentWithAuthor = fullCommentData.find(c => c.id === comment.id);
+      
+      // Broadcast new comment to all connected clients for real-time updates
+      broadcastToAll({
+        type: 'new_comment',
+        data: {
+          comment: newCommentWithAuthor,
+          postId: commentData.postId,
+          authorInfo: {
+            id: user.id,
+            displayName: user.displayName,
+            username: user.username,
+            walletAddress: walletData.address
+          }
+        },
+        timestamp: Date.now()
+      });
+      
+      console.log(`[Real-time] 📨 New comment broadcasted to all clients for post ${commentData.postId}`);
       res.json(comment);
     } catch (error: any) {
       console.error('[Comment Error]', error);

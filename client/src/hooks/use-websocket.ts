@@ -71,10 +71,32 @@ export function useWebSocket() {
               queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
               break;
             
-            case 'post_commented':
-              // Refresh posts to show updated comment count
+            case 'new_comment':
+              // Force refresh of comment data for the specific post
+              const postId = message.data.postId;
+              console.log(`📨 New comment received for post ${postId}, refreshing comments...`);
+              
+              // Invalidate all comment queries for this post
+              queryClient.invalidateQueries({ 
+                predicate: (query) => {
+                  const queryKey = query.queryKey as string[];
+                  return queryKey[0] === '/api/posts' && queryKey[2] === 'comments' && queryKey[1] === postId;
+                }
+              });
+              
+              // Also invalidate general post queries to update comment counts
               queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
               queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
+              
+              // Force immediate refetch of comments for this specific post
+              queryClient.refetchQueries({ 
+                predicate: (query) => {
+                  const queryKey = query.queryKey as string[];
+                  return queryKey[0] === '/api/posts' && queryKey[2] === 'comments' && queryKey[1] === postId;
+                }
+              });
+              
+              console.log(`✅ Comment queries refreshed for post ${postId}`);
               break;
             
             default:
