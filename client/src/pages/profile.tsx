@@ -76,38 +76,36 @@ export function ProfilePage() {
     enabled: !!profileUser?.id,
   });
 
+  // Fetch liked posts
+  const { data: likedPosts, isLoading: likedLoading } = useQuery({
+    queryKey: ['posts', 'liked', profileUser?.id],
+    queryFn: async () => {
+      if (!profileUser?.id) return [];
+      const response = await fetch(`/api/posts/liked/${profileUser.id}`);
+      return response.json();
+    },
+    enabled: !!profileUser?.id,
+  });
+
   // Fetch user stats
-  const { data: stats } = useQuery<ProfileStats>({
+  const { data: stats } = useQuery({
     queryKey: ['users', 'stats', profileUser?.id],
     queryFn: async () => {
       if (!profileUser?.id) return { postsCount: 0, followersCount: 0, followingCount: 0, likesReceived: 0 };
       const response = await fetch(`/api/users/${profileUser.id}/stats`);
+      if (!response.ok) return { postsCount: 0, followersCount: 0, followingCount: 0, likesReceived: 0 };
       return response.json();
     },
     enabled: !!profileUser?.id,
   });
 
-  // Fetch liked posts (for likes tab)
-  const { data: likedPosts } = useQuery({
-    queryKey: ['posts', 'liked', profileUser?.id],
-    queryFn: async () => {
-      if (!profileUser?.id) return [];
-      const response = await fetch(`/api/users/${profileUser.id}/liked`);
-      return response.json();
-    },
-    enabled: !!profileUser?.id,
-  });
-
+  // Handler functions
   const handleFollow = async () => {
-    if (!profileUser || !currentUser) return;
-    
+    if (!profileUser?.id) return;
     try {
-      const method = isFollowing ? 'DELETE' : 'POST';
       const response = await fetch(`/api/users/${profileUser.id}/follow`, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
+        method: isFollowing ? 'DELETE' : 'POST',
       });
-      
       if (response.ok) {
         setIsFollowing(!isFollowing);
       }
@@ -115,6 +113,48 @@ export function ProfilePage() {
       console.error('Error following/unfollowing user:', error);
     }
   };
+
+  // Loading and error states
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <Header />
+        <div className="relative h-64 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+          <div className="absolute inset-0 bg-black/20"></div>
+        </div>
+        <div className="relative -mt-32 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-2xl">
+            <CardContent className="p-8">
+              <div className="animate-pulse">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                  <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="space-y-3 flex-1">
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-96"></div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">User not found</h1>
+            <p className="text-gray-600 dark:text-gray-400">The profile you're looking for doesn't exist.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (profileLoading) {
     return (
@@ -140,270 +180,309 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Header />
       
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="w-full">
-          <main className="space-y-6">
-      {/* Simple Elegant Profile Header */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-0">
-        {/* Gradient Cover Background */}
-        <div className="h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-cyan-500 relative"></div>
-        
-        {/* Profile Content */}
-        <div className="relative px-8 pb-8 bg-gradient-to-b from-slate-900/95 to-slate-900">
-          {/* Avatar Centered */}
-          <div className="flex flex-col items-center -mt-16">
-            <Avatar className="w-24 h-24 border-4 border-white shadow-2xl">
-              <AvatarImage src={profileUser.avatar} />
-              <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                {(profileUser.displayName || profileUser.username)?.charAt(0)?.toUpperCase() || '?'}
-              </AvatarFallback>
-            </Avatar>
-            
-            {/* User Name and Username */}
-            <div className="text-center mt-4 mb-6">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <h1 className="text-2xl font-bold text-white" data-testid="profile-display-name">
-                  {profileUser.displayName || profileUser.username}
-                </h1>
-                <Verified className="w-5 h-5 text-blue-400" />
-              </div>
-              <p className="text-gray-300 text-base" data-testid="profile-username">@{profileUser.username}</p>
-              <p className="text-xs font-mono text-gray-400 mt-1" data-testid="profile-wallet">
-                {profileUser.walletAddress ? `${profileUser.walletAddress.slice(0, 6)}...${profileUser.walletAddress.slice(-4)}` : ''}
-              </p>
-            </div>
-
-            {/* Action Button */}
-            <div className="mb-6">
-              {isOwnProfile ? (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowEditDialog(true)}
-                  className="bg-white/10 backdrop-blur border-white/20 text-white hover:bg-white/20 hover:border-white/30"
-                  data-testid="button-edit-profile"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <Button 
-                  variant={isFollowing ? "outline" : "default"}
-                  onClick={handleFollow}
-                  className={isFollowing 
-                    ? "bg-white/10 backdrop-blur border-white/20 text-white hover:bg-red-500/20 hover:border-red-400/30" 
-                    : "bg-blue-500 hover:bg-blue-600 text-white"
-                  }
-                  data-testid="button-follow"
-                >
-                  {isFollowing ? (
-                    <>
-                      <UserMinus className="w-4 h-4 mr-2" />
-                      Unfollow
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Follow
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-
-            {/* Bio */}
-            {profileUser.bio && (
-              <div className="text-center max-w-sm mb-4">
-                <p className="text-sm text-gray-300 leading-relaxed" data-testid="profile-bio">
-                  {profileUser.bio}
-                </p>
-              </div>
-            )}
-
-            {/* Additional Info */}
-            <div className="flex flex-wrap justify-center items-center gap-6 text-xs text-gray-400">
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                Joined {new Date(profileUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              </div>
-              <div className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                0G Network
-              </div>
-              <div className="flex items-center gap-1">
-                <span>Wallet: {profileUser.walletAddress ? `${profileUser.walletAddress.slice(0, 8)}...${profileUser.walletAddress.slice(-6)}` : 'Not connected'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Simple Stats Grid */}
-      <div className="grid grid-cols-4 gap-3">
-        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
-          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-posts">
-            {stats?.postsCount || 0}
-          </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Posts</div>
-        </Card>
-        
-        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
-          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-followers">
-            {stats?.followersCount || 0}
-          </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Followers</div>
-        </Card>
-        
-        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
-          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-following">
-            {stats?.followingCount || 0}
-          </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Following</div>
-        </Card>
-        
-        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
-          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-likes">
-            {stats?.likesReceived || 0}
-          </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Likes</div>
-        </Card>
+      {/* Hero Section with Cover */}
+      <div className="relative h-64 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
       </div>
 
-      {/* Modern Profile Tabs */}
-      <Card className="p-0 overflow-hidden">
-        <Tabs defaultValue="posts" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-14 bg-muted/30 rounded-none border-b">
-            <TabsTrigger 
-              value="posts" 
-              className="flex items-center gap-2 h-full rounded-none data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none font-medium transition-all" 
-              data-testid="tab-posts"
-            >
-              <MessageSquare className="w-5 h-5" />
-              Posts
-            </TabsTrigger>
-            <TabsTrigger 
-              value="replies" 
-              className="flex items-center gap-2 h-full rounded-none data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:shadow-none font-medium transition-all" 
-              data-testid="tab-replies"
-            >
-              <Users className="w-5 h-5" />
-              Followers  
-            </TabsTrigger>
-            <TabsTrigger 
-              value="media" 
-              className="flex items-center gap-2 h-full rounded-none data-[state=active]:bg-white data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:shadow-none font-medium transition-all" 
-              data-testid="tab-media"
-            >
-              <UserPlus className="w-5 h-5" />
-              Friends
-            </TabsTrigger>
-            <TabsTrigger 
-              value="likes" 
-              className="flex items-center gap-2 h-full rounded-none data-[state=active]:bg-white data-[state=active]:text-pink-600 data-[state=active]:border-b-2 data-[state=active]:border-pink-600 data-[state=active]:shadow-none font-medium transition-all" 
-              data-testid="tab-likes"
-            >
-              <Heart className="w-5 h-5" />
-              Gallery
-            </TabsTrigger>
-          </TabsList>
-
-        {/* Posts Tab */}
-        <TabsContent value="posts" className="p-6">
-          {postsLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-pulse">Loading posts...</div>
-            </div>
-          ) : userPosts && userPosts.length > 0 ? (
-            <div className="space-y-6">
-              {userPosts.map((post: any) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                <MessageSquare className="w-10 h-10 text-blue-400" />
+      {/* Main Profile Content */}
+      <div className="relative -mt-32 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Profile Card */}
+        <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-2xl">
+          <CardContent className="p-8">
+            
+            {/* Profile Header */}
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+              
+              {/* Left Side - Avatar & Basic Info */}
+              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                <Avatar className="w-32 h-32 border-4 border-white shadow-xl ring-4 ring-purple-100 dark:ring-purple-900">
+                  <AvatarImage src={profileUser.avatar} />
+                  <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                    {(profileUser.displayName || profileUser.username)?.charAt(0)?.toUpperCase() || '?'}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white" data-testid="profile-display-name">
+                      {profileUser.displayName || profileUser.username}
+                    </h1>
+                    <Verified className="w-6 h-6 text-blue-500" />
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                      Pro
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-lg text-gray-600 dark:text-gray-300" data-testid="profile-username">
+                    @{profileUser.username}
+                  </p>
+                  
+                  {profileUser.bio && (
+                    <p className="text-gray-700 dark:text-gray-300 max-w-md leading-relaxed" data-testid="profile-bio">
+                      {profileUser.bio}
+                    </p>
+                  )}
+                  
+                  {/* Profile Metadata */}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      Joined {new Date(profileUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      0G Network
+                    </div>
+                  </div>
+                  
+                  {/* Wallet Info */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-mono text-gray-600 dark:text-gray-400">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    {profileUser.walletAddress ? `${profileUser.walletAddress.slice(0, 6)}...${profileUser.walletAddress.slice(-4)}` : 'No wallet'}
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-medium mb-2">No posts yet</h3>
-              <p className="text-sm">
-                {isOwnProfile ? "Share your first thought with DeSocialAI!" : `${profileUser.displayName || profileUser.username} hasn't posted anything yet.`}
-              </p>
-            </div>
-          )}
-        </TabsContent>
 
-        {/* Followers Tab */}
-        <TabsContent value="replies" className="p-6">
-          <div className="text-center py-16 text-muted-foreground">
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-              <Users className="w-10 h-10 text-green-400" />
-            </div>
-            <h3 className="text-lg font-medium mb-2">No followers yet</h3>
-            <p className="text-sm">
-              {isOwnProfile ? "Your followers will appear here." : `${profileUser.displayName || profileUser.username}'s followers will appear here.`}
-            </p>
-          </div>
-        </TabsContent>
-
-        {/* Friends Tab */}
-        <TabsContent value="media" className="p-6">
-          <div className="text-center py-16 text-muted-foreground">
-            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-              <UserPlus className="w-10 h-10 text-purple-400" />
-            </div>
-            <h3 className="text-lg font-medium mb-2">No friends yet</h3>
-            <p className="text-sm">
-              {isOwnProfile ? "Connect with other users to build your network." : `${profileUser.displayName || profileUser.username}'s friends will appear here.`}
-            </p>
-          </div>
-        </TabsContent>
-
-        {/* Gallery Tab */}
-        <TabsContent value="likes" className="p-6">
-          {likedPosts && likedPosts.length > 0 ? (
-            <div className="space-y-6">
-              {likedPosts.map((post: any) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                <Heart className="w-10 h-10 text-pink-400" />
+              {/* Right Side - Action Buttons */}
+              <div className="flex gap-3">
+                {isOwnProfile ? (
+                  <Button 
+                    onClick={() => setShowEditDialog(true)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                    data-testid="button-edit-profile"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <>
+                    <Button 
+                      variant={isFollowing ? "outline" : "default"}
+                      onClick={handleFollow}
+                      className={isFollowing 
+                        ? "border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950" 
+                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                      }
+                      data-testid="button-follow"
+                    >
+                      {isFollowing ? (
+                        <>
+                          <UserMinus className="w-4 h-4 mr-2" />
+                          Unfollow
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Follow
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="outline">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Message
+                    </Button>
+                  </>
+                )}
               </div>
-              <h3 className="text-lg font-medium mb-2">No gallery items yet</h3>
-              <p className="text-sm">
-                {isOwnProfile ? "Media and visual content will appear here." : `${profileUser.displayName || profileUser.username}'s gallery will appear here.`}
-              </p>
             </div>
-          )}
-        </TabsContent>
-        </Tabs>
-      </Card>
+
+            <Separator className="my-8" />
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="stat-posts">
+                  {stats?.postsCount || 0}
+                </div>
+                <div className="text-sm text-blue-700 dark:text-blue-300 font-medium">Posts</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400" data-testid="stat-followers">
+                  {stats?.followersCount || 0}
+                </div>
+                <div className="text-sm text-green-700 dark:text-green-300 font-medium">Followers</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400" data-testid="stat-following">
+                  {stats?.followingCount || 0}
+                </div>
+                <div className="text-sm text-purple-700 dark:text-purple-300 font-medium">Following</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900">
+                <div className="text-2xl font-bold text-pink-600 dark:text-pink-400" data-testid="stat-likes">
+                  {stats?.likesReceived || 0}
+                </div>
+                <div className="text-sm text-pink-700 dark:text-pink-300 font-medium">Likes</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Content Tabs */}
+        <div className="mt-8">
+          <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-xl">
+            <Tabs defaultValue="posts" className="w-full">
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <TabsList className="w-full justify-start bg-transparent p-0 h-auto">
+                  <TabsTrigger 
+                    value="posts" 
+                    className="px-6 py-4 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:shadow-none rounded-none"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Posts ({userPosts?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="liked" 
+                    className="px-6 py-4 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:shadow-none rounded-none"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    Liked ({likedPosts?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="media" 
+                    className="px-6 py-4 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:shadow-none rounded-none"
+                  >
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Achievements
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent value="posts" className="p-6">
+                {postsLoading ? (
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <Card key={i} className="p-6">
+                        <div className="animate-pulse">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                            <div className="space-y-2 flex-1">
+                              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : userPosts && userPosts.length > 0 ? (
+                  <div className="space-y-6">
+                    {userPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900 dark:to-indigo-900 rounded-full flex items-center justify-center">
+                      <MessageSquare className="w-10 h-10 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      {isOwnProfile ? "You haven't posted anything yet" : `${profileUser.displayName || profileUser.username} hasn't posted anything yet`}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                      {isOwnProfile ? "Share your thoughts with the DeSocialAI community!" : "Check back later for new posts."}
+                    </p>
+                    {isOwnProfile && (
+                      <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+                        Create Your First Post
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="liked" className="p-6">
+                {likedLoading ? (
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <Card key={i} className="p-6">
+                        <div className="animate-pulse">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                            <div className="space-y-2 flex-1">
+                              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : likedPosts && likedPosts.length > 0 ? (
+                  <div className="space-y-6">
+                    {likedPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-pink-100 to-red-100 dark:from-pink-900 dark:to-red-900 rounded-full flex items-center justify-center">
+                      <Heart className="w-10 h-10 text-pink-600 dark:text-pink-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      {isOwnProfile ? "You haven't liked any posts yet" : `${profileUser.displayName || profileUser.username} hasn't liked any posts yet`}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                      {isOwnProfile ? "Like posts to show your appreciation and find them here later." : "Liked posts will appear here."}
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="media" className="p-6">
+                <div className="text-center py-16">
+                  <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900 dark:to-orange-900 rounded-full flex items-center justify-center">
+                    <Trophy className="w-10 h-10 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    Achievements Coming Soon
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Track your milestones and achievements on the DeSocialAI platform.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </div>
+      </div>
+
+      {/* Footer & Infrastructure Status */}
+      <div className="mt-16">
+        <ZGInfrastructureStatus />
+        <Footer />
+      </div>
 
       {/* Edit Profile Dialog */}
-      <EditProfileDialog
+      <EditProfileDialog 
+        open={showEditDialog} 
+        onOpenChange={setShowEditDialog}
         user={profileUser}
         trigger={
-          showEditDialog ? (
-            <Button variant="outline" className="opacity-0 pointer-events-none">
+          isOwnProfile ? (
+            <Button className="hidden">
               Hidden Trigger
             </Button>
           ) : null
         }
       />
-          </main>
-        </div>
-      </div>
-
-      {/* 0G Infrastructure Status - Bottom Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-og-slate-50 dark:bg-og-slate-900/50">
-        <ZGInfrastructureStatus />
-      </div>
-
-      <Footer />
     </div>
   );
 }
