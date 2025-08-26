@@ -146,151 +146,128 @@ export function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="w-full">
           <main className="space-y-6">
-      {/* Modern Profile Header */}
-      <Card className="relative overflow-hidden">
+      {/* Simple Elegant Profile Header */}
+      <Card className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-0">
         {/* Gradient Cover Background */}
-        <div className="h-48 bg-gradient-to-br from-blue-400 via-purple-500 to-cyan-400 relative">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/5"></div>
-        </div>
+        <div className="h-40 bg-gradient-to-br from-blue-500 via-purple-600 to-cyan-500 relative"></div>
         
         {/* Profile Content */}
-        <div className="relative px-8 pb-8">
+        <div className="relative px-8 pb-8 bg-gradient-to-b from-slate-900/95 to-slate-900">
           {/* Avatar Centered */}
-          <div className="flex flex-col items-center -mt-20">
-            <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
+          <div className="flex flex-col items-center -mt-16">
+            <Avatar className="w-24 h-24 border-4 border-white shadow-2xl">
               <AvatarImage src={profileUser.avatar} />
-              <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                {(profileUser.displayName || profileUser.username)?.charAt(0) || '?'}
+              <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                {(profileUser.displayName || profileUser.username)?.charAt(0)?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar>
             
             {/* User Name and Username */}
             <div className="text-center mt-4 mb-6">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <h1 className="text-3xl font-bold" data-testid="profile-display-name">
+                <h1 className="text-2xl font-bold text-white" data-testid="profile-display-name">
                   {profileUser.displayName || profileUser.username}
                 </h1>
-                <Verified className="w-6 h-6 text-blue-500" />
+                <Verified className="w-5 h-5 text-blue-400" />
               </div>
-              <p className="text-muted-foreground text-lg" data-testid="profile-username">@{profileUser.username}</p>
-              <p className="text-sm font-mono text-muted-foreground mt-1" data-testid="profile-wallet">
+              <p className="text-gray-300 text-base" data-testid="profile-username">@{profileUser.username}</p>
+              <p className="text-xs font-mono text-gray-400 mt-1" data-testid="profile-wallet">
                 {profileUser.walletAddress ? `${profileUser.walletAddress.slice(0, 6)}...${profileUser.walletAddress.slice(-4)}` : ''}
               </p>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 mb-8">
+            {/* Action Button */}
+            <div className="mb-6">
               {isOwnProfile ? (
                 <Button 
                   variant="outline" 
                   onClick={() => setShowEditDialog(true)}
-                  className="bg-white/80 backdrop-blur border-gray-200 hover:bg-white/90"
+                  className="bg-white/10 backdrop-blur border-white/20 text-white hover:bg-white/20 hover:border-white/30"
                   data-testid="button-edit-profile"
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Edit Profile
                 </Button>
               ) : (
-                <>
-                  <Button 
-                    variant={isFollowing ? "outline" : "default"}
-                    onClick={handleFollow}
-                    className={isFollowing ? "border-red-200 text-red-600 hover:bg-red-50" : "bg-blue-500 hover:bg-blue-600"}
-                    data-testid="button-follow"
-                  >
-                    {isFollowing ? (
-                      <>
-                        <UserMinus className="w-4 h-4 mr-2" />
-                        Unfollow
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Follow
-                      </>
-                    )}
-                  </Button>
-                  <Button variant="outline" className="bg-white/80 backdrop-blur border-gray-200">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Message
-                  </Button>
-                </>
+                <Button 
+                  variant={isFollowing ? "outline" : "default"}
+                  onClick={handleFollow}
+                  className={isFollowing 
+                    ? "bg-white/10 backdrop-blur border-white/20 text-white hover:bg-red-500/20 hover:border-red-400/30" 
+                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                  }
+                  data-testid="button-follow"
+                >
+                  {isFollowing ? (
+                    <>
+                      <UserMinus className="w-4 h-4 mr-2" />
+                      Unfollow
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Follow
+                    </>
+                  )}
+                </Button>
               )}
             </div>
 
             {/* Bio */}
             {profileUser.bio && (
-              <div className="text-center max-w-md mb-6">
-                <p className="text-sm leading-relaxed" data-testid="profile-bio">
+              <div className="text-center max-w-sm mb-4">
+                <p className="text-sm text-gray-300 leading-relaxed" data-testid="profile-bio">
                   {profileUser.bio}
                 </p>
               </div>
             )}
 
             {/* Additional Info */}
-            <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
+            <div className="flex flex-wrap justify-center items-center gap-6 text-xs text-gray-400">
               <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-3 h-3" />
                 Joined {new Date(profileUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </div>
               <div className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-3 h-3" />
                 0G Network
+              </div>
+              <div className="flex items-center gap-1">
+                <span>Wallet: {profileUser.walletAddress ? `${profileUser.walletAddress.slice(0, 8)}...${profileUser.walletAddress.slice(-6)}` : 'Not connected'}</span>
               </div>
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="p-6 text-center hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
-          <div className="flex flex-col items-center gap-2">
-            <div className="p-3 bg-blue-100 dark:bg-blue-800/50 rounded-full">
-              <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="stat-posts">
-              {stats?.postsCount || 0}
-            </div>
-            <div className="text-sm font-medium text-blue-700 dark:text-blue-300">Posts</div>
+      {/* Simple Stats Grid */}
+      <div className="grid grid-cols-4 gap-3">
+        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
+          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-posts">
+            {stats?.postsCount || 0}
           </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Posts</div>
         </Card>
         
-        <Card className="p-6 text-center hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
-          <div className="flex flex-col items-center gap-2">
-            <div className="p-3 bg-green-100 dark:bg-green-800/50 rounded-full">
-              <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400" data-testid="stat-followers">
-              {stats?.followersCount || 0}
-            </div>
-            <div className="text-sm font-medium text-green-700 dark:text-green-300">Followers</div>
+        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
+          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-followers">
+            {stats?.followersCount || 0}
           </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Followers</div>
         </Card>
         
-        <Card className="p-6 text-center hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
-          <div className="flex flex-col items-center gap-2">
-            <div className="p-3 bg-purple-100 dark:bg-purple-800/50 rounded-full">
-              <UserPlus className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400" data-testid="stat-following">
-              {stats?.followingCount || 0}
-            </div>
-            <div className="text-sm font-medium text-purple-700 dark:text-purple-300">Following</div>
+        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
+          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-following">
+            {stats?.followingCount || 0}
           </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Following</div>
         </Card>
         
-        <Card className="p-6 text-center hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20 border-pink-200 dark:border-pink-800">
-          <div className="flex flex-col items-center gap-2">
-            <div className="p-3 bg-pink-100 dark:bg-pink-800/50 rounded-full">
-              <Heart className="w-6 h-6 text-pink-600 dark:text-pink-400" />
-            </div>
-            <div className="text-2xl font-bold text-pink-600 dark:text-pink-400" data-testid="stat-likes">
-              {stats?.likesReceived || 0}
-            </div>
-            <div className="text-sm font-medium text-pink-700 dark:text-pink-300">Likes</div>
+        <Card className="p-4 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
+          <div className="text-xl font-bold text-gray-900 dark:text-white" data-testid="stat-likes">
+            {stats?.likesReceived || 0}
           </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Likes</div>
         </Card>
       </div>
 
