@@ -343,7 +343,11 @@ export class DatabaseStorage implements IStorage {
 
   // Comment methods
   async createComment(comment: InsertComment): Promise<Comment> {
-    const [newComment] = await db.insert(comments).values(comment).returning();
+    const [newComment] = await db.insert(comments).values({
+      postId: comment.postId,
+      authorId: comment.authorId,
+      content: comment.content
+    }).returning();
     
     // Update comments count in posts table
     await db.update(posts)
@@ -353,9 +357,35 @@ export class DatabaseStorage implements IStorage {
     return newComment;
   }
 
-  async getCommentsByPost(postId: string): Promise<Comment[]> {
-    const result = await db.select().from(comments).where(eq(comments.postId, postId));
-    return result;
+  async getCommentsByPost(postId: string): Promise<any[]> {
+    const result = await db
+      .select({
+        id: comments.id,
+        postId: comments.postId,
+        authorId: comments.authorId,
+        content: comments.content,
+        createdAt: comments.createdAt,
+        author: {
+          id: users.id,
+          username: users.username,
+          displayName: users.displayName,
+          avatar: users.avatar,
+          walletAddress: users.walletAddress
+        }
+      })
+      .from(comments)
+      .leftJoin(users, eq(comments.authorId, users.id))
+      .where(eq(comments.postId, postId))
+      .orderBy(comments.createdAt);
+    
+    return result.map(comment => ({
+      id: comment.id,
+      postId: comment.postId,
+      authorId: comment.authorId,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      author: comment.author
+    }));
   }
 
   async getPostComments(postId: string): Promise<Comment[]> {
