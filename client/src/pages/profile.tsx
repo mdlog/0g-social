@@ -12,6 +12,10 @@ import { EditProfileDialog } from "@/components/edit-profile-dialog";
 import { Header } from "@/components/layout/header";
 
 import { Footer } from "@/components/layout/footer";
+import { NFTAvatar } from "@/components/profile/nft-avatar";
+import { ReputationSystem } from "@/components/profile/reputation-system";
+import { SkillBadges } from "@/components/profile/skill-badges";
+import { VerifiedLinks } from "@/components/profile/verified-links";
 import { 
   Calendar, 
   MapPin, 
@@ -179,12 +183,11 @@ export function ProfilePage() {
               
               {/* Left Side - Avatar & Basic Info */}
               <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-                <Avatar className="w-32 h-32 border-4 border-white shadow-xl ring-4 ring-purple-100 dark:ring-purple-900">
-                  <AvatarImage src={profileUser.avatar} />
-                  <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-                    {(profileUser.displayName || profileUser.username)?.charAt(0)?.toUpperCase() || '?'}
-                  </AvatarFallback>
-                </Avatar>
+                <NFTAvatar 
+                  user={profileUser} 
+                  size="xl" 
+                  isOwner={isOwnProfile}
+                />
                 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
@@ -304,6 +307,16 @@ export function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Advanced Profile Features */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ReputationSystem user={profileUser} />
+          <SkillBadges user={profileUser} isOwner={isOwnProfile} />
+        </div>
+
+        <div className="mt-6">
+          <VerifiedLinks user={profileUser} isOwner={isOwnProfile} />
+        </div>
 
         {/* Content Tabs */}
         <div className="mt-8">

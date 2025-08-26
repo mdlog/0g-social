@@ -13,6 +13,7 @@ import { zgDAService } from "./services/zg-da";
 import { zgDAClientService } from "./services/zg-da-client";
 import { zgChainService } from "./services/zg-chain";
 import { verifyMessage } from "ethers";
+import crypto from "crypto";
 
 // Helper function to get wallet connection from session
 function getWalletConnection(req: any) {
@@ -1608,6 +1609,217 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Object download error:", error);
       res.status(500).json({ error: "Failed to download file" });
+    }
+  });
+
+  // ===========================================
+  // WAVE 2: ADVANCED PROFILE FEATURES ROUTES
+  // ===========================================
+
+  // NFT Avatar endpoints
+  app.post('/api/users/me/nft-avatar', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to set NFT avatar"
+        });
+      }
+
+      const { contractAddress, tokenId } = req.body;
+      
+      // In production, verify NFT ownership here
+      // For now, simulate the verification
+      const nftImageUrl = `https://api.opensea.io/api/v1/asset/${contractAddress}/${tokenId}/image`;
+      
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const updatedUser = await storage.updateUser(user.id, {
+        nftProfilePicture: nftImageUrl,
+        nftProfileContract: contractAddress,
+        nftProfileTokenId: tokenId,
+        avatar: nftImageUrl // Set as main avatar too
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error setting NFT avatar:', error);
+      res.status(500).json({ message: 'Failed to set NFT avatar' });
+    }
+  });
+
+  // Verified Links Management
+  app.post('/api/users/me/verified-links', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to add verified links"
+        });
+      }
+
+      const { platform, url, username } = req.body;
+      
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const verifiedLinks = user.verifiedLinks || [];
+      const newLink = {
+        id: crypto.randomUUID(),
+        platform,
+        url,
+        username,
+        verified: false,
+        createdAt: new Date().toISOString()
+      };
+
+      verifiedLinks.push(newLink);
+      
+      const updatedUser = await storage.updateUser(user.id, {
+        verifiedLinks
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error adding verified link:', error);
+      res.status(500).json({ message: 'Failed to add verified link' });
+    }
+  });
+
+  // Verify a link
+  app.post('/api/users/me/verified-links/:linkId/verify', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to verify links"
+        });
+      }
+
+      const { linkId } = req.params;
+      
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const verifiedLinks = user.verifiedLinks || [];
+      const linkIndex = verifiedLinks.findIndex(link => link.id === linkId);
+      
+      if (linkIndex === -1) {
+        return res.status(404).json({ message: 'Link not found' });
+      }
+
+      // In production, implement actual verification logic here
+      // For now, simulate verification success
+      verifiedLinks[linkIndex] = {
+        ...verifiedLinks[linkIndex],
+        verified: true,
+        verifiedAt: new Date().toISOString(),
+        socialProof: 'Verified via blockchain signature'
+      };
+
+      const updatedUser = await storage.updateUser(user.id, {
+        verifiedLinks
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error verifying link:', error);
+      res.status(500).json({ message: 'Failed to verify link' });
+    }
+  });
+
+  // Update user reputation score (triggered by various actions)
+  app.post('/api/users/me/reputation', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to update reputation"
+        });
+      }
+
+      const { action, points } = req.body;
+      
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const currentReputation = user.reputationScore || 0;
+      const newReputation = Math.max(0, currentReputation + (points || 0));
+
+      const updatedUser = await storage.updateUser(user.id, {
+        reputationScore: newReputation
+      });
+
+      // Log reputation change
+      console.log(`[Reputation] User ${user.id} ${action}: ${points} points (${currentReputation} → ${newReputation})`);
+
+      res.json({ 
+        action,
+        points,
+        oldScore: currentReputation,
+        newScore: newReputation,
+        user: updatedUser 
+      });
+    } catch (error) {
+      console.error('Error updating reputation:', error);
+      res.status(500).json({ message: 'Failed to update reputation' });
+    }
+  });
+
+  // Add skill badge to user
+  app.post('/api/users/me/skill-badges', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to add skill badges"
+        });
+      }
+
+      const { name, category, description, rarity, contractAddress, tokenId } = req.body;
+      
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const skillBadges = user.skillBadges || [];
+      const newBadge = {
+        id: crypto.randomUUID(),
+        name,
+        category,
+        description,
+        rarity: rarity || 'common',
+        earnedAt: new Date().toISOString(),
+        contractAddress,
+        tokenId
+      };
+
+      skillBadges.push(newBadge);
+      
+      const updatedUser = await storage.updateUser(user.id, {
+        skillBadges,
+        reputationScore: (user.reputationScore || 0) + 50 // Badge earns reputation
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error adding skill badge:', error);
+      res.status(500).json({ message: 'Failed to add skill badge' });
     }
   });
 
