@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { RainbowKitWallet } from "@/components/wallet/rainbowkit-wallet";
+import logoUrl from "@/assets/desocialai-logo.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -24,8 +25,12 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-3 slide-in-cyber">
-            <div className="w-10 h-10 gradient-cyber-primary rounded-xl flex items-center justify-center pulse-glow">
-              <span className="text-white font-bold text-sm neon-text">0G</span>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center pulse-glow">
+              <img 
+                src={logoUrl} 
+                alt="DeSocialAI Logo" 
+                className="w-10 h-10 object-contain"
+              />
             </div>
             <h1 className="text-xl font-bold gradient-neon-text">
               DeSocialAI
