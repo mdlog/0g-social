@@ -12,6 +12,7 @@ import { DiscoveryPage } from "./pages/discovery";
 import { CommunitiesPage } from "./pages/communities";
 import { BookmarksPage } from "./pages/bookmarks";
 import { SettingsPage } from "./pages/settings";
+import InteractionsPage from "./pages/interactions";
 import NotFound from "./pages/not-found";
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/communities" component={CommunitiesPage} />
       <Route path="/bookmarks" component={BookmarksPage} />
       <Route path="/settings" component={SettingsPage} />
+      <Route path="/interactions" component={InteractionsPage} />
       <Route component={NotFound} />
     </Switch>
   );

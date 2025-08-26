@@ -1,7 +1,7 @@
-import { type User, type Post, type Follow, type Like, type Comment, type Repost, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type InsertRepost, type PostWithAuthor, type UserProfile, type UpdateUserProfile } from "@shared/schema";
+import { type User, type Post, type Follow, type Like, type Comment, type Repost, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type InsertRepost, type PostWithAuthor, type UserProfile, type UpdateUserProfile, type Share, type CommentLike, type Bookmark, type Collection, type InsertShare, type InsertCommentLike, type InsertBookmark, type InsertCollection } from "@shared/schema";
 import { db } from "./db";
-import { users, posts, follows, likes, comments, reposts } from "@shared/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { users, posts, follows, likes, comments, reposts, shares, commentLikes, bookmarks, collections } from "@shared/schema";
+import { eq, desc, and, sql, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -91,6 +91,34 @@ export interface IStorage {
   createTip(data: any, senderId: string): Promise<any>;
   getReceivedTips(userId: string, page: number, limit: number): Promise<any[]>;
   getSentTips(userId: string, page: number, limit: number): Promise<any[]>;
+
+  // Advanced Interaction Features
+  // Thread Comments
+  getComment(commentId: string): Promise<Comment | undefined>;
+  updateComment(commentId: string, updates: Partial<Comment>): Promise<Comment>;
+  getThreadedComments(postId: string, page: number, limit: number): Promise<any[]>;
+  getPostCommentsCount(postId: string): Promise<number>;
+
+  // Comment Likes
+  createCommentLike(data: { userId: string; commentId: string }): Promise<any>;
+  deleteCommentLike(userId: string, commentId: string): Promise<void>;
+  getCommentLike(userId: string, commentId: string): Promise<any>;
+  getCommentLikesCount(commentId: string): Promise<number>;
+
+  // Content Sharing
+  createShare(data: any): Promise<any>;
+  getPostShares(postId: string, page: number, limit: number): Promise<any[]>;
+  getPostSharesCount(postId: string): Promise<number>;
+
+  // Bookmarks & Collections (enhanced)
+  getBookmark(userId: string, postId: string): Promise<any>;
+  deleteBookmark(userId: string, postId: string): Promise<void>;
+  createCollection(data: any): Promise<any>;
+  updateCollection(collectionId: string, updates: any): Promise<any>;
+  getCollectionBookmarksCount(collectionId: string): Promise<number>;
+
+  // Update methods for counters
+  updatePost(postId: string, updates: Partial<Post>): Promise<Post>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -545,6 +573,223 @@ export class DatabaseStorage implements IStorage {
   async getSentTips(userId: string, page: number, limit: number): Promise<any[]> {
     // TODO: Implement sent tips fetching
     return [];
+  }
+
+  // Wave 2: Advanced Interaction Features Implementation
+  
+  async getComment(commentId: string): Promise<Comment | undefined> {
+    const [comment] = await db.select().from(comments).where(eq(comments.id, commentId));
+    return comment || undefined;
+  }
+
+  async updateComment(commentId: string, updates: Partial<Comment>): Promise<Comment> {
+    const [comment] = await db.update(comments).set(updates).where(eq(comments.id, commentId)).returning();
+    if (!comment) throw new Error("Comment not found");
+    return comment;
+  }
+
+  async getThreadedComments(postId: string, page: number, limit: number): Promise<any[]> {
+    const offset = (page - 1) * limit;
+    
+    // Get top-level comments first
+    const topLevelComments = await db
+      .select()
+      .from(comments)
+      .where(and(eq(comments.postId, postId), isNull(comments.parentCommentId)))
+      .orderBy(desc(comments.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const commentsWithAuthor = [];
+    
+    for (const comment of topLevelComments) {
+      const author = await this.getUser(comment.authorId);
+      if (author) {
+        // Get replies for this comment
+        const replies = await this.getCommentReplies(comment.id);
+        
+        commentsWithAuthor.push({
+          ...comment,
+          author: {
+            id: author.id,
+            username: author.username,
+            displayName: author.displayName,
+            avatar: author.avatar
+          },
+          replies
+        });
+      }
+    }
+
+    return commentsWithAuthor;
+  }
+
+  async getCommentReplies(parentCommentId: string): Promise<any[]> {
+    const replies = await db
+      .select()
+      .from(comments)
+      .where(eq(comments.parentCommentId, parentCommentId))
+      .orderBy(desc(comments.createdAt));
+
+    const repliesWithAuthor = [];
+    
+    for (const reply of replies) {
+      const author = await this.getUser(reply.authorId);
+      if (author) {
+        // Recursively get nested replies
+        const nestedReplies = await this.getCommentReplies(reply.id);
+        
+        repliesWithAuthor.push({
+          ...reply,
+          author: {
+            id: author.id,
+            username: author.username,
+            displayName: author.displayName,
+            avatar: author.avatar
+          },
+          replies: nestedReplies
+        });
+      }
+    }
+
+    return repliesWithAuthor;
+  }
+
+  async getPostCommentsCount(postId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(comments)
+      .where(eq(comments.postId, postId));
+    
+    return result[0]?.count || 0;
+  }
+
+  async createCommentLike(data: { userId: string; commentId: string }): Promise<any> {
+    const [like] = await db.insert(commentLikes).values(data).returning();
+    return like;
+  }
+
+  async deleteCommentLike(userId: string, commentId: string): Promise<void> {
+    await db.delete(commentLikes).where(
+      and(eq(commentLikes.userId, userId), eq(commentLikes.commentId, commentId))
+    );
+  }
+
+  async getCommentLike(userId: string, commentId: string): Promise<any> {
+    const [like] = await db
+      .select()
+      .from(commentLikes)
+      .where(and(eq(commentLikes.userId, userId), eq(commentLikes.commentId, commentId)));
+    
+    return like || null;
+  }
+
+  async getCommentLikesCount(commentId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(commentLikes)
+      .where(eq(commentLikes.commentId, commentId));
+    
+    return result[0]?.count || 0;
+  }
+
+  async createShare(data: any): Promise<any> {
+    const [share] = await db.insert(shares).values(data).returning();
+    return share;
+  }
+
+  async getPostShares(postId: string, page: number, limit: number): Promise<any[]> {
+    const offset = (page - 1) * limit;
+    
+    const postShares = await db
+      .select()
+      .from(shares)
+      .where(eq(shares.postId, postId))
+      .orderBy(desc(shares.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const sharesWithDetails = [];
+    
+    for (const share of postShares) {
+      const user = await this.getUser(share.userId);
+      const post = await this.getPost(share.postId);
+      
+      if (user && post) {
+        const postAuthor = await this.getUser(post.authorId);
+        
+        sharesWithDetails.push({
+          ...share,
+          user: {
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName,
+            avatar: user.avatar
+          },
+          post: {
+            ...post,
+            author: postAuthor ? {
+              id: postAuthor.id,
+              username: postAuthor.username,
+              displayName: postAuthor.displayName,
+              avatar: postAuthor.avatar
+            } : null
+          }
+        });
+      }
+    }
+
+    return sharesWithDetails;
+  }
+
+  async getPostSharesCount(postId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(shares)
+      .where(eq(shares.postId, postId));
+    
+    return result[0]?.count || 0;
+  }
+
+  async getBookmark(userId: string, postId: string): Promise<any> {
+    const [bookmark] = await db
+      .select()
+      .from(bookmarks)
+      .where(and(eq(bookmarks.userId, userId), eq(bookmarks.postId, postId)));
+    
+    return bookmark || null;
+  }
+
+  async deleteBookmark(userId: string, postId: string): Promise<void> {
+    await db.delete(bookmarks).where(
+      and(eq(bookmarks.userId, userId), eq(bookmarks.postId, postId))
+    );
+  }
+
+  async createCollection(data: any): Promise<any> {
+    const [collection] = await db.insert(collections).values(data).returning();
+    return collection;
+  }
+
+  async updateCollection(collectionId: string, updates: any): Promise<any> {
+    const [collection] = await db.update(collections).set(updates).where(eq(collections.id, collectionId)).returning();
+    if (!collection) throw new Error("Collection not found");
+    return collection;
+  }
+
+  async getCollectionBookmarksCount(collectionId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(bookmarks)
+      .where(eq(bookmarks.collectionId, collectionId));
+    
+    return result[0]?.count || 0;
+  }
+
+  async updatePost(postId: string, updates: Partial<Post>): Promise<Post> {
+    const [post] = await db.update(posts).set(updates).where(eq(posts.id, postId)).returning();
+    if (!post) throw new Error("Post not found");
+    return post;
   }
 
   async getTrendingTopics(): Promise<Array<{

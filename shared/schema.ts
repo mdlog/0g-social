@@ -74,6 +74,11 @@ export const comments = pgTable("comments", {
   postId: varchar("post_id").notNull().references(() => posts.id),
   authorId: varchar("author_id").notNull().references(() => users.id),
   content: text("content").notNull(),
+  // Thread support for nested replies
+  parentCommentId: varchar("parent_comment_id").references((): any => comments.id), // For threaded conversations
+  replyDepth: integer("reply_depth").default(0).notNull(), // Track nesting level (max 3 levels)
+  likesCount: integer("likes_count").default(0).notNull(),
+  repliesCount: integer("replies_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -191,6 +196,28 @@ export const postHashtags = pgTable("post_hashtags", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Wave 2: Advanced Interaction Features
+
+// Content sharing across communities and platforms
+export const shares = pgTable("shares", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  postId: varchar("post_id").notNull().references(() => posts.id),
+  targetCommunityId: varchar("target_community_id").references(() => communities.id), // Share to specific community
+  shareType: text("share_type").notNull(), // 'internal' | 'external' | 'cross_community'
+  shareMessage: text("share_message"), // Optional message when sharing
+  shareUrl: text("share_url"), // Generated sharing URL
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Comment likes for threaded conversations
+export const commentLikes = pgTable("comment_likes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  commentId: varchar("comment_id").notNull().references(() => comments.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Session table for connect-pg-simple
 export const sessions = pgTable("session", {
   sid: varchar("sid").primaryKey(),
@@ -250,6 +277,9 @@ export const insertCommentSchema = createInsertSchema(comments).omit({
   id: true,
   createdAt: true,
   authorId: true, // Set server-side from session
+  likesCount: true,
+  repliesCount: true,
+  replyDepth: true, // Calculated server-side
 });
 
 export const insertRepostSchema = createInsertSchema(reposts).omit({
@@ -295,6 +325,19 @@ export const insertHashtagSchema = createInsertSchema(hashtags).omit({
   trendingScore: true,
 });
 
+export const insertShareSchema = createInsertSchema(shares).omit({
+  id: true,
+  createdAt: true,
+  userId: true, // Set server-side from session
+  shareUrl: true, // Generated server-side
+});
+
+export const insertCommentLikeSchema = createInsertSchema(commentLikes).omit({
+  id: true,
+  createdAt: true,
+  userId: true, // Set server-side from session
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type Post = typeof posts.$inferSelect;
@@ -314,6 +357,8 @@ export type Tip = typeof tips.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Hashtag = typeof hashtags.$inferSelect;
 export type PostHashtag = typeof postHashtags.$inferSelect;
+export type Share = typeof shares.$inferSelect;
+export type CommentLike = typeof commentLikes.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
@@ -330,6 +375,8 @@ export type InsertBookmark = z.infer<typeof insertBookmarkSchema>;
 export type InsertCollection = z.infer<typeof insertCollectionSchema>;
 export type InsertTip = z.infer<typeof insertTipSchema>;
 export type InsertHashtag = z.infer<typeof insertHashtagSchema>;
+export type InsertShare = z.infer<typeof insertShareSchema>;
+export type InsertCommentLike = z.infer<typeof insertCommentLikeSchema>;
 
 // Extended types for API responses
 export type PostWithAuthor = Post & {
@@ -362,6 +409,20 @@ export type CollectionWithPosts = Collection & {
 export type TrendingHashtag = Hashtag & {
   isFollowing?: boolean;
   recentPosts?: PostWithAuthor[];
+};
+
+// Advanced Interaction Types
+export type CommentWithAuthor = Comment & {
+  author: User;
+  isLiked?: boolean;
+  replies?: CommentWithAuthor[]; // For threaded conversations
+  parentComment?: CommentWithAuthor;
+};
+
+export type ShareWithDetails = Share & {
+  user: User;
+  post: PostWithAuthor;
+  targetCommunity?: Community;
 };
 
 // 0G Storage content metadata interface

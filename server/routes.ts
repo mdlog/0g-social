@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema } from "@shared/schema";
+import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema, insertShareSchema, insertCommentLikeSchema } from "@shared/schema";
 import { z } from "zod";
 import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
@@ -2177,6 +2177,419 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error running AI categorization:', error);
       res.status(500).json({ message: 'Failed to run AI categorization' });
+    }
+  });
+
+  // ===========================================
+  // WAVE 2: ADVANCED INTERACTION FEATURES
+  // ===========================================
+
+  // Thread Comments (Nested Replies)
+  app.post('/api/comments/:commentId/reply', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to reply to comments"
+        });
+      }
+
+      const { commentId } = req.params;
+      const parseResult = insertCommentSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          message: "Invalid comment data",
+          errors: parseResult.error.errors 
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      // Get parent comment to calculate reply depth
+      const parentComment = await storage.getComment(commentId);
+      if (!parentComment) {
+        return res.status(404).json({ message: "Parent comment not found" });
+      }
+
+      // Check maximum nesting level (3 levels max)
+      const replyDepth = (parentComment.replyDepth || 0) + 1;
+      if (replyDepth > 3) {
+        return res.status(400).json({ 
+          message: "Maximum nesting level reached",
+          details: "Comments can only be nested up to 3 levels deep"
+        });
+      }
+
+      const commentData = {
+        ...parseResult.data,
+        authorId: user.id,
+        parentCommentId: commentId,
+        replyDepth,
+        likesCount: 0,
+        repliesCount: 0
+      };
+
+      const reply = await storage.createComment(commentData);
+
+      // Update parent comment replies count
+      await storage.updateComment(commentId, {
+        repliesCount: (parentComment.repliesCount || 0) + 1
+      });
+
+      // Update post comments count
+      await storage.updatePost(reply.postId, {
+        commentsCount: await storage.getPostCommentsCount(reply.postId)
+      });
+
+      // Broadcast new reply to all connected clients
+      broadcastToAll({
+        type: 'new_comment_reply',
+        data: { reply, parentCommentId: commentId },
+        timestamp: Date.now()
+      });
+
+      res.status(201).json(reply);
+    } catch (error: any) {
+      console.error('Error creating comment reply:', error);
+      res.status(500).json({ message: 'Failed to create comment reply' });
+    }
+  });
+
+  // Get threaded comments for a post
+  app.get('/api/posts/:postId/comments/threaded', async (req, res) => {
+    try {
+      const { postId } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const comments = await storage.getThreadedComments(postId, page, limit);
+      
+      res.json(comments);
+    } catch (error: any) {
+      console.error('Error fetching threaded comments:', error);
+      res.status(500).json({ message: 'Failed to fetch threaded comments' });
+    }
+  });
+
+  // Like/Unlike comment
+  app.post('/api/comments/:commentId/like', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to like comments"
+        });
+      }
+
+      const { commentId } = req.params;
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      // Check if already liked
+      const existingLike = await storage.getCommentLike(user.id, commentId);
+      
+      if (existingLike) {
+        // Unlike
+        await storage.deleteCommentLike(user.id, commentId);
+        await storage.updateComment(commentId, {
+          likesCount: Math.max(0, await storage.getCommentLikesCount(commentId))
+        });
+        
+        res.json({ liked: false, message: 'Comment unliked' });
+      } else {
+        // Like
+        await storage.createCommentLike({ userId: user.id, commentId });
+        await storage.updateComment(commentId, {
+          likesCount: await storage.getCommentLikesCount(commentId)
+        });
+        
+        res.json({ liked: true, message: 'Comment liked' });
+      }
+
+      // Broadcast like update
+      broadcastToAll({
+        type: 'comment_like_update',
+        data: { commentId, likesCount: await storage.getCommentLikesCount(commentId) },
+        timestamp: Date.now()
+      });
+
+    } catch (error: any) {
+      console.error('Error toggling comment like:', error);
+      res.status(500).json({ message: 'Failed to toggle comment like' });
+    }
+  });
+
+  // Content Sharing
+  app.post('/api/posts/:postId/share', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to share posts"
+        });
+      }
+
+      const { postId } = req.params;
+      const parseResult = insertShareSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          message: "Invalid share data",
+          errors: parseResult.error.errors 
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      // Check if post exists
+      const post = await storage.getPost(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      // Generate sharing URL
+      const shareUrl = `${req.protocol}://${req.get('host')}/post/${postId}`;
+
+      const shareData = {
+        ...parseResult.data,
+        postId,
+        userId: user.id,
+        shareUrl
+      };
+
+      const share = await storage.createShare(shareData);
+
+      // Update post shares count
+      await storage.updatePost(postId, {
+        sharesCount: await storage.getPostSharesCount(postId)
+      });
+
+      // Broadcast share update
+      broadcastToAll({
+        type: 'post_share',
+        data: { postId, sharesCount: await storage.getPostSharesCount(postId) },
+        timestamp: Date.now()
+      });
+
+      res.status(201).json({ 
+        ...share,
+        message: `Post shared successfully${share.targetCommunityId ? ' to community' : ''}` 
+      });
+
+    } catch (error: any) {
+      console.error('Error sharing post:', error);
+      res.status(500).json({ message: 'Failed to share post' });
+    }
+  });
+
+  // Get post shares
+  app.get('/api/posts/:postId/shares', async (req, res) => {
+    try {
+      const { postId } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const shares = await storage.getPostShares(postId, page, limit);
+      
+      res.json(shares);
+    } catch (error: any) {
+      console.error('Error fetching post shares:', error);
+      res.status(500).json({ message: 'Failed to fetch post shares' });
+    }
+  });
+
+  // Bookmarks and Collections
+  app.post('/api/posts/:postId/bookmark', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to bookmark posts"
+        });
+      }
+
+      const { postId } = req.params;
+      const { collectionId, notes } = req.body;
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      // Check if post exists
+      const post = await storage.getPost(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      // Check if already bookmarked
+      const existingBookmark = await storage.getBookmark(user.id, postId);
+      
+      if (existingBookmark) {
+        // Remove bookmark
+        await storage.deleteBookmark(user.id, postId);
+        
+        // Update collection if specified
+        if (existingBookmark.collectionId) {
+          await storage.updateCollection(existingBookmark.collectionId, {
+            bookmarksCount: Math.max(0, await storage.getCollectionBookmarksCount(existingBookmark.collectionId))
+          });
+        }
+        
+        res.json({ bookmarked: false, message: 'Bookmark removed' });
+      } else {
+        // Add bookmark
+        const bookmarkData = {
+          userId: user.id,
+          postId,
+          collectionId: collectionId || null,
+          notes: notes || null
+        };
+
+        const bookmark = await storage.createBookmark(bookmarkData);
+        
+        // Update collection if specified
+        if (collectionId) {
+          await storage.updateCollection(collectionId, {
+            bookmarksCount: await storage.getCollectionBookmarksCount(collectionId)
+          });
+        }
+        
+        res.status(201).json({ 
+          bookmarked: true, 
+          bookmark,
+          message: `Post bookmarked${collectionId ? ' to collection' : ''}` 
+        });
+      }
+
+    } catch (error: any) {
+      console.error('Error toggling bookmark:', error);
+      res.status(500).json({ message: 'Failed to toggle bookmark' });
+    }
+  });
+
+  // Get user bookmarks
+  app.get('/api/users/me/bookmarks', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to view bookmarks"
+        });
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const collectionId = req.query.collectionId as string;
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      const bookmarks = await storage.getUserBookmarks(user.id, page, limit, collectionId);
+      
+      res.json(bookmarks);
+    } catch (error: any) {
+      console.error('Error fetching user bookmarks:', error);
+      res.status(500).json({ message: 'Failed to fetch bookmarks' });
+    }
+  });
+
+  // Collections management
+  app.post('/api/collections', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to create collections"
+        });
+      }
+
+      const parseResult = insertCollectionSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          message: "Invalid collection data",
+          errors: parseResult.error.errors 
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      const collectionData = {
+        ...parseResult.data,
+        userId: user.id,
+        bookmarksCount: 0
+      };
+
+      const collection = await storage.createCollection(collectionData);
+      
+      res.status(201).json(collection);
+    } catch (error: any) {
+      console.error('Error creating collection:', error);
+      res.status(500).json({ message: 'Failed to create collection' });
+    }
+  });
+
+  // Get user collections
+  app.get('/api/users/me/collections', async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to view collections"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+          details: "Please refresh the page and reconnect your wallet"
+        });
+      }
+
+      const collections = await storage.getUserCollections(user.id);
+      
+      res.json(collections);
+    } catch (error: any) {
+      console.error('Error fetching user collections:', error);
+      res.status(500).json({ message: 'Failed to fetch collections' });
     }
   });
 
