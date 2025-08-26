@@ -15,6 +15,107 @@ import { zgChainService } from "./services/zg-chain";
 import { verifyMessage } from "ethers";
 import crypto from "crypto";
 
+// Helper functions for content categorization and discovery
+function getCategoryForHashtag(tag: string): string {
+  const categories: { [key: string]: string } = {
+    'defi': 'DeFi',
+    'nft': 'NFT',
+    'ai': 'AI',
+    'blockchain': 'Infrastructure',
+    'web3': 'Infrastructure',
+    '0g': 'Infrastructure',
+    'dao': 'Governance',
+    'gaming': 'Gaming',
+    'crypto': 'DeFi'
+  };
+  
+  const tagLower = tag.toLowerCase();
+  for (const [key, category] of Object.entries(categories)) {
+    if (tagLower.includes(key)) {
+      return category;
+    }
+  }
+  return 'General';
+}
+
+function getCategoryDescription(category: string): string {
+  const descriptions: { [key: string]: string } = {
+    'DeFi': 'Decentralized Finance protocols, DEXs, and financial applications',
+    'NFT': 'Non-fungible tokens, digital collectibles, and NFT marketplaces',
+    'AI': 'Artificial Intelligence, machine learning, and AI-powered applications',
+    'Infrastructure': 'Blockchain infrastructure, protocols, and technical discussions',
+    'Gaming': 'Web3 gaming, GameFi, and play-to-earn applications',
+    'Governance': 'DAO governance, voting, and community management',
+    'General': 'General discussions and miscellaneous content'
+  };
+  return descriptions[category] || 'General content and discussions';
+}
+
+function getCategoryColor(category: string): string {
+  const colors: { [key: string]: string } = {
+    'DeFi': '#10B981',
+    'NFT': '#8B5CF6',
+    'AI': '#F59E0B',
+    'Infrastructure': '#3B82F6',
+    'Gaming': '#EF4444',
+    'Governance': '#6366F1',
+    'General': '#6B7280'
+  };
+  return colors[category] || '#6B7280';
+}
+
+async function categorizeContent(content: string): Promise<string | null> {
+  const contentLower = content.toLowerCase();
+  
+  // Simple keyword-based categorization
+  if (contentLower.includes('defi') || contentLower.includes('liquidity') || contentLower.includes('yield')) {
+    return 'DeFi';
+  }
+  if (contentLower.includes('nft') || contentLower.includes('collectible') || contentLower.includes('mint')) {
+    return 'NFT';
+  }
+  if (contentLower.includes('ai') || contentLower.includes('artificial intelligence') || contentLower.includes('machine learning')) {
+    return 'AI';
+  }
+  if (contentLower.includes('blockchain') || contentLower.includes('protocol') || contentLower.includes('0g')) {
+    return 'Infrastructure';
+  }
+  if (contentLower.includes('gaming') || contentLower.includes('game') || contentLower.includes('play-to-earn')) {
+    return 'Gaming';
+  }
+  if (contentLower.includes('dao') || contentLower.includes('governance') || contentLower.includes('voting')) {
+    return 'Governance';
+  }
+  
+  return 'General';
+}
+
+function generateHashtagsForCategory(category: string, content: string): string[] {
+  const categoryHashtags: { [key: string]: string[] } = {
+    'DeFi': ['#DeFi', '#yield', '#liquidity', '#protocol'],
+    'NFT': ['#NFT', '#collectibles', '#digitalart', '#mint'],
+    'AI': ['#AI', '#MachineLearning', '#tech', '#innovation'],
+    'Infrastructure': ['#blockchain', '#0G', '#infrastructure', '#protocol'],
+    'Gaming': ['#gaming', '#GameFi', '#PlayToEarn', '#Web3Gaming'],
+    'Governance': ['#DAO', '#governance', '#voting', '#community'],
+    'General': ['#crypto', '#web3', '#blockchain', '#decentralized']
+  };
+  
+  const baseHashtags = categoryHashtags[category] || categoryHashtags['General'];
+  const contentWords = content.toLowerCase().split(' ');
+  
+  // Add relevant hashtags based on content
+  const additionalHashtags: string[] = [];
+  if (contentWords.some(word => word.includes('bitcoin') || word.includes('btc'))) {
+    additionalHashtags.push('#Bitcoin');
+  }
+  if (contentWords.some(word => word.includes('ethereum') || word.includes('eth'))) {
+    additionalHashtags.push('#Ethereum');
+  }
+  
+  return [...baseHashtags.slice(0, 2), ...additionalHashtags].slice(0, 5);
+}
+
 // Helper function to get wallet connection from session
 function getWalletConnection(req: any) {
   if (!req.session.walletConnection) {
@@ -1820,6 +1921,262 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error adding skill badge:', error);
       res.status(500).json({ message: 'Failed to add skill badge' });
+    }
+  });
+
+  // ===========================================
+  // CONTENT DISCOVERY ENGINE ENDPOINTS
+  // ===========================================
+
+  // Search endpoint with advanced filtering
+  app.get('/api/search', async (req, res) => {
+    try {
+      const { q, category, dateRange, sortBy, contentType } = req.query;
+      
+      if (!q || typeof q !== 'string' || q.trim().length === 0) {
+        return res.status(400).json({ message: 'Search query is required' });
+      }
+
+      const searchQuery = q.trim().toLowerCase();
+      
+      // Search posts
+      const allPosts = await storage.getPosts(1000, 0);
+      let filteredPosts = allPosts.filter(post => 
+        post.content.toLowerCase().includes(searchQuery) ||
+        (post.hashtags && post.hashtags.some((tag: string) => tag.toLowerCase().includes(searchQuery)))
+      );
+
+      // Apply filters
+      if (category && category !== 'all') {
+        filteredPosts = filteredPosts.filter(post => 
+          post.contentCategory?.toLowerCase() === (category as string).toLowerCase()
+        );
+      }
+
+      if (contentType && contentType !== 'all') {
+        if (contentType === 'text') {
+          filteredPosts = filteredPosts.filter(post => !post.imageUrl);
+        } else if (contentType === 'image') {
+          filteredPosts = filteredPosts.filter(post => post.imageUrl && !post.isNftContent);
+        } else if (contentType === 'nft') {
+          filteredPosts = filteredPosts.filter(post => post.isNftContent);
+        }
+      }
+
+      // Apply date range filter
+      if (dateRange) {
+        const now = new Date();
+        let filterDate = new Date();
+        
+        switch (dateRange) {
+          case 'today':
+            filterDate.setDate(now.getDate() - 1);
+            break;
+          case 'week':
+            filterDate.setDate(now.getDate() - 7);
+            break;
+          case 'month':
+            filterDate.setMonth(now.getMonth() - 1);
+            break;
+          case 'year':
+            filterDate.setFullYear(now.getFullYear() - 1);
+            break;
+        }
+        
+        filteredPosts = filteredPosts.filter(post => 
+          new Date(post.createdAt) >= filterDate
+        );
+      }
+
+      // Apply sorting
+      if (sortBy) {
+        switch (sortBy) {
+          case 'recent':
+            filteredPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            break;
+          case 'popular':
+            filteredPosts.sort((a, b) => (b.likesCount + b.commentsCount) - (a.likesCount + a.commentsCount));
+            break;
+          case 'engagement':
+            filteredPosts.sort((a, b) => 
+              (b.likesCount * 2 + b.commentsCount * 3 + b.sharesCount) - 
+              (a.likesCount * 2 + a.commentsCount * 3 + a.sharesCount)
+            );
+            break;
+          default: // relevance
+            // Keep original order (already filtered by relevance)
+            break;
+        }
+      }
+
+      // Search users
+      const allUsers = await storage.getAllUsers();
+      const filteredUsers = allUsers.filter(user => 
+        user.username.toLowerCase().includes(searchQuery) ||
+        (user.displayName && user.displayName.toLowerCase().includes(searchQuery)) ||
+        (user.bio && user.bio.toLowerCase().includes(searchQuery))
+      );
+
+      // Extract hashtags from search query and posts
+      const hashtags = [];
+      if (searchQuery.startsWith('#')) {
+        hashtags.push(searchQuery.slice(1));
+      }
+      
+      // Find related hashtags from posts
+      const relatedHashtags = new Set<string>();
+      filteredPosts.forEach(post => {
+        if (post.hashtags) {
+          post.hashtags.forEach((tag: string) => {
+            if (tag.toLowerCase().includes(searchQuery) || searchQuery.includes(tag.toLowerCase())) {
+              relatedHashtags.add(tag);
+            }
+          });
+        }
+      });
+      
+      hashtags.push(...Array.from(relatedHashtags));
+
+      res.json({
+        posts: filteredPosts.slice(0, 50), // Limit results
+        users: filteredUsers.slice(0, 20),
+        hashtags: hashtags.slice(0, 10),
+        totalResults: filteredPosts.length + filteredUsers.length + hashtags.length
+      });
+
+    } catch (error) {
+      console.error('Search error:', error);
+      res.status(500).json({ message: 'Search failed' });
+    }
+  });
+
+  // Trending hashtags endpoint
+  app.get('/api/hashtags/trending', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      // Get all posts and extract hashtags
+      const posts = await storage.getPosts(1000, 0);
+      const hashtagCounts = new Map<string, any>();
+      
+      posts.forEach(post => {
+        if (post.hashtags && Array.isArray(post.hashtags)) {
+          post.hashtags.forEach((tag: string) => {
+            if (!hashtagCounts.has(tag)) {
+              hashtagCounts.set(tag, {
+                id: crypto.randomUUID(),
+                tag,
+                postsCount: 0,
+                engagementRate: 0,
+                growth24h: 0,
+                category: 'general'
+              });
+            }
+            
+            const current = hashtagCounts.get(tag);
+            current.postsCount += 1;
+            current.engagementRate += (post.likesCount + post.commentsCount) / Math.max(current.postsCount, 1);
+          });
+        }
+      });
+
+      // Convert to array and sort by engagement
+      const trendingHashtags = Array.from(hashtagCounts.values())
+        .map(hashtag => ({
+          ...hashtag,
+          engagementRate: Math.round(hashtag.engagementRate),
+          growth24h: Math.round((Math.random() - 0.5) * 50), // Simulate growth
+          category: getCategoryForHashtag(hashtag.tag)
+        }))
+        .sort((a, b) => (b.postsCount * b.engagementRate) - (a.postsCount * a.engagementRate))
+        .slice(0, limit);
+
+      res.json(trendingHashtags);
+    } catch (error) {
+      console.error('Error fetching trending hashtags:', error);
+      res.status(500).json({ message: 'Failed to fetch trending hashtags' });
+    }
+  });
+
+  // AI Categorization endpoints
+  app.get('/api/ai/categorization/stats', async (req, res) => {
+    try {
+      const posts = await storage.getPosts(1000, 0);
+      const categorizedPosts = posts.filter(post => post.contentCategory).length;
+      const pendingPosts = posts.length - categorizedPosts;
+      
+      // Generate category stats
+      const categoryMap = new Map<string, any>();
+      posts.forEach(post => {
+        if (post.contentCategory) {
+          if (!categoryMap.has(post.contentCategory)) {
+            categoryMap.set(post.contentCategory, {
+              id: crypto.randomUUID(),
+              name: post.contentCategory,
+              description: getCategoryDescription(post.contentCategory),
+              confidence: 0,
+              color: getCategoryColor(post.contentCategory),
+              postCount: 0
+            });
+          }
+          
+          const category = categoryMap.get(post.contentCategory);
+          category.postCount += 1;
+          category.confidence = Math.min(95, 70 + (category.postCount * 2)); // Simulate confidence
+        }
+      });
+
+      res.json({
+        totalPosts: posts.length,
+        categorizedPosts,
+        pendingPosts,
+        accuracy: categorizedPosts > 0 ? Math.round((categorizedPosts / posts.length) * 100) : 0,
+        categories: Array.from(categoryMap.values())
+      });
+    } catch (error) {
+      console.error('Error fetching categorization stats:', error);
+      res.status(500).json({ message: 'Failed to fetch categorization stats' });
+    }
+  });
+
+  app.post('/api/ai/categorization/run', async (req, res) => {
+    try {
+      const { postIds } = req.body;
+      
+      // Get posts to categorize
+      let posts;
+      if (postIds && Array.isArray(postIds)) {
+        posts = await Promise.all(
+          postIds.map(id => storage.getPost(id)).filter(Boolean)
+        );
+      } else {
+        posts = await storage.getPosts(100, 0);
+        posts = posts.filter(post => !post.contentCategory); // Only uncategorized
+      }
+
+      // AI categorization simulation
+      let categorizedCount = 0;
+      for (const post of posts) {
+        const category = await categorizeContent(post.content);
+        if (category) {
+          await storage.updatePost(post.id, { 
+            contentCategory: category,
+            hashtags: generateHashtagsForCategory(category, post.content)
+          });
+          categorizedCount++;
+        }
+      }
+
+      res.json({
+        success: true,
+        categorizedCount,
+        totalProcessed: posts.length,
+        message: `Successfully categorized ${categorizedCount} posts`
+      });
+
+    } catch (error) {
+      console.error('Error running AI categorization:', error);
+      res.status(500).json({ message: 'Failed to run AI categorization' });
     }
   });
 

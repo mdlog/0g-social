@@ -1,4 +1,4 @@
-import { Home, Bot, Compass, Users, Bookmark, Settings, Shield } from "lucide-react";
+import { Home, Bot, Compass, Users, Bookmark, Settings, Shield, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,6 +61,7 @@ export function LeftSidebar() {
     { icon: Home, label: "Home Feed", href: "/" },
     { icon: Bot, label: "AI Recommendations", href: "/ai-recommendations" },
     { icon: Compass, label: "Discover", href: "/discover" },
+    { icon: Search, label: "Discovery Engine", href: "/discovery" },
     { icon: Users, label: "Communities", href: "/communities" },
     { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
     { icon: Settings, label: "Settings", href: "/settings" },
