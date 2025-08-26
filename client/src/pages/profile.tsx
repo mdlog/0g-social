@@ -10,8 +10,7 @@ import { PostCard } from "@/components/posts/post-card";
 import { useAuth } from "@/hooks/use-auth";
 import { EditProfileDialog } from "@/components/edit-profile-dialog";
 import { Header } from "@/components/layout/header";
-import { LeftSidebar } from "@/components/layout/left-sidebar";
-import { RightSidebar } from "@/components/layout/right-sidebar";
+
 import { Footer } from "@/components/layout/footer";
 import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
 import { 
@@ -144,11 +143,9 @@ export function ProfilePage() {
     <div className="min-h-screen">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <LeftSidebar />
-          
-          <main className="lg:col-span-6 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="w-full">
+          <main className="space-y-6">
       {/* Modern Profile Header */}
       <Card className="relative overflow-hidden">
         {/* Gradient Cover Background */}
@@ -421,8 +418,6 @@ export function ProfilePage() {
         }
       />
           </main>
-          
-          <RightSidebar />
         </div>
       </div>
 
