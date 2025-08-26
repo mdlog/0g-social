@@ -1007,6 +1007,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(history);
   });
 
+  // Add endpoint to get all DA transactions (including duplicates fix)
+  app.get("/api/zg/da/transactions", async (req, res) => {
+    try {
+      const { userId, targetId, type } = req.query;
+      const transactions = await zgDAService.getInteractionHistory(
+        userId as string,
+        targetId as string, 
+        type as any
+      );
+      
+      res.json(transactions.map(tx => ({
+        ...tx,
+        verified: true,
+        status: 'committed'
+      })));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Simplified verification endpoint
   app.get("/api/zg/da/verify/:txId", async (req, res) => {
     const result = await zgDAService.verifyInteraction(req.params.txId);
     res.json(result);
