@@ -241,88 +241,21 @@ export function PostCard({ post }: PostCardProps) {
               </div>
             )}
 
-            {/* 0G Storage Verification Links */}
+            {/* Simple 0G Network verification status */}
             {post.storageHash && post.transactionHash && (
-              <div className="mb-4 p-4 cyber-glass dark:cyber-glass-dark rounded-2xl neon-border-green">
-                <div className="flex items-center space-x-3 mb-3">
-                  <Database className="w-5 h-5 text-green-400 pulse-glow" />
-                  <span className="text-sm font-semibold text-green-300">
-                    ✅ VERIFIED ON 0G NETWORK
-                  </span>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-cyan-300/80">TRANSACTION:</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-mono text-green-300 bg-green-400/10 px-2 py-1 rounded-lg">
-                        {post.transactionHash.slice(0, 8)}...{post.transactionHash.slice(-6)}
-                      </span>
-                      <a 
-                        href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1 cyber-glass hover:neon-border-cyan transition-all duration-300"
-                        title="View transaction on 0G Chain Explorer"
-                      >
-                        <ExternalLink className="w-3 h-3 text-cyan-400" />
-                      </a>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-cyan-300/80">STORAGE HASH:</span>
-                    <span className="text-xs font-mono text-green-300 bg-green-400/10 px-2 py-1 rounded-lg">
-                      {post.storageHash.slice(0, 8)}...{post.storageHash.slice(-6)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Show when post is not stored on 0G with enhanced status */}
-            {!post.storageHash && !post.transactionHash && (
-              <div className="mb-4 p-4 cyber-glass dark:cyber-glass-dark rounded-2xl neon-border-yellow">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <div className="pulse-glow">
-                      <Database className="w-5 h-5 text-yellow-400" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-yellow-300">
-                      0G STORAGE UPLOAD PENDING
-                    </p>
-                    <p className="text-xs text-yellow-200/80 mt-1">
-                      Post created locally. Upload to decentralized storage will retry automatically when network is available.
-                    </p>
-                    <div className="mt-3 flex items-center space-x-4">
-                      <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium bg-yellow-400/10 text-yellow-300 border border-yellow-400/30">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></div>
-                        AUTO-RETRYING...
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => retryStorageMutation.mutate()}
-                        disabled={retryStorageMutation.isPending}
-                        className="cyber-button-small text-xs"
-                      >
-                        {retryStorageMutation.isPending ? (
-                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-                        ) : (
-                          <RefreshCw className="w-3 h-3 mr-1" />
-                        )}
-                        RETRY NOW
-                      </Button>
-                      <button 
-                        className="text-xs text-yellow-300 hover:text-yellow-100 transition-colors underline"
-                        onClick={() => window.open('https://faucet.0g.ai', '_blank')}
-                      >
-                        GET 0G TOKENS
-                      </button>
-                    </div>
-                  </div>
+              <div className="mb-4 p-3 bg-green-500/10 border border-green-400/30 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <Database className="w-4 h-4 text-green-400" />
+                  <span className="text-sm text-green-300 font-medium">Disimpan di 0G Network</span>
+                  <a 
+                    href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green-400 hover:text-green-300 transition-colors"
+                    title="Lihat di blockchain explorer"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
             )}
