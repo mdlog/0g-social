@@ -35,10 +35,10 @@ export function PostCard({ post }: PostCardProps) {
     queryKey: ["/api/posts", post.id, "comments"],
     queryFn: () => apiRequest("GET", `/api/posts/${post.id}/comments`),
     enabled: showComments,
-    onSuccess: (data) => {
-      console.log('[DEBUG Frontend] Comments fetched:', data);
-    },
   });
+
+  // Debug log when comments change
+  console.log('[DEBUG Frontend] Comments data:', comments);
 
   // Manual retry mutation for 0G Storage uploads
   const retryStorageMutation = useMutation({
