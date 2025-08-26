@@ -10,6 +10,7 @@ import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
 import { zgComputeRealService } from "./services/zg-compute-real";
 import { zgDAService } from "./services/zg-da";
+import { zgDAClientService } from "./services/zg-da-client";
 import { zgChainService } from "./services/zg-chain";
 import { verifyMessage } from "ethers";
 
@@ -1027,6 +1028,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/zg/da/stats", async (req, res) => {
     const stats = await zgDAService.getDAStats();
     res.json(stats);
+  });
+
+  // DA Client status endpoint
+  app.get("/api/zg/da/client-status", async (req, res) => {
+    try {
+      const status = zgDAClientService.getStatus();
+      res.json({
+        ...status,
+        instructions: status.connected ? 
+          "DA Client Node terhubung dan siap menerima blob submissions" :
+          "Jalankan DA Client Node Docker: docker run --env-file .env -p 51001:51001 0g-da-client"
+      });
+    } catch (error) {
+      console.error("DA client status error:", error);
+      res.status(500).json({ error: "Failed to get DA client status" });
+    }
+  });
+
+  // Test DA submission endpoint
+  app.post("/api/zg/da/test-submit", async (req, res) => {
+    try {
+      const testData = req.body.data || "Test blob submission untuk DeSocialAI";
+      const result = await zgDAClientService.submitBlob(testData);
+      
+      res.json({
+        success: result.success,
+        blobId: result.blobId,
+        commitment: result.commitment,
+        error: result.error,
+        message: result.success ? 
+          "✅ Test blob berhasil dikirim ke 0G DA network" :
+          "❌ Test blob gagal - periksa DA Client Node"
+      });
+    } catch (error) {
+      console.error("DA test submit error:", error);
+      res.status(500).json({ error: "Failed to test DA submission" });
+    }
   });
 
   // Get interaction history for user or post

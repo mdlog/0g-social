@@ -4,6 +4,8 @@
  * Submits social interactions as data blobs to 0G DA network via gRPC
  */
 
+import { zgDAClientService } from './zg-da-client';
+
 export interface DABlobSubmission {
   blobId: string;
   data: Uint8Array;
@@ -90,7 +92,7 @@ class ZGDataAvailabilityService {
       const blobData = this.prepareBlobData(transaction);
       const blobId = this.generateBlobId();
       
-      // Submit to 0G DA network (will use real gRPC when DA Client is available)
+      // Submit to 0G DA network using real gRPC client
       const daSubmission = await this.submitToDA(blobId, blobData);
       
       if (daSubmission.success) {
@@ -304,7 +306,7 @@ class ZGDataAvailabilityService {
 
   /**
    * Submit blob to 0G DA network via gRPC
-   * Note: Currently simulated, will use real gRPC client when DA Client is deployed
+   * Real implementation using official gRPC DA Client
    */
   private async submitToDA(blobId: string, blobData: Uint8Array): Promise<{ success: boolean; error?: string }> {
     try {
@@ -313,15 +315,24 @@ class ZGDataAvailabilityService {
         throw new Error(`Blob size ${blobData.length} exceeds maximum size of 32,505,852 bytes`);
       }
 
-      // In production, this would use gRPC client to submit to DA Client
-      // For now, simulate successful submission
-      console.log(`[0G DA] Submitting blob ${blobId} (${blobData.length} bytes) to DA network`);
-      console.log(`[0G DA] Note: Using simulation mode. Real submission requires DA Client node at ${this.daClientEndpoint}`);
+      // Convert to Buffer for gRPC client
+      const dataBuffer = Buffer.from(blobData);
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log(`[0G DA] Submitting blob ${blobId} (${dataBuffer.length} bytes) to DA network`);
       
-      return { success: true };
+      // Submit using real gRPC DA Client
+      const result = await zgDAClientService.submitBlob(dataBuffer);
+      
+      if (result.success) {
+        console.log(`[0G DA] ✅ Blob ${blobId} submitted successfully - Real Blob ID: ${result.blobId}`);
+        return { success: true };
+      } else {
+        console.error(`[0G DA] Failed to submit blob ${blobId}:`, result.error);
+        return {
+          success: false,
+          error: result.error || 'DA submission failed'
+        };
+      }
     } catch (error) {
       console.error(`[0G DA] Failed to submit blob ${blobId}:`, error);
       return { 
