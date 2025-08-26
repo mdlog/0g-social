@@ -4,20 +4,26 @@
 
 Berdasarkan dokumentasi resmi yang Anda berikan, berikut adalah instruksi lengkap untuk mengintegrasikan 0G DA ke dalam aplikasi DeSocialAI.
 
-## 1. Setup DA Client Node dengan Docker
+## 1. Environment Variables Setup
 
-### Siapkan file .env:
+✅ **SELESAI**: Environment variables sudah dikonfigurasi dengan benar di Replit Secrets:
+
 ```bash
 COMBINED_SERVER_CHAIN_RPC=https://0g-galileo-testnet.drpc.org/
-COMBINED_SERVER_PRIVATE_KEY=YOUR_PRIVATE_KEY
+COMBINED_SERVER_PRIVATE_KEY=34ed02aef8bc02e3fddcc037f8892910d8bd14dd0b1c83f875b1fe40df9c2841
 ENTRANCE_CONTRACT_ADDR=0xE75A073dA5bb7b0eC622170Fd268f35E675a957B
 GRPC_SERVER_PORT=51001
 ```
 
-### Jalankan DA Client Node:
+### Langkah Selanjutnya - Jalankan DA Client Node:
+
+Untuk mengaktifkan 0G DA network yang sesungguhnya, jalankan perintah Docker berikut:
+
 ```bash
 docker run --env-file .env -p 51001:51001 0g-da-client
 ```
+
+**Status Saat Ini**: Aplikasi sudah siap menerima koneksi dari DA Client Node Docker.
 
 ## 2. Konfigurasi Aplikasi
 
