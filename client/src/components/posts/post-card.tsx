@@ -1,5 +1,5 @@
 import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink, RefreshCw, Send } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -29,6 +29,13 @@ export function PostCard({ post }: PostCardProps) {
   const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
+
+  // Fetch comments when showComments is true
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
+    queryKey: ["/api/posts", post.id, "comments"],
+    queryFn: () => apiRequest("GET", `/api/posts/${post.id}/comments`),
+    enabled: showComments,
+  });
 
   // Manual retry mutation for 0G Storage uploads
   const retryStorageMutation = useMutation({
@@ -124,6 +131,7 @@ export function PostCard({ post }: PostCardProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts", post.id, "comments"] });
       setCommentText("");
       toast({
         title: "Comment posted!",
@@ -384,6 +392,50 @@ export function PostCard({ post }: PostCardProps) {
             {/* Comment Section */}
             {showComments && (
               <div className="mt-4 pt-4 border-t border-cyan-400/10">
+                {/* Existing Comments */}
+                {commentsLoading ? (
+                  <div className="mb-4 text-center text-cyan-300/60">
+                    Loading comments...
+                  </div>
+                ) : comments.length > 0 ? (
+                  <div className="mb-4 space-y-3 max-h-60 overflow-y-auto">
+                    {comments.map((comment: any) => (
+                      <div key={comment.id} className="flex space-x-3 p-3 rounded-xl cyber-glass dark:cyber-glass-dark">
+                        <Avatar className="w-8 h-8 flex-shrink-0 ring-2 ring-cyan-400/20">
+                          <AvatarImage 
+                            src={comment.author?.avatar ? `${window.location.origin}${comment.author.avatar}` : ""} 
+                            alt={comment.author?.displayName || "User"} 
+                          />
+                          <AvatarFallback className={`${getAvatarClass(comment.authorId)} text-white text-xs`}>
+                            {(comment.author?.displayName || "??").slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="font-medium text-cyan-100 text-sm">
+                              {comment.author?.displayName || "Anonymous User"}
+                            </span>
+                            <span className="text-xs text-cyan-300/60">
+                              @{comment.author?.username || "unknown"}.0g
+                            </span>
+                            <span className="text-xs text-cyan-400/40">
+                              {formatTimeAgo(comment.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-cyan-50 text-sm leading-relaxed break-words">
+                            {comment.content}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mb-4 text-center text-cyan-300/40 text-sm py-4">
+                    No comments yet. Be the first to comment!
+                  </div>
+                )}
+
+                {/* Add New Comment */}
                 <div className="flex items-center space-x-3">
                   <Input
                     placeholder="Write a comment..."
