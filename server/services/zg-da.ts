@@ -251,8 +251,35 @@ class ZGDataAvailabilityService {
   }
 
   private async getCurrentBlockHeight(): Promise<number> {
-    // Simulate increasing block height
-    return Math.floor(Date.now() / 1000) - 1700000000 + 5000000;
+    try {
+      // Get real block height from 0G Chain RPC
+      const rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_blockNumber',
+          params: [],
+          id: 1
+        })
+      });
+      
+      const data = await response.json();
+      if (data.result) {
+        // Convert hex to decimal
+        const blockHeight = parseInt(data.result, 16);
+        console.log(`[0G DA] Current block height from 0G Chain: ${blockHeight}`);
+        return blockHeight;
+      }
+    } catch (error) {
+      console.error('[0G DA] Failed to get block height from RPC:', error);
+    }
+    
+    // Fallback to estimated block height if RPC fails
+    const fallbackHeight = 5541800 + Math.floor((Date.now() - 1756192000000) / 2000); // ~2s block time
+    console.log(`[0G DA] Using fallback block height: ${fallbackHeight}`);
+    return fallbackHeight;
   }
 
   private calculateMerkleRoot(transactions: DATransaction[]): string {
