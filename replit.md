@@ -5,6 +5,12 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Real-Time Comment System Implementation (2025-08-26)**: Successfully implemented global real-time comment updates using WebSocket infrastructure
+  - Added WebSocket broadcast system for new comments across all connected clients
+  - Implemented 'new_comment' message type with automatic query invalidation
+  - Comments now update instantly without page refresh on all browser tabs
+  - Enhanced user experience with real-time social interactions
+  - Full integration with 0G DA for persistent comment storage
 - **Complete 0G DA Integration with gRPC Client (2025-08-26)**: Successfully implemented full 0G Data Availability integration using official documentation
   - Added real gRPC client integration with proto definitions and service layer
   - Implemented authentic blob submission and retrieval using Docker DA Client Node
