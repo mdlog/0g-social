@@ -3,6 +3,39 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PersonalAIFeed } from "@/components/personal-ai-feed";
+import { TrendingHashtags } from "@/components/hashtags/trending-hashtags";
+
+// Container component that fetches data for TrendingHashtags
+function TrendingHashtagsContainer() {
+  const { data: hashtags } = useQuery<Array<{
+    id: string;
+    name: string;
+    postsCount: number;
+    trendingScore: number;
+    isFollowing: boolean;
+  }>>({
+    queryKey: ["/api/hashtags/trending"],
+    refetchInterval: 300000, // 5 minutes
+  });
+
+  const handleHashtagClick = (hashtag: string) => {
+    console.log("Clicked hashtag:", hashtag);
+    // TODO: Navigate to hashtag page
+  };
+
+  const handleFollowToggle = async (hashtagId: string, isFollowing: boolean) => {
+    console.log("Toggle follow:", hashtagId, isFollowing);
+    // TODO: Implement hashtag follow/unfollow
+  };
+
+  return (
+    <TrendingHashtags
+      hashtags={hashtags || []}
+      onHashtagClick={handleHashtagClick}
+      onFollowToggle={handleFollowToggle}
+    />
+  );
+}
 
 export function RightSidebar() {
   const { data: trending } = useQuery<Array<{topic: string; posts: string}>>({
@@ -44,6 +77,9 @@ export function RightSidebar() {
       <div className="sticky top-24 space-y-6">
         {/* Personal AI Feed */}
         <PersonalAIFeed />
+
+        {/* Wave 2: Trending Hashtags */}
+        <TrendingHashtagsContainer />
 
         {/* Trending Topics */}
         <Card>

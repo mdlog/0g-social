@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema } from "@shared/schema";
+import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema } from "@shared/schema";
+import { z } from "zod";
 import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
 import { zgStorageService } from "./services/zg-storage";
@@ -765,6 +766,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(trending);
     } catch (error: any) {
       res.status(500).json({ message: "Failed to generate trending topics" });
+    }
+  });
+
+  // ===========================================
+  // WAVE 2: ADVANCED SOCIAL FEATURES ROUTES
+  // ===========================================
+
+  // Communities Routes
+  app.get("/api/communities", async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const search = req.query.search as string;
+      const userId = req.session.user?.id;
+
+      const communities = await storage.getCommunities({ page, limit, search, userId });
+      res.json(communities);
+    } catch (error) {
+      console.error("Error fetching communities:", error);
+      res.status(500).json({ error: "Failed to fetch communities" });
+    }
+  });
+
+  app.get("/api/hashtags/trending", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const userId = req.session.user?.id;
+
+      const hashtags = await storage.getTrendingHashtags(limit, userId);
+      res.json(hashtags);
+    } catch (error) {
+      console.error("Error fetching trending hashtags:", error);
+      res.status(500).json({ error: "Failed to fetch trending hashtags" });
     }
   });
 

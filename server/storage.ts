@@ -56,6 +56,41 @@ export interface IStorage {
     aiInteractions: number;
     dataStored: string;
   }>;
+
+  // Trending topics functionality
+  getTrendingTopics(): Promise<Array<{
+    topic: string;
+    count: number;
+    sentiment: 'positive' | 'negative' | 'neutral';
+  }>>;
+
+  // Wave 2: Advanced Social Features Interface
+  // Communities
+  getCommunities(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    userId?: string;
+  }): Promise<any[]>;
+  createCommunity(data: any, creatorId: string): Promise<any>;
+  joinCommunity(communityId: string, userId: string): Promise<void>;
+  leaveCommunity(communityId: string, userId: string): Promise<void>;
+
+  // Hashtags & Content Discovery
+  getTrendingHashtags(limit: number, userId?: string): Promise<any[]>;
+  getPostsByHashtag(hashtagName: string, page: number, limit: number, userId?: string): Promise<any[]>;
+
+  // Bookmarks & Collections
+  getUserBookmarks(userId: string, page: number, limit: number, collectionId?: string): Promise<any[]>;
+  createBookmark(data: any, userId: string): Promise<any>;
+  removeBookmark(postId: string, userId: string): Promise<void>;
+  getUserCollections(userId: string, includeBookmarks?: boolean): Promise<any[]>;
+  createCollection(data: any, userId: string): Promise<any>;
+
+  // Creator Economy - Tips & Subscriptions
+  createTip(data: any, senderId: string): Promise<any>;
+  getReceivedTips(userId: string, page: number, limit: number): Promise<any[]>;
+  getSentTips(userId: string, page: number, limit: number): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -382,6 +417,117 @@ export class DatabaseStorage implements IStorage {
       aiInteractions: 12500,
       dataStored: "2.5 PB",
     };
+  }
+
+  // Wave 2: Advanced Social Features Implementation (Stub methods for now)
+  async getCommunities(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    userId?: string;
+  }): Promise<any[]> {
+    // TODO: Implement communities fetching with database queries
+    return [];
+  }
+
+  async createCommunity(data: any, creatorId: string): Promise<any> {
+    // TODO: Implement community creation
+    throw new Error("Community creation not yet implemented");
+  }
+
+  async joinCommunity(communityId: string, userId: string): Promise<void> {
+    // TODO: Implement join community
+    throw new Error("Join community not yet implemented");
+  }
+
+  async leaveCommunity(communityId: string, userId: string): Promise<void> {
+    // TODO: Implement leave community
+    throw new Error("Leave community not yet implemented");
+  }
+
+  async getTrendingHashtags(limit: number, userId?: string): Promise<any[]> {
+    // TODO: Implement trending hashtags based on recent usage
+    return [
+      {
+        id: "1",
+        name: "0GChain",
+        postsCount: 127,
+        trendingScore: 95.5,
+        isFollowing: false
+      },
+      {
+        id: "2", 
+        name: "DeSocialAI",
+        postsCount: 89,
+        trendingScore: 87.2,
+        isFollowing: true
+      },
+      {
+        id: "3",
+        name: "BlockchainSocial",
+        postsCount: 56,
+        trendingScore: 76.8,
+        isFollowing: false
+      }
+    ];
+  }
+
+  async getPostsByHashtag(hashtagName: string, page: number, limit: number, userId?: string): Promise<any[]> {
+    // TODO: Implement hashtag post filtering
+    return [];
+  }
+
+  async getUserBookmarks(userId: string, page: number, limit: number, collectionId?: string): Promise<any[]> {
+    // TODO: Implement user bookmarks fetching
+    return [];
+  }
+
+  async createBookmark(data: any, userId: string): Promise<any> {
+    // TODO: Implement bookmark creation
+    throw new Error("Bookmark creation not yet implemented");
+  }
+
+  async removeBookmark(postId: string, userId: string): Promise<void> {
+    // TODO: Implement bookmark removal
+    throw new Error("Remove bookmark not yet implemented");
+  }
+
+  async getUserCollections(userId: string, includeBookmarks?: boolean): Promise<any[]> {
+    // TODO: Implement user collections fetching
+    return [];
+  }
+
+  async createCollection(data: any, userId: string): Promise<any> {
+    // TODO: Implement collection creation
+    throw new Error("Collection creation not yet implemented");
+  }
+
+  async createTip(data: any, senderId: string): Promise<any> {
+    // TODO: Implement tip creation with 0G Chain transaction
+    throw new Error("Tip creation not yet implemented");
+  }
+
+  async getReceivedTips(userId: string, page: number, limit: number): Promise<any[]> {
+    // TODO: Implement received tips fetching
+    return [];
+  }
+
+  async getSentTips(userId: string, page: number, limit: number): Promise<any[]> {
+    // TODO: Implement sent tips fetching
+    return [];
+  }
+
+  async getTrendingTopics(): Promise<Array<{
+    topic: string;
+    count: number;
+    sentiment: 'positive' | 'negative' | 'neutral';
+  }>> {
+    // TODO: Implement trending topics analysis
+    return [
+      { topic: "0G Chain", count: 42, sentiment: "positive" },
+      { topic: "DeSocialAI", count: 38, sentiment: "positive" },
+      { topic: "Decentralization", count: 29, sentiment: "positive" },
+    ];
   }
 }
 

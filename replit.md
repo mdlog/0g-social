@@ -5,6 +5,16 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Wave 2: Advanced Social Features Implementation (2025-08-26)**: Starting Wave 2 development with advanced social features
+  - Advanced Profile System: Dynamic NFT profile pictures, reputation system, skill badges
+  - Content Discovery Engine: Hashtag system, search functionality, AI-powered content categorization
+  - Community Features: Communities/groups, governance voting, exclusive content gates
+  - Advanced Interaction Features: Thread conversations, quote posts, content sharing, bookmarks/collections
+  - Creator Economy Foundation: Tip system with 0G tokens, premium subscriptions, NFT content minting, revenue sharing
+- **UI Counting System Fixed (2025-08-26)**: Successfully resolved like/comment count display issues
+  - Added missing backend endpoints for post interactions
+  - Implemented real-time count updates in database with automatic synchronization
+  - Verified all social interaction counts now display correctly in UI
 - **Official 0G DA Integration (2025-08-26)**: Successfully implemented authentic 0G Data Availability integration following official documentation
   - Updated DA service to use official 0G DA Client specification from https://docs.0g.ai/developer-hub/building-on-0g/da-integration
   - Added blob submission system with 32.5MB maximum blob size limit
