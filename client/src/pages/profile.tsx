@@ -12,7 +12,6 @@ import { EditProfileDialog } from "@/components/edit-profile-dialog";
 import { Header } from "@/components/layout/header";
 
 import { Footer } from "@/components/layout/footer";
-import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
 import { 
   Calendar, 
   MapPin, 
@@ -443,9 +442,8 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {/* Footer & Infrastructure Status */}
+      {/* Footer */}
       <div className="mt-16">
-        <ZGInfrastructureStatus />
         <Footer />
       </div>
 
