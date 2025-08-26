@@ -115,17 +115,19 @@ export const insertFollowSchema = createInsertSchema(follows).omit({
 export const insertLikeSchema = createInsertSchema(likes).omit({
   id: true,
   createdAt: true,
+  userId: true, // Set server-side from session
 });
 
 export const insertCommentSchema = createInsertSchema(comments).omit({
   id: true,
   createdAt: true,
+  authorId: true, // Set server-side from session
 });
 
 export const insertRepostSchema = createInsertSchema(reposts).omit({
   id: true,
   createdAt: true,
-  userId: true,
+  userId: true, // Set server-side from session
 });
 
 // Types

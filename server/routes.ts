@@ -443,45 +443,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Likes
   app.post("/api/likes", async (req, res) => {
     try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to like posts"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const likeData = insertLikeSchema.parse(req.body);
-      const like = await storage.likePost("user1", likeData.postId);
+      const like = await storage.likePost(user.id, likeData.postId);
       
-      // Record like on 0G DA
-      await zgDAService.recordInteraction('like', "user1", likeData.postId, {
-        action: 'like'
+      // Record like on 0G DA with authentic user data
+      await zgDAService.recordInteraction('like', user.id, likeData.postId, {
+        action: 'like',
+        walletAddress: walletData.address,
+        timestamp: new Date().toISOString()
       });
       
+      console.log(`[0G DA] ✅ Like recorded for user ${user.id} on post ${likeData.postId}`);
       res.json(like);
     } catch (error: any) {
+      console.error('[Like Error]', error);
       res.status(400).json({ message: error.message });
     }
   });
 
   app.delete("/api/likes/:postId", async (req, res) => {
-    await storage.unlikePost("user1", req.params.postId);
-    
-    // Record unlike on 0G DA (negative interaction)
-    await zgDAService.recordInteraction('like', "user1", req.params.postId, {
-      action: 'unlike'
-    });
-    
-    res.json({ success: true });
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to unlike posts"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.unlikePost(user.id, req.params.postId);
+      
+      // Record unlike on 0G DA (negative interaction)
+      await zgDAService.recordInteraction('like', user.id, req.params.postId, {
+        action: 'unlike',
+        walletAddress: walletData.address,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`[0G DA] ✅ Unlike recorded for user ${user.id} on post ${req.params.postId}`);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Unlike Error]', error);
+      res.status(500).json({ message: error.message });
+    }
   });
 
   // Comments
   app.post("/api/comments", async (req, res) => {
     try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to comment on posts"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const commentData = insertCommentSchema.parse(req.body);
-      const comment = await storage.createComment({ ...commentData, authorId: "user1" });
+      const comment = await storage.createComment({ ...commentData, authorId: user.id });
       
-      // Record comment on 0G DA
-      await zgDAService.recordInteraction('comment', "user1", commentData.postId, {
+      // Record comment on 0G DA with full content
+      await zgDAService.recordInteraction('comment', user.id, commentData.postId, {
         commentId: comment.id,
-        content: commentData.content
+        content: commentData.content,
+        walletAddress: walletData.address,
+        timestamp: new Date().toISOString()
       });
       
+      console.log(`[0G DA] ✅ Comment recorded for user ${user.id} on post ${commentData.postId}`);
       res.json(comment);
     } catch (error: any) {
+      console.error('[Comment Error]', error);
       res.status(400).json({ message: error.message });
     }
   });
@@ -491,33 +546,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(comments);
   });
 
-  // Reposts
+  // Reposts  
   app.post("/api/reposts", async (req, res) => {
     try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to repost"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const repostData = insertRepostSchema.parse(req.body);
-      const repost = await storage.repostPost("user1", repostData.postId);
+      const repost = await storage.repostPost(user.id, repostData.postId);
       
-      // Record repost on 0G DA
-      await zgDAService.recordInteraction('repost', "user1", repostData.postId, {
+      // Record repost on 0G DA with authentic user data
+      await zgDAService.recordInteraction('repost', user.id, repostData.postId, {
         action: 'repost',
-        repostId: repost.id
+        repostId: repost.id,
+        walletAddress: walletData.address,
+        timestamp: new Date().toISOString()
       });
       
+      console.log(`[0G DA] ✅ Repost recorded for user ${user.id} on post ${repostData.postId}`);
       res.json(repost);
     } catch (error: any) {
+      console.error('[Repost Error]', error);
       res.status(400).json({ message: error.message });
     }
   });
 
   app.delete("/api/reposts/:postId", async (req, res) => {
-    await storage.unrepostPost("user1", req.params.postId);
-    
-    // Record unrepost on 0G DA (negative interaction)
-    await zgDAService.recordInteraction('repost', "user1", req.params.postId, {
-      action: 'unrepost'
-    });
-    
-    res.json({ success: true });
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to unrepost"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.unrepostPost(user.id, req.params.postId);
+      
+      // Record unrepost on 0G DA (negative interaction)
+      await zgDAService.recordInteraction('repost', user.id, req.params.postId, {
+        action: 'unrepost',
+        walletAddress: walletData.address,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`[0G DA] ✅ Unrepost recorded for user ${user.id} on post ${req.params.postId}`);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Unrepost Error]', error);
+      res.status(500).json({ message: error.message });
+    }
   });
 
   // Personal AI Feed endpoints
@@ -878,6 +971,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/zg/da/stats", async (req, res) => {
     const stats = await zgDAService.getDAStats();
     res.json(stats);
+  });
+
+  // Get interaction history for user or post
+  app.get("/api/zg/da/interactions", async (req, res) => {
+    try {
+      const { userId, postId, type } = req.query;
+      const interactions = await zgDAService.getInteractionHistory(
+        userId as string,
+        postId as string,
+        type as any
+      );
+      res.json(interactions);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to get interaction history" });
+    }
+  });
+
+  // Verify specific interaction
+  app.get("/api/zg/da/verify/:txId", async (req, res) => {
+    try {
+      const verification = await zgDAService.verifyInteraction(req.params.txId);
+      res.json(verification);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to verify interaction" });
+    }
   });
 
   app.get("/api/zg/da/history", async (req, res) => {
