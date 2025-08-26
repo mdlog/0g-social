@@ -1451,6 +1451,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update user profile
       const updatedUser = await storage.updateUserProfile(user.id, parseResult.data);
       
+      // Broadcast profile update to all connected clients for real-time updates
+      broadcastToAll({
+        type: 'profile_update',
+        userId: updatedUser.id,
+        user: {
+          id: updatedUser.id,
+          username: updatedUser.username,
+          displayName: updatedUser.displayName,
+          avatar: updatedUser.avatar
+        }
+      });
+      
       res.json(updatedUser);
     } catch (error: any) {
       console.error("Profile update error:", error);

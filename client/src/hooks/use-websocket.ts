@@ -99,6 +99,31 @@ export function useWebSocket() {
               console.log(`✅ Comment queries refreshed for post ${postId}`);
               break;
             
+            case 'profile_update':
+              // Force refresh of all user-related data when profile is updated
+              const updatedUserId = message.data.userId;
+              console.log(`📨 Profile update received for user ${updatedUserId}, refreshing all user data...`);
+              
+              // Invalidate all user-related queries
+              queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+              
+              // Force refresh all comment data that might contain user info
+              queryClient.invalidateQueries({ 
+                predicate: (query) => {
+                  const queryKey = query.queryKey as string[];
+                  return queryKey[0] && typeof queryKey[0] === 'string' && 
+                         queryKey[0].includes('/comments');
+                }
+              });
+              
+              // Force immediate refetch of critical data
+              queryClient.refetchQueries({ queryKey: ['/api/posts/feed'] });
+              
+              console.log(`✅ Profile update handled for user ${updatedUserId}`);
+              break;
+            
             default:
               console.log('Unknown WebSocket message:', message);
           }

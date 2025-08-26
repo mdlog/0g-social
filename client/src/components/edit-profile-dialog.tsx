@@ -57,7 +57,20 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
     },
     onSuccess: (result) => {
       console.log("Profile update successful:", result);
+      // Invalidate all user-related queries to update display names everywhere
       queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts/feed"] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      
+      // Force refresh all comment data that might contain user info
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          return query.queryKey[0] && typeof query.queryKey[0] === 'string' && 
+                 query.queryKey[0].includes('/comments');
+        }
+      });
+      
       setOpen(false);
       setAvatarPreview(null);
       toast({
