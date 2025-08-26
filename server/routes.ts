@@ -506,6 +506,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get likes for a post
+  app.get("/api/posts/:postId/likes", async (req, res) => {
+    try {
+      const likes = await storage.getPostLikes(req.params.postId);
+      res.json(likes);
+    } catch (error: any) {
+      console.error('[Get Likes Error]', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Comments
   app.post("/api/comments", async (req, res) => {
     try {
@@ -538,6 +549,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('[Comment Error]', error);
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get comments for a post
+  app.get("/api/posts/:postId/comments", async (req, res) => {
+    try {
+      const comments = await storage.getCommentsByPost(req.params.postId);
+      res.json(comments);
+    } catch (error: any) {
+      console.error('[Get Comments Error]', error);
+      res.status(500).json({ message: error.message });
     }
   });
 

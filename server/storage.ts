@@ -34,10 +34,12 @@ export interface IStorage {
   likePost(userId: string, postId: string): Promise<Like>;
   unlikePost(userId: string, postId: string): Promise<void>;
   isPostLiked(userId: string, postId: string): Promise<boolean>;
+  getPostLikes(postId: string): Promise<Like[]>;
   
   // Comments
   createComment(comment: InsertComment): Promise<Comment>;
   getCommentsByPost(postId: string): Promise<Comment[]>;
+  getPostComments(postId: string): Promise<Comment[]>;
   
   // Reposts
   repostPost(userId: string, postId: string): Promise<Repost>;
@@ -273,11 +275,22 @@ export class DatabaseStorage implements IStorage {
   // Like methods
   async likePost(userId: string, postId: string): Promise<Like> {
     const [like] = await db.insert(likes).values({ userId, postId }).returning();
+    
+    // Update likes count in posts table
+    await db.update(posts)
+      .set({ likesCount: sql`${posts.likesCount} + 1` })
+      .where(eq(posts.id, postId));
+    
     return like;
   }
 
   async unlikePost(userId: string, postId: string): Promise<void> {
     await db.delete(likes).where(and(eq(likes.userId, userId), eq(likes.postId, postId)));
+    
+    // Update likes count in posts table
+    await db.update(posts)
+      .set({ likesCount: sql`GREATEST(${posts.likesCount} - 1, 0)` })
+      .where(eq(posts.id, postId));
   }
 
   async isPostLiked(userId: string, postId: string): Promise<boolean> {
@@ -288,9 +301,20 @@ export class DatabaseStorage implements IStorage {
     return !!like;
   }
 
+  async getPostLikes(postId: string): Promise<Like[]> {
+    const result = await db.select().from(likes).where(eq(likes.postId, postId));
+    return result;
+  }
+
   // Comment methods
   async createComment(comment: InsertComment): Promise<Comment> {
     const [newComment] = await db.insert(comments).values(comment).returning();
+    
+    // Update comments count in posts table
+    await db.update(posts)
+      .set({ commentsCount: sql`${posts.commentsCount} + 1` })
+      .where(eq(posts.id, comment.postId));
+    
     return newComment;
   }
 
@@ -299,14 +323,30 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async getPostComments(postId: string): Promise<Comment[]> {
+    const result = await db.select().from(comments).where(eq(comments.postId, postId));
+    return result;
+  }
+
   // Repost methods
   async repostPost(userId: string, postId: string): Promise<Repost> {
     const [repost] = await db.insert(reposts).values({ userId, postId }).returning();
+    
+    // Update shares count in posts table
+    await db.update(posts)
+      .set({ sharesCount: sql`${posts.sharesCount} + 1` })
+      .where(eq(posts.id, postId));
+    
     return repost;
   }
 
   async unrepostPost(userId: string, postId: string): Promise<void> {
     await db.delete(reposts).where(and(eq(reposts.userId, userId), eq(reposts.postId, postId)));
+    
+    // Update shares count in posts table
+    await db.update(posts)
+      .set({ sharesCount: sql`GREATEST(${posts.sharesCount} - 1, 0)` })
+      .where(eq(posts.id, postId));
   }
 
   async isPostReposted(userId: string, postId: string): Promise<boolean> {
