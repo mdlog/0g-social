@@ -1,5 +1,11 @@
 import "express-session";
 
+interface AIFeedStatus {
+  deployed: boolean;
+  status: string;
+  mode: string;
+}
+
 declare module "express-session" {
   interface SessionData {
     walletConnection?: {
@@ -9,5 +15,6 @@ declare module "express-session" {
       network: string | null;
       chainId: string | null;
     };
+    aiFeed?: AIFeedStatus;
   }
 }

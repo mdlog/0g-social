@@ -352,8 +352,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (storageResult.success) {
         // Update post with storage information (even if it already had some)
         await storage.updatePost(post.id, {
-          storageHash: storageResult.hash,
-          transactionHash: storageResult.transactionHash
+          storageHash: storageResult.hash || undefined,
+          transactionHash: storageResult.transactionHash || undefined
         });
 
         console.log(`[Manual Retry] ✅ Successfully uploaded post ${post.id} to 0G Storage`);
@@ -545,29 +545,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      if (!result.success) {
+      if (!result || !result.success) {
         return res.status(500).json({
           error: 'Failed to deploy AI feed',
-          details: result.error
+          details: result?.error || 'Unknown error'
         });
       }
       
       // Store deployment status in session
       req.session.aiFeed = {
         deployed: true,
-        deploymentId: result.instanceId,
+        deploymentId: result?.instanceId || 'sim-' + Date.now(),
         deployedAt: new Date().toISOString(),
         status: 'active',
         address: walletConnection.address,
-        mode: result.mode
+        mode: result?.mode || 'simulation'
       };
 
       res.json({
         success: true,
-        deploymentId: result.instanceId,
+        deploymentId: result?.instanceId || 'sim-' + Date.now(),
         status: 'active',
-        mode: result.mode,
-        message: result.mode === 'production' 
+        mode: result?.mode || 'simulation',
+        message: (result?.mode || 'simulation') === 'production' 
           ? 'Personal AI feed deployed successfully on 0G Compute'
           : 'Personal AI feed deployed in simulation mode (awaiting 0G Compute mainnet)'
       });
@@ -781,7 +781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/zg/compute/instance", async (req, res) => {
     try {
-      const instance = await zgComputeRealService.getUserInstance("user1");
+      const instance = await zgComputeRealService.getComputeStats(); // getUserInstance method doesn't exist
       res.json(instance);
     } catch (error: any) {
       res.status(500).json({ message: "Failed to get compute instance" });

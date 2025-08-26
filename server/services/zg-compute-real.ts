@@ -122,7 +122,7 @@ class ZGComputeRealService {
         ledgerBalance = ledger.balance || 0;
         console.log('[0G Compute] Account balance:', ethers.formatEther(ledgerBalance), 'OG');
         
-        if (ledgerBalance === BigInt(0)) {
+        if (typeof ledgerBalance === 'bigint' ? ledgerBalance === BigInt(0) : ledgerBalance === 0) {
           console.log('[0G Compute] ⚠️ Insufficient balance - deploying in simulation mode');
           throw new Error('Insufficient balance. Please add funds to your 0G Compute account.');
         }

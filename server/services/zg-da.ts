@@ -90,7 +90,7 @@ class ZGDataAvailabilityService {
       // Collect transactions from all batches
       let allTransactions: DATransaction[] = [];
       
-      for (const batch of this.batches.values()) {
+      for (const batch of Array.from(this.batches.values())) {
         allTransactions = allTransactions.concat(batch.transactions);
       }
       
@@ -135,8 +135,8 @@ class ZGDataAvailabilityService {
       console.log(`[0G DA] Verifying interaction: ${txId}`);
       
       // Search in batches
-      for (const [batchId, batch] of this.batches.entries()) {
-        const transaction = batch.transactions.find(tx => tx.id === txId);
+      for (const [batchId, batch] of Array.from(this.batches.entries())) {
+        const transaction = batch.transactions.find((tx: DATransaction) => tx.id === txId);
         if (transaction) {
           return {
             verified: true,
@@ -181,7 +181,7 @@ class ZGDataAvailabilityService {
     let totalTransactions = 0;
     let totalBatchSize = 0;
     
-    for (const batch of this.batches.values()) {
+    for (const batch of Array.from(this.batches.values())) {
       totalTransactions += batch.transactions.length;
       totalBatchSize += batch.size;
     }

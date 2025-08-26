@@ -26,15 +26,19 @@ export interface ZGStorageResponse {
   hash?: string;
   transactionHash?: string;
   error?: string;
+  retryable?: boolean;
+  errorType?: string;
 }
 
 export interface ContentMetadata {
   type: 'post' | 'image' | 'video' | 'thread';
   userId: string;
+  walletAddress?: string;
   originalName?: string;
   mimeType?: string;
   size?: number;
   retryAttempt?: boolean;
+  manualRetry?: boolean;
 }
 
 class ZGStorageService {
@@ -175,7 +179,7 @@ class ZGStorageService {
             const rootHash = tree.rootHash();
             return {
               success: true,
-              hash: rootHash,
+              hash: rootHash || undefined,
               transactionHash: undefined  // Don't show fake transaction hash
             };
           }
