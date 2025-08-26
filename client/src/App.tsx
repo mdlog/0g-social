@@ -1,10 +1,9 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { useWebSocket } from "@/hooks/use-websocket";
+import { RainbowKitProviderWrapper } from "@/providers/rainbowkit-provider";
 import Home from "./pages/home";
 import { AIRecommendationsPage } from "./pages/ai-recommendations";
 import { DiscoverPage } from "./pages/discover";
@@ -33,12 +32,12 @@ function Router() {
 function App() {
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
+      <RainbowKitProviderWrapper>
         <TooltipProvider>
           <Toaster />
           <Router />
         </TooltipProvider>
-      </QueryClientProvider>
+      </RainbowKitProviderWrapper>
     </ThemeProvider>
   );
 }
