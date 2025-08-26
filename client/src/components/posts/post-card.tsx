@@ -1,13 +1,15 @@
-import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink, RefreshCw } from "lucide-react";
+import { Heart, MessageCircle, Share, Bookmark, Shield, Database, ExternalLink, RefreshCw, Send } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { BlockchainVerification } from "@/components/blockchain-verification";
 import type { PostWithAuthor } from "@shared/schema";
+import { useState } from "react";
 
 // Helper function for formatting file sizes correctly
 function formatFileSize(bytes: number): string {
@@ -25,6 +27,8 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
 
   // Manual retry mutation for 0G Storage uploads
   const retryStorageMutation = useMutation({
@@ -73,10 +77,14 @@ export function PostCard({ post }: PostCardProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      toast({
+        title: post.isLiked ? "Like removed" : "Post liked!",
+        description: post.isLiked ? "Your like has been removed" : "Like recorded on 0G DA layer",
+      });
     },
     onError: (error: any) => {
       toast({
-        title: "Action failed",
+        title: "Like failed",
         description: error.message,
         variant: "destructive",
       });
@@ -95,12 +103,36 @@ export function PostCard({ post }: PostCardProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
       toast({
         title: post.isReposted ? "Repost removed" : "Post reposted",
-        description: post.isReposted ? "Your repost has been removed" : "Post has been shared to your followers",
+        description: post.isReposted ? "Your repost has been removed" : "Post shared and recorded on 0G DA layer",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Repost failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const commentMutation = useMutation({
+    mutationFn: async (content: string) => {
+      await apiRequest("POST", "/api/comments", { 
+        postId: post.id, 
+        content 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      setCommentText("");
+      toast({
+        title: "Comment posted!",
+        description: "Your comment has been recorded on 0G DA layer",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Comment failed",
         description: error.message,
         variant: "destructive",
       });
@@ -292,6 +324,7 @@ export function PostCard({ post }: PostCardProps) {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => setShowComments(!showComments)}
                   className="flex items-center space-x-2 p-2 rounded-xl text-cyan-300/80 hover:text-blue-400 hover:bg-blue-500/10 hover:neon-border-blue transition-all duration-300"
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -347,6 +380,45 @@ export function PostCard({ post }: PostCardProps) {
                 </Dialog>
               </div>
             </div>
+
+            {/* Comment Section */}
+            {showComments && (
+              <div className="mt-4 pt-4 border-t border-cyan-400/10">
+                <div className="flex items-center space-x-3">
+                  <Input
+                    placeholder="Write a comment..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && commentText.trim()) {
+                        commentMutation.mutate(commentText.trim());
+                      }
+                    }}
+                    className="flex-1 cyber-input text-sm"
+                    disabled={commentMutation.isPending}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (commentText.trim()) {
+                        commentMutation.mutate(commentText.trim());
+                      }
+                    }}
+                    disabled={commentMutation.isPending || !commentText.trim()}
+                    className="cyber-button-small"
+                  >
+                    {commentMutation.isPending ? (
+                      <RefreshCw className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Send className="w-3 h-3" />
+                    )}
+                  </Button>
+                </div>
+                <div className="mt-2 text-xs text-cyan-300/60">
+                  Comments are recorded permanently on 0G DA layer
+                </div>
+              </div>
+            )}
           </div>
         </article>
       </CardContent>
