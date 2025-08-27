@@ -56,20 +56,29 @@ export class ObjectStorageService {
   // Downloads an object to the response.
   async downloadObject(file: any, res: Response, cacheTtlSec: number = 3600) {
     try {
-      // Set appropriate headers for object storage
-      res.set({
-        "Content-Type": file.contentType || "application/octet-stream",
-        "Content-Length": file.size || "",
-        "Cache-Control": `public, max-age=${cacheTtlSec}`,
-      });
-
-      // For now, return a redirect to the actual object storage URL
-      // In a full implementation, this would stream the file content
-      if (file.url) {
-        res.redirect(file.url);
-      } else {
-        res.status(404).json({ error: "File not found" });
+      if (!file || !file.url) {
+        return res.status(404).json({ error: "File not found" });
       }
+
+      // Try direct serving first for better compatibility
+      try {
+        const response = await fetch(file.url);
+        if (response.ok) {
+          const buffer = await response.arrayBuffer();
+          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          
+          res.setHeader('Content-Type', contentType);
+          res.setHeader('Cache-Control', `public, max-age=${cacheTtlSec}`);
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.send(Buffer.from(buffer));
+          return;
+        }
+      } catch (fetchError) {
+        console.log("Direct serving failed, using redirect fallback:", fetchError.message);
+      }
+
+      // Fallback to redirect
+      res.redirect(302, file.url);
     } catch (error) {
       console.error("Error downloading file:", error);
       if (!res.headersSent) {
@@ -90,15 +99,14 @@ export class ObjectStorageService {
     }
 
     const entityId = parts.slice(1).join("/");
-    let entityDir = this.getPrivateObjectDir();
-    if (!entityDir.endsWith("/")) {
-      entityDir = `${entityDir}/`;
-    }
     
-    const objectEntityPath = `${entityDir}${entityId}`;
-    const { bucketName, objectName } = this.parseObjectPath(objectEntityPath);
+    // Extract bucket name from PRIVATE_OBJECT_DIR
+    // Format: /replit-objstore-{id}/.private
+    const privateDir = this.getPrivateObjectDir();
+    const bucketName = privateDir.split('/')[1]; // Extract bucket from path
+    const objectName = entityId; // entityId is already ".private/filename"
 
-    // Return mock file object for now
+    // Return file object
     return {
       name: objectName,
       bucketName,

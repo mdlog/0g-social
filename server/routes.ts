@@ -1697,14 +1697,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve private objects (avatars) - moved to /api path to avoid Vite catch-all
   app.get("/api/objects/:objectPath(*)", async (req, res) => {
     try {
+
       const objectStorageService = new ObjectStorageService();
       // Convert /api/objects/... to /objects/... for object storage service
       const objectPath = req.path.replace('/api', '');
       const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
       
       if (!objectFile) {
+        console.log(`[AVATAR SERVE] File not found: ${objectPath}`);
         return res.status(404).json({ error: "File not found" });
       }
+      
+      console.log(`[AVATAR SERVE] Serving file with URL:`, objectFile.url);
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
       console.error("Object download error:", error);

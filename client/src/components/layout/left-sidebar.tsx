@@ -79,9 +79,17 @@ export function LeftSidebar() {
 
                 <Avatar className="w-20 h-20 mx-auto mb-4">
                   <AvatarImage 
-                    src={currentUser.avatar ? `${currentUser.avatar}?t=${Date.now()}` : ""} 
+                    key={currentUser.avatar}
+                    src={currentUser.avatar ? `${currentUser.avatar}?cache=${Math.random()}` : ""} 
                     alt={currentUser.displayName} 
                     className="object-cover"
+                    onError={(e) => {
+                      console.log("Avatar load error:", e.currentTarget.src);
+                      console.log("Current user avatar path:", currentUser.avatar);
+                    }}
+                    onLoad={() => {
+                      console.log("Avatar loaded successfully:", currentUser.avatar);
+                    }}
                   />
                   <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 font-semibold">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
