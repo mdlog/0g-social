@@ -13,22 +13,17 @@ export default function Home() {
     <div className="min-h-screen">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <LeftSidebar />
           
-          <main className="lg:col-span-6">
+          <main className="lg:col-span-2">
             <CreatePost />
             <Feed />
           </main>
           
           <RightSidebar />
         </div>
-      </div>
-
-      {/* 0G Infrastructure Status - Bottom Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-og-slate-50 dark:bg-og-slate-900/50">
-        <ZGInfrastructureStatus />
       </div>
 
       <Footer />
