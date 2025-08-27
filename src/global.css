@@ -1,0 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=Baloo+Bhai:wght@0,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@0,400;0,500;0,700&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
+body {
+  margin: 0;
+  line-height: normal;
+}
+:root {
+  /* Color */
+  --color-lavender: #ccdcec;
+  --color-gainsboro: rgba(226, 226, 226, 0.1);
+  --color-darkgray: #999;
+  --color-yellowgreen: #79ca00;
+  --color-gold: #fdbf00;
+  --color-sandybrown: #ff9b53;
+  --color-lightgray: #cecece;
+  --color-slategray: #576074;
+  --color-whitesmoke: #eaeaea;
+  --color-aliceblue: #f3f7fb;
+  --color-gray-300: rgba(0, 0, 0, 0.6);
+  --color-gray-200: rgba(255, 255, 255, 0.2);
+  --color-gray-100: #8e8e94;
+  --color-dimgray-200: #57575d;
+  --color-dimgray-100: #646468;
+  --color-darkorange: #dc880b;
+  --color-orange-200: #f99a0e;
+  --color-orange-100: #fba403;
+  --color-cornflowerblue-400: rgba(18, 98, 175, 0.05);
+  --color-cornflowerblue-300: #1262ae;
+  --color-cornflowerblue-200: #1262af;
+  --color-cornflowerblue-100: #4dabff;
+  --color-darkslategray-300: #303030;
+  --color-darkslategray-200: #424242;
+  --color-darkslategray-100: #434343;
+  --color-white: #fff;
+
+  /* Gap */
+  --gap-3: 3px;
+  --gap-5: 5px;
+  --gap-6: 6px;
+  --gap-8: 8px;
+  --gap-10: 10px;
+  --gap-11: 11px;
+  --gap-12: 12px;
+  --gap-14: 14px;
+  --gap-16: 16px;
+  --gap-20: 20px;
+  --gap-24: 24px;
+  --gap-30: 30px;
+  --gap-36: 36px;
+
+  /* Padding */
+  --padding-5: 5px;
+  --padding-8: 8px;
+  --padding-10: 10px;
+  --padding-11: 11px;
+  --padding-12: 12px;
+  --padding-15: 15px;
+  --padding-16: 16px;
+  --padding-20: 20px;
+  --padding-22: 22px;
+  --padding-24: 24px;
+  --padding-28: 28px;
+  --padding-30: 30px;
+  --padding-40: 40px;
+  --padding-80: 80px;
+
+  /* BorderRadius */
+  --br-4: 4px;
+  --br-6: 6px;
+  --br-8: 8px;
+  --br-10: 10px;
+  --br-12: 12px;
+  --br-16: 16px;
+
+  /* Font */
+  --font-baloo-bhai: Baloo Bhai;
+  --font-roboto: Roboto;
+
+  /* FontSize */
+  --font-size-14: 14px;
+  --font-size-15: 15px;
+  --font-size-16: 16px;
+  --font-size-18: 18px;
+  --font-size-20: 20px;
+  --font-size-22: 22px;
+  --font-size-24: 24px;
+  --font-size-30: 30px;
+  --font-size-32: 32px;
+}
