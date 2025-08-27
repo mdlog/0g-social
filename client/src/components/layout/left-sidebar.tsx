@@ -48,9 +48,7 @@ export function LeftSidebar() {
         throw new Error(`${res.status}: ${res.statusText}`);
       }
       
-      const userData = await res.json();
-      console.log("[DEBUG SIDEBAR] Fetched user data:", userData);
-      return userData;
+      return await res.json();
     },
   });
 

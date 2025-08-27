@@ -1700,23 +1700,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectStorageService = new ObjectStorageService();
       // Convert /api/objects/... to /objects/... for object storage service
       const objectPath = req.path.replace('/api', '');
-      console.log(`[AVATAR DEBUG] Requesting object: ${objectPath}`);
-      console.log(`[AVATAR DEBUG] Full request path: ${req.path}`);
-      console.log(`[AVATAR DEBUG] Request method: ${req.method}`);
-      console.log(`[AVATAR DEBUG] Request headers:`, req.headers);
-      
       const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
-      console.log(`[AVATAR DEBUG] Object file found:`, !!objectFile);
       
       if (!objectFile) {
-        console.log(`[AVATAR DEBUG] File not found: ${objectPath}`);
         return res.status(404).json({ error: "File not found" });
       }
-      
-      console.log(`[AVATAR DEBUG] Serving file: ${objectPath}`);
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
-      console.error("[AVATAR DEBUG] Object download error:", error);
+      console.error("Object download error:", error);
       res.status(500).json({ error: "Failed to download file" });
     }
   });
