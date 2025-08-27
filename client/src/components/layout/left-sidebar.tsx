@@ -73,11 +73,11 @@ export function LeftSidebar() {
       <div className="sticky top-24 space-y-6">
         {/* User Profile Card - Only show when wallet connected */}
         {currentUser ? (
-          <Card className="futuristic-card dark:futuristic-card-dark neon-border-cyan">
+          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="text-center">
 
-                <Avatar className="w-20 h-20 mx-auto mb-4 ring-2 ring-cyan-400/40 hover:ring-cyan-400/70 avatar-smooth">
+                <Avatar className="w-20 h-20 mx-auto mb-4">
                   <AvatarImage 
                     src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
                     alt={currentUser.displayName} 
@@ -91,35 +91,35 @@ export function LeftSidebar() {
                       console.log("Avatar image loaded successfully:", currentUser.avatar);
                     }}
                   />
-                  <AvatarFallback className="avatar-gradient-1 text-white font-semibold shadow-lg">
+                  <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 font-semibold">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="font-bold text-lg text-cyan-100 mb-1">{currentUser.displayName}</h3>
-                <p className="gradient-neon-text text-sm mb-4">
-                  @{currentUser.username}.0g
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{currentUser.displayName}</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  @{currentUser.username}
                 </p>
                 
-                {/* Decentralized Identity Badge */}
+                {/* Verification Badge */}
                 <div className="flex items-center justify-center space-x-2 mb-5">
-                  <div className="verified-badge pulse-glow">
-                    <Shield className="text-white w-3 h-3" />
-                    <span className="text-xs">VERIFIED DID</span>
+                  <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">
+                    <Shield className="w-3 h-3" />
+                    <span>VERIFIED</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center mb-5">
-                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
-                    <p className="text-lg font-bold text-cyan-300">{currentUser.postsCount || 0}</p>
-                    <p className="text-[0.55rem] font-medium leading-none text-cyan-400/80 truncate">POSTS</p>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{currentUser.postsCount || 0}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Posts</p>
                   </div>
-                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
-                    <p className="text-lg font-bold text-magenta-300">{currentUser.followingCount || 0}</p>
-                    <p className="text-[0.55rem] font-medium leading-none text-magenta-400/80 truncate">FOLLOWING</p>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{currentUser.followingCount || 0}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Following</p>
                   </div>
-                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
-                    <p className="text-lg font-bold text-yellow-300">{currentUser.followersCount || 0}</p>
-                    <p className="text-[0.55rem] font-medium leading-none text-yellow-400/80 truncate">FOLLOWERS</p>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{currentUser.followersCount || 0}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Followers</p>
                   </div>
                 </div>
                 
@@ -129,18 +129,18 @@ export function LeftSidebar() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="futuristic-card dark:futuristic-card-dark neon-border-yellow">
+          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-20 h-20 cyber-glass dark:cyber-glass-dark rounded-full mx-auto mb-4 flex items-center justify-center ring-2 ring-yellow-400/30">
-                  <Shield className="text-yellow-400 w-8 h-8 pulse-glow" />
+                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Shield className="text-gray-600 dark:text-gray-400 w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-lg text-yellow-300 mb-2">CONNECT WALLET</h3>
-                <p className="text-yellow-200/80 text-sm mb-4">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2">Connect Wallet</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                   Connect your wallet to access your profile
                 </p>
                 
-                <p className="text-xs text-yellow-400/60">
+                <p className="text-xs text-gray-500 dark:text-gray-500">
                   Your profile will appear here after wallet connection
                 </p>
               </div>
@@ -149,19 +149,19 @@ export function LeftSidebar() {
         )}
 
         {/* Navigation Menu */}
-        <Card className="futuristic-card dark:futuristic-card-dark neon-border-magenta">
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardContent className="p-4">
             <nav>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {navItems.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href} className="block">
                       <Button
                         variant="ghost"
-                        className={`w-full justify-start p-3 rounded-xl transition-all duration-300 ${
+                        className={`w-full justify-start p-3 rounded-lg transition-all duration-200 ${
                           location === item.href 
-                            ? "bg-cyan-500/20 text-cyan-300 neon-border-cyan shadow-lg shadow-cyan-500/20" 
-                            : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" 
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                       >
                         <item.icon className="w-5 h-5 mr-3" />
@@ -176,24 +176,24 @@ export function LeftSidebar() {
         </Card>
 
         {/* 0G Chain Status */}
-        <Card className="futuristic-card dark:futuristic-card-dark neon-border-green">
-          <CardContent className="p-5">
-            <h4 className="font-bold mb-4 flex items-center space-x-3 text-green-300">
-              <div className="w-4 h-4 gradient-cyber-primary rounded-full pulse-glow"></div>
-              <span>0G CHAIN STATUS</span>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <CardContent className="p-4">
+            <h4 className="font-semibold mb-4 flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Network Status</span>
             </h4>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between p-2 rounded-lg cyber-glass dark:cyber-glass-dark">
-                <span className="text-green-200/80">NETWORK:</span>
-                <span className="text-green-300 font-mono">{chainStatus?.network || "NEWTON V2"}</span>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600 dark:text-gray-400">Network:</span>
+                <span className="text-gray-900 dark:text-gray-100 font-mono">{chainStatus?.network || "0G Galileo"}</span>
               </div>
-              <div className="flex justify-between p-2 rounded-lg cyber-glass dark:cyber-glass-dark">
-                <span className="text-green-200/80">BLOCK HEIGHT:</span>
-                <span className="text-green-300 font-mono">{chainStatus?.blockHeight?.toLocaleString() || "2,847,392"}</span>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600 dark:text-gray-400">Block:</span>
+                <span className="text-gray-900 dark:text-gray-100 font-mono">{chainStatus?.blockHeight?.toLocaleString() || "5,610,000"}</span>
               </div>
-              <div className="flex justify-between p-2 rounded-lg cyber-glass dark:cyber-glass-dark">
-                <span className="text-green-200/80">GAS PRICE:</span>
-                <span className="text-green-300 font-mono">{chainStatus?.gasPrice || "0.1 GWEI"}</span>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600 dark:text-gray-400">Gas:</span>
+                <span className="text-gray-900 dark:text-gray-100 font-mono">{chainStatus?.gasPrice || "0.1 Gwei"}</span>
               </div>
             </div>
           </CardContent>

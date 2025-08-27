@@ -148,6 +148,10 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
       // Update form value
       form.setValue("avatar", avatarData.avatar);
       
+      // Immediately invalidate user queries to refresh avatar everywhere
+      queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      queryClient.refetchQueries({ queryKey: ["/api/users/me"] });
+      
       toast({
         title: "Avatar uploaded",
         description: "Your profile picture has been updated.",

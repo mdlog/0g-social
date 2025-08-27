@@ -5,6 +5,14 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Complete UI Minimalist Redesign (2025-08-26)**: Successfully transformed entire UI from cyberpunk/neon theme to clean minimalist design
+  - Post cards: Changed from colorful gradients to white/gray backgrounds with subtle borders
+  - Action buttons: Replaced neon effects with soft hover states in neutral colors
+  - Profile sidebar: Updated to clean card design with gray color scheme
+  - Navigation menu: Simplified to modern flat design with blue accent for active states
+  - Network status: Changed from glowing panels to simple status indicators
+  - Comment section: Applied consistent minimalist styling throughout
+  - Profile Photo Cache Issue Fixed: Added proper query invalidation after avatar upload to ensure sidebar updates immediately
 - **Real-Time Comment System Implementation (2025-08-26)**: Successfully implemented global real-time comment updates using WebSocket infrastructure
   - Added WebSocket broadcast system for new comments across all connected clients
   - Implemented 'new_comment' message type with automatic query invalidation
