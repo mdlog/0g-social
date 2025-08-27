@@ -185,46 +185,43 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="futuristic-card dark:futuristic-card-dark hover:neon-border-cyan transition-all duration-300 slide-in-cyber">
-      <CardContent className="p-6">
-        <article className="flex space-x-4">
-          <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-cyan-400/30 hover:ring-cyan-400/60 avatar-smooth">
+    <Card className="mb-6 overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-500">
+      {/* Header with gradient background */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 p-4 border-b border-gray-200 dark:border-gray-600">
+        <div className="flex items-start space-x-3">
+          <Avatar className="w-12 h-12 ring-2 ring-blue-300 dark:ring-blue-600">
             <AvatarImage 
               src={post.author?.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
               alt={post.author?.displayName || "User"} 
               className="object-cover"
             />
-            <AvatarFallback className={`${getAvatarClass(post.authorId)} text-white font-semibold text-sm shadow-lg`}>
+            <AvatarFallback className="bg-blue-500 text-white font-semibold">
               {(post.author?.displayName || "U").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <div className="flex items-center space-x-3 mb-3">
-              <h4 className="font-semibold text-cyan-100">{post.author?.displayName || "Unknown User"}</h4>
-              <span className="gradient-neon-text text-sm">@{post.author?.username || "unknown"}.0g</span>
-              {post.author?.isVerified && (
-                <div className="verified-badge">
-                  <Shield className="w-3 h-3" />
-                  <span className="text-xs">VERIFIED</span>
-                </div>
-              )}
-              <span className="text-cyan-400/60 text-sm">•</span>
-              <span className="text-cyan-300/80 text-sm">{formatTimeAgo(post.createdAt)}</span>
-              {post.isAiRecommended && (
-                <div className="ai-recommendation-badge pulse-glow">
-                  <div className="w-3 h-3 gradient-cyber-primary rounded-full"></div>
-                  <span className="text-xs">AI ENHANCED</span>
-                </div>
-              )}
+            <div className="flex items-center space-x-2">
+              <h3 className="font-bold text-gray-900 dark:text-white">{post.author?.displayName || "Unknown User"}</h3>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">@{post.author?.username || "unknown"}</span>
+              <span className="text-gray-400 text-sm">•</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">
+                {formatTimeAgo(post.createdAt)}
+              </span>
             </div>
-            
-            <p className="text-cyan-50 dark:text-cyan-100 mb-4 leading-relaxed">
+          </div>
+        </div>
+      </div>
+      
+      <CardContent className="p-4">
+        <article>
+          <div className="space-y-4">
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
               {post.content}
             </p>
 
-            {/* Media display for images and videos */}
+            {/* Media display with unique styling */}
             {post.imageUrl && (
-              <div className="mb-4 rounded-2xl overflow-hidden border border-cyan-400/20 shadow-lg shadow-cyan-400/10">
+              <div className="rounded-xl overflow-hidden shadow-md">
                 {post.mediaType?.startsWith('video/') ? (
                   <video 
                     src={post.imageUrl} 
@@ -235,54 +232,57 @@ export function PostCard({ post }: PostCardProps) {
                   <img 
                     src={post.imageUrl} 
                     alt="Post media" 
-                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300" 
+                    className="w-full h-64 object-cover hover:scale-102 transition-transform duration-300" 
                   />
                 )}
               </div>
             )}
 
-            {/* Simple 0G Network verification status */}
+            {/* 0G Network verification with card design */}
             {post.storageHash && post.transactionHash && (
-              <div className="mb-4 p-3 bg-green-500/10 border border-green-400/30 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Database className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-green-300 font-medium">Stored on 0G Network</span>
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Database className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <span className="text-sm text-green-700 dark:text-green-300 font-medium">Stored on 0G Network</span>
+                  </div>
                   <a 
                     href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-green-400 hover:text-green-300 transition-colors"
-                    title="Lihat di blockchain explorer"
+                    className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors"
+                    title="View on blockchain explorer"
                   >
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-2 border-t border-cyan-400/10">
-              <div className="flex items-center space-x-6">
+            {/* Action buttons with modern styling */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex items-center space-x-1">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => likeMutation.mutate()}
                   disabled={likeMutation.isPending}
-                  className={`flex items-center space-x-2 p-2 rounded-xl transition-all duration-300 ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200 ${
                     post.isLiked 
-                      ? "text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 neon-border-red" 
-                      : "text-cyan-300/80 hover:text-red-400 hover:bg-red-500/10 hover:neon-border-red"
+                      ? "text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30" 
+                      : "text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                   }`}
                 >
-                  <Heart className={`w-4 h-4 ${post.isLiked ? "fill-current pulse-glow" : ""}`} />
+                  <Heart className={`w-5 h-5 ${post.isLiked ? "fill-current" : ""}`} />
                   <span className="text-sm font-medium">{post.likesCount}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowComments(!showComments)}
-                  className="flex items-center space-x-2 p-2 rounded-xl text-cyan-300/80 hover:text-blue-400 hover:bg-blue-500/10 hover:neon-border-blue transition-all duration-300"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="w-5 h-5" />
                   <span className="text-sm font-medium">{post.commentsCount}</span>
                 </Button>
                 <Button
@@ -290,13 +290,13 @@ export function PostCard({ post }: PostCardProps) {
                   size="sm"
                   onClick={() => repostMutation.mutate()}
                   disabled={repostMutation.isPending}
-                  className={`flex items-center space-x-2 p-2 rounded-xl transition-all duration-300 ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200 ${
                     post.isReposted 
-                      ? "text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 neon-border-green" 
-                      : "text-cyan-300/80 hover:text-green-400 hover:bg-green-500/10 hover:neon-border-green"
+                      ? "text-green-500 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30" 
+                      : "text-gray-500 dark:text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
                   }`}
                 >
-                  <Share className={`w-4 h-4 ${post.isReposted ? "fill-current pulse-glow" : ""}`} />
+                  <Share className={`w-5 h-5 ${post.isReposted ? "fill-current" : ""}`} />
                   <span className="text-sm font-medium">{post.sharesCount}</span>
                 </Button>
               </div>
@@ -304,28 +304,28 @@ export function PostCard({ post }: PostCardProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-2 rounded-xl text-cyan-300/80 hover:text-magenta-400 hover:bg-magenta-500/10 hover:neon-border-magenta transition-all duration-300"
+                  className="px-3 py-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200"
                 >
-                  <Bookmark className="w-4 h-4" />
+                  <Bookmark className="w-5 h-5" />
                 </Button>
                 
-                {/* Blockchain Verification Button - available for all posts */}
+                {/* Blockchain Verification Button */}
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`p-2 rounded-xl transition-all duration-300 ${
+                      className={`px-3 py-2 rounded-full transition-all duration-200 ${
                         post.storageHash && post.transactionHash
-                          ? "text-green-400 hover:text-green-300 hover:bg-green-500/10 hover:neon-border-green pulse-glow"
-                          : "text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
+                          ? "text-green-500 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30"
+                          : "text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       }`}
                       title="Verify on Blockchain"
                     >
-                      <Shield className="w-4 h-4" />
+                      <Shield className="w-5 h-5" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="futuristic-card dark:futuristic-card-dark max-w-lg !fixed !left-[50%] !top-[50%] !translate-x-[-50%] !translate-y-[-50%] !z-[100]">
+                  <DialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 max-w-lg">
                     <BlockchainVerification 
                       storageHash={post.storageHash || undefined}
                       transactionHash={post.transactionHash || undefined}
@@ -338,10 +338,10 @@ export function PostCard({ post }: PostCardProps) {
 
             {/* Comment Section */}
             {showComments && (
-              <div className="mt-4 pt-4 border-t border-cyan-400/10">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                 {/* Existing Comments */}
                 {commentsLoading ? (
-                  <div className="mb-4 text-center text-cyan-300/60">
+                  <div className="mb-4 text-center text-gray-500 dark:text-gray-400">
                     Loading comments...
                   </div>
                 ) : (console.log('[DEBUG Frontend] Rendering comments:', comments.length, comments) || comments.length > 0) ? (

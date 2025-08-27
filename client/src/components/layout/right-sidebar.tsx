@@ -74,8 +74,7 @@ export function RightSidebar() {
   ];
 
   return (
-    <aside className="lg:col-span-1">
-      <div className="sticky top-24 space-y-4">
+    <div className="space-y-4">
         {/* Personal AI Feed */}
         <PersonalAIFeed />
 
@@ -170,7 +169,6 @@ export function RightSidebar() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    </aside>
+    </div>
   );
 }
