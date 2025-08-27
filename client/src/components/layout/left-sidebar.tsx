@@ -69,76 +69,136 @@ export function LeftSidebar() {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Horizontal User Profile */}
-        <div className="flex items-center space-x-4">
-          {currentUser ? (
-            <>
-              <Avatar className="w-12 h-12">
-                <AvatarImage 
-                  src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
-                  alt={currentUser.displayName} 
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-blue-500 text-white font-semibold">
-                  {currentUser.displayName.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">{currentUser.displayName}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">@{currentUser.username}</p>
+    <aside className="lg:col-span-3">
+      <div className="sticky top-24 space-y-6">
+        {/* User Profile Card - Only show when wallet connected */}
+        {currentUser ? (
+          <Card className="futuristic-card dark:futuristic-card-dark neon-border-cyan">
+            <CardContent className="p-6">
+              <div className="text-center">
+
+                <Avatar className="w-20 h-20 mx-auto mb-4 ring-2 ring-cyan-400/40 hover:ring-cyan-400/70 avatar-smooth">
+                  <AvatarImage 
+                    src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
+                    alt={currentUser.displayName} 
+                    className="object-cover"
+                    onError={(e) => {
+                      console.error("Avatar image failed to load:", currentUser.avatar);
+                      console.error("Full URL:", `${window.location.origin}${currentUser.avatar}`);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log("Avatar image loaded successfully:", currentUser.avatar);
+                    }}
+                  />
+                  <AvatarFallback className="avatar-gradient-1 text-white font-semibold shadow-lg">
+                    {currentUser.displayName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <h3 className="font-bold text-lg text-cyan-100 mb-1">{currentUser.displayName}</h3>
+                <p className="gradient-neon-text text-sm mb-4">
+                  @{currentUser.username}.0g
+                </p>
+                
+                {/* Decentralized Identity Badge */}
+                <div className="flex items-center justify-center space-x-2 mb-5">
+                  <div className="verified-badge pulse-glow">
+                    <Shield className="text-white w-3 h-3" />
+                    <span className="text-xs">VERIFIED DID</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-center mb-5">
+                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
+                    <p className="text-lg font-bold text-cyan-300">{currentUser.postsCount || 0}</p>
+                    <p className="text-[0.55rem] font-medium leading-none text-cyan-400/80 truncate">POSTS</p>
+                  </div>
+                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
+                    <p className="text-lg font-bold text-magenta-300">{currentUser.followingCount || 0}</p>
+                    <p className="text-[0.55rem] font-medium leading-none text-magenta-400/80 truncate">FOLLOWING</p>
+                  </div>
+                  <div className="p-2 rounded-xl cyber-glass dark:cyber-glass-dark min-h-[60px] flex flex-col justify-center overflow-hidden">
+                    <p className="text-lg font-bold text-yellow-300">{currentUser.followersCount || 0}</p>
+                    <p className="text-[0.55rem] font-medium leading-none text-yellow-400/80 truncate">FOLLOWERS</p>
+                  </div>
+                </div>
+                
+                {/* Edit Profile Button */}
+                <EditProfileDialog user={currentUser} />
               </div>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="text-gray-600 dark:text-gray-400">{currentUser.postsCount || 0} Posts</span>
-                <span className="text-gray-600 dark:text-gray-400">{currentUser.followingCount || 0} Following</span>
-                <span className="text-gray-600 dark:text-gray-400">{currentUser.followersCount || 0} Followers</span>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="futuristic-card dark:futuristic-card-dark neon-border-yellow">
+            <CardContent className="p-6">
+              <div className="text-center">
+                <div className="w-20 h-20 cyber-glass dark:cyber-glass-dark rounded-full mx-auto mb-4 flex items-center justify-center ring-2 ring-yellow-400/30">
+                  <Shield className="text-yellow-400 w-8 h-8 pulse-glow" />
+                </div>
+                <h3 className="font-bold text-lg text-yellow-300 mb-2">CONNECT WALLET</h3>
+                <p className="text-yellow-200/80 text-sm mb-4">
+                  Connect your wallet to access your profile
+                </p>
+                
+                <p className="text-xs text-yellow-400/60">
+                  Your profile will appear here after wallet connection
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                <Shield className="text-gray-400 w-6 h-6" />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Navigation Menu */}
+        <Card className="futuristic-card dark:futuristic-card-dark neon-border-magenta">
+          <CardContent className="p-4">
+            <nav>
+              <ul className="space-y-3">
+                {navItems.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="block">
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start p-3 rounded-xl transition-all duration-300 ${
+                          location === item.href 
+                            ? "bg-cyan-500/20 text-cyan-300 neon-border-cyan shadow-lg shadow-cyan-500/20" 
+                            : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/10 hover:neon-border-cyan"
+                        }`}
+                      >
+                        <item.icon className="w-5 h-5 mr-3" />
+                        <span className="font-medium">{item.label}</span>
+                      </Button>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </CardContent>
+        </Card>
+
+        {/* 0G Chain Status */}
+        <Card className="futuristic-card dark:futuristic-card-dark neon-border-green">
+          <CardContent className="p-5">
+            <h4 className="font-bold mb-4 flex items-center space-x-3 text-green-300">
+              <div className="w-4 h-4 gradient-cyber-primary rounded-full pulse-glow"></div>
+              <span>0G CHAIN STATUS</span>
+            </h4>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between p-2 rounded-lg cyber-glass dark:cyber-glass-dark">
+                <span className="text-green-200/80">NETWORK:</span>
+                <span className="text-green-300 font-mono">{chainStatus?.network || "NEWTON V2"}</span>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Connect Wallet</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Connect to access features</p>
+              <div className="flex justify-between p-2 rounded-lg cyber-glass dark:cyber-glass-dark">
+                <span className="text-green-200/80">BLOCK HEIGHT:</span>
+                <span className="text-green-300 font-mono">{chainStatus?.blockHeight?.toLocaleString() || "2,847,392"}</span>
+              </div>
+              <div className="flex justify-between p-2 rounded-lg cyber-glass dark:cyber-glass-dark">
+                <span className="text-green-200/80">GAS PRICE:</span>
+                <span className="text-green-300 font-mono">{chainStatus?.gasPrice || "0.1 GWEI"}</span>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Horizontal Navigation Menu */}
-        <nav className="flex flex-wrap items-center gap-2">
-          {navItems.map((item) => (
-            <Link 
-              key={item.href} 
-              href={item.href} 
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
-                location === item.href 
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" 
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="font-medium text-sm hidden sm:inline">{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        {/* Compact Chain Status */}
-        <div className="flex items-center space-x-3 text-sm">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-gray-600 dark:text-gray-400">0G Chain:</span>
-            <span className="text-gray-900 dark:text-white font-mono">{chainStatus?.network || "Galileo"}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-600 dark:text-gray-400">Block:</span>
-            <span className="text-gray-900 dark:text-white font-mono">{chainStatus?.blockHeight?.toLocaleString() || "5.6M"}</span>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </aside>
   );
 }

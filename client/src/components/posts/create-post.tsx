@@ -306,7 +306,7 @@ export function CreatePost() {
   }
 
   return (
-    <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border-2 border-dashed border-blue-200 dark:border-gray-600">
+    <Card className="mb-6">
       <CardContent className="p-6">
         <form onSubmit={handleSubmit}>
           <div className="flex space-x-4">

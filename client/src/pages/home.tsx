@@ -14,22 +14,21 @@ export default function Home() {
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Top Navigation Bar */}
-        <div className="mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <LeftSidebar />
-        </div>
-        
-        {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <main className="lg:col-span-2 order-2 lg:order-1">
+          
+          <main className="lg:col-span-6">
             <CreatePost />
             <Feed />
           </main>
           
-          <aside className="order-1 lg:order-2">
-            <RightSidebar />
-          </aside>
+          <RightSidebar />
         </div>
+      </div>
+
+      {/* 0G Infrastructure Status - Bottom Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-og-slate-50 dark:bg-og-slate-900/50">
+        <ZGInfrastructureStatus />
       </div>
 
       <Footer />
