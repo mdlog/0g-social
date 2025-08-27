@@ -185,23 +185,23 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
-      <CardContent className="p-4">
-        <article className="flex space-x-3">
-          <Avatar className="w-10 h-10 flex-shrink-0">
+    <Card className="elegant-card">
+      <CardContent className="p-6">
+        <article className="flex space-x-4">
+          <Avatar className="w-12 h-12 flex-shrink-0 elegant-avatar">
             <AvatarImage 
               src={post.author?.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
               alt={post.author?.displayName || "User"} 
               className="object-cover"
             />
-            <AvatarFallback className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium text-sm">
+            <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-semibold text-sm">
               {(post.author?.displayName || "U").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-2">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">{post.author?.displayName || "Unknown User"}</h4>
-              <span className="text-gray-500 dark:text-gray-400 text-sm truncate">@{post.author?.username || "unknown"}</span>
+            <div className="flex items-center space-x-3 mb-3">
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
+              <span className="text-gray-600 dark:text-gray-400 text-sm truncate">@{post.author?.username || "unknown"}</span>
               {post.author?.isVerified && (
                 <div className="flex items-center space-x-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full text-xs">
                   <Shield className="w-3 h-3" />
@@ -217,7 +217,7 @@ export function PostCard({ post }: PostCardProps) {
               )}
             </div>
             
-            <p className="text-gray-800 dark:text-gray-200 mb-3 leading-relaxed">
+            <p className="text-foreground mb-4 text-base leading-relaxed">
               {post.content}
             </p>
 
@@ -259,51 +259,51 @@ export function PostCard({ post }: PostCardProps) {
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-6">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => likeMutation.mutate()}
                   disabled={likeMutation.isPending}
-                  className={`flex items-center space-x-1 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-full elegant-button transition-all ${
                     post.isLiked 
-                      ? "text-red-500" 
-                      : "text-gray-500 dark:text-gray-400 hover:text-red-500"
+                      ? "text-red-500 bg-red-50 hover:bg-red-100" 
+                      : "text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50/50"
                   }`}
                 >
                   <Heart className={`w-4 h-4 ${post.isLiked ? "fill-current" : ""}`} />
-                  <span className="text-sm">{post.likesCount}</span>
+                  <span className="text-sm font-medium">{post.likesCount}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowComments(!showComments)}
-                  className="flex items-center space-x-1 p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50/50 elegant-button transition-all"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm">{post.commentsCount}</span>
+                  <span className="text-sm font-medium">{post.commentsCount}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => repostMutation.mutate()}
                   disabled={repostMutation.isPending}
-                  className={`flex items-center space-x-1 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-full elegant-button transition-all ${
                     post.isReposted 
-                      ? "text-green-500" 
-                      : "text-gray-500 dark:text-gray-400 hover:text-green-500"
+                      ? "text-green-500 bg-green-50 hover:bg-green-100" 
+                      : "text-gray-500 dark:text-gray-400 hover:text-green-500 hover:bg-green-50/50"
                   }`}
                 >
                   <Share className={`w-4 h-4 ${post.isReposted ? "fill-current" : ""}`} />
-                  <span className="text-sm">{post.sharesCount}</span>
+                  <span className="text-sm font-medium">{post.sharesCount}</span>
                 </Button>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50/50 elegant-button transition-all"
                 >
                   <Bookmark className="w-4 h-4" />
                 </Button>

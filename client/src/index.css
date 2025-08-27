@@ -1,29 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(210 25% 7.8431%);
-  --card: hsl(180 6.6667% 97.0588%);
-  --card-foreground: hsl(210 25% 7.8431%);
+  --background: hsl(220 15% 98%);
+  --foreground: hsl(220 25% 10%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(220 25% 10%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(210 25% 7.8431%);
-  --primary: hsl(246.8421 74.0741% 64.1176%);
+  --popover-foreground: hsl(220 25% 10%);
+  --primary: hsl(247 84% 67%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(159.4595 72.5000% 44.5098%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(240 1.9608% 90%);
-  --muted-foreground: hsl(210 25% 7.8431%);
-  --accent: hsl(42.8571 95.4545% 57.0588%);
-  --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --secondary: hsl(213 27% 84%);
+  --secondary-foreground: hsl(220 25% 10%);
+  --muted: hsl(216 20% 95%);
+  --muted-foreground: hsl(215 20% 45%);
+  --accent: hsl(213 32% 91%);
+  --accent-foreground: hsl(220 25% 10%);
+  --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(201.4286 30.4348% 90.9804%);
-  --input: hsl(200 23.0769% 97.4510%);
-  --ring: hsl(202.8169 89.1213% 53.1373%);
+  --border: hsl(214 32% 91%);
+  --input: hsl(214 32% 91%);
+  --ring: hsl(247 84% 67%);
   --chart-1: hsl(203.8863 88.2845% 53.1373%);
   --chart-2: hsl(159.7826 100% 36.0784%);
   --chart-3: hsl(42.0290 92.8251% 56.2745%);
@@ -37,10 +38,10 @@
   --sidebar-accent-foreground: hsl(246.8421 74.0741% 64.1176%);
   --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
   --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: 1.3rem;
+  --radius: 1.8rem;
   --og-dark: hsl(222.2222 84.4444% 4.9020%);
 
   /* 0G Social Custom Colors */
@@ -110,7 +111,9 @@
   }
 
   body {
-    @apply font-sans antialiased bg-og-slate-50 dark:bg-og-slate-800 text-foreground;
+    @apply font-sans antialiased bg-background text-foreground;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -338,6 +341,54 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  /* Elegant Modern Classes */
+  .elegant-card {
+    @apply rounded-3xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .elegant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .elegant-button {
+    @apply rounded-2xl font-medium transition-all duration-300 ease-out;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  .elegant-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .elegant-avatar {
+    @apply ring-2 ring-blue-200 dark:ring-blue-700 transition-all duration-300;
+  }
+
+  .elegant-avatar:hover {
+    @apply ring-4 ring-blue-300 dark:ring-blue-600;
+    transform: scale(1.05);
+  }
+
+  .elegant-input {
+    @apply rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm;
+    transition: all 0.3s ease;
+  }
+
+  .elegant-input:focus {
+    @apply border-blue-400 dark:border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  }
+
+  .gradient-elegant {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.1) 0%, 
+      rgba(139, 92, 246, 0.05) 50%,
+      rgba(59, 130, 246, 0.1) 100%);
   }
 
   /* Slide In Animation */
