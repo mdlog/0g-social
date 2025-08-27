@@ -13,22 +13,16 @@ export default function Home() {
     <div className="min-h-screen">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Top Navigation Bar */}
-        <div className="mb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <LeftSidebar />
-        </div>
-        
-        {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <main className="lg:col-span-2 order-2 lg:order-1">
+          
+          <main className="lg:col-span-2">
             <CreatePost />
             <Feed />
           </main>
           
-          <aside className="order-1 lg:order-2">
-            <RightSidebar />
-          </aside>
+          <RightSidebar />
         </div>
       </div>
 

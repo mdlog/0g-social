@@ -69,76 +69,106 @@ export function LeftSidebar() {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Horizontal User Profile */}
-        <div className="flex items-center space-x-4">
-          {currentUser ? (
-            <>
-              <Avatar className="w-12 h-12">
-                <AvatarImage 
-                  src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
-                  alt={currentUser.displayName} 
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-blue-500 text-white font-semibold">
-                  {currentUser.displayName.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">{currentUser.displayName}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">@{currentUser.username}</p>
+    <aside className="lg:col-span-1">
+      <div className="sticky top-24 space-y-4">
+        {/* Simplified User Profile Card */}
+        {currentUser ? (
+          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <Avatar className="w-16 h-16 mx-auto mb-3">
+                  <AvatarImage 
+                    src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
+                    alt={currentUser.displayName} 
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-blue-500 text-white font-semibold">
+                    {currentUser.displayName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{currentUser.displayName}</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
+                  @{currentUser.username}
+                </p>
+                
+                <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                  <div className="p-2">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentUser.postsCount || 0}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Posts</p>
+                  </div>
+                  <div className="p-2">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentUser.followingCount || 0}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Following</p>
+                  </div>
+                  <div className="p-2">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentUser.followersCount || 0}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Followers</p>
+                  </div>
+                </div>
+                
+                {/* Edit Profile Button */}
+                <EditProfileDialog user={currentUser} />
               </div>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="text-gray-600 dark:text-gray-400">{currentUser.postsCount || 0} Posts</span>
-                <span className="text-gray-600 dark:text-gray-400">{currentUser.followingCount || 0} Following</span>
-                <span className="text-gray-600 dark:text-gray-400">{currentUser.followersCount || 0} Followers</span>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <Shield className="text-gray-400 w-6 h-6" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Connect Wallet</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  Connect your wallet to access your profile
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                <Shield className="text-gray-400 w-6 h-6" />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Simplified Navigation Menu */}
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <CardContent className="p-3">
+            <nav className="space-y-1">
+              {navItems.map((item) => (
+                <Link 
+                  key={item.href} 
+                  href={item.href} 
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                    location === item.href 
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" 
+                      : "hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span className="font-medium text-sm">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </CardContent>
+        </Card>
+
+        {/* Simplified Chain Status */}
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <CardContent className="p-4">
+            <h4 className="font-semibold mb-3 flex items-center space-x-2 text-gray-900 dark:text-white">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>0G Chain Status</span>
+            </h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500 dark:text-gray-400">Network:</span>
+                <span className="text-gray-900 dark:text-white font-mono text-xs">{chainStatus?.network || "Galileo"}</span>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Connect Wallet</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Connect to access features</p>
+              <div className="flex justify-between">
+                <span className="text-gray-500 dark:text-gray-400">Block:</span>
+                <span className="text-gray-900 dark:text-white font-mono text-xs">{chainStatus?.blockHeight?.toLocaleString() || "5.6M"}</span>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Horizontal Navigation Menu */}
-        <nav className="flex flex-wrap items-center gap-2">
-          {navItems.map((item) => (
-            <Link 
-              key={item.href} 
-              href={item.href} 
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
-                location === item.href 
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" 
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="font-medium text-sm hidden sm:inline">{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        {/* Compact Chain Status */}
-        <div className="flex items-center space-x-3 text-sm">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-gray-600 dark:text-gray-400">0G Chain:</span>
-            <span className="text-gray-900 dark:text-white font-mono">{chainStatus?.network || "Galileo"}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-600 dark:text-gray-400">Block:</span>
-            <span className="text-gray-900 dark:text-white font-mono">{chainStatus?.blockHeight?.toLocaleString() || "5.6M"}</span>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </aside>
   );
 }
