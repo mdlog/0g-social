@@ -69,45 +69,54 @@ export function LeftSidebar() {
   ];
 
   return (
-    <aside className="lg:col-span-1">
-      <div className="sticky top-24 space-y-4">
-        {/* Simplified User Profile Card */}
+    <aside className="lg:col-span-3">
+      <div className="sticky top-24 space-y-6">
+        {/* Enhanced Profile Card */}
         {currentUser ? (
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <Avatar className="w-16 h-16 mx-auto mb-3">
-                  <AvatarImage 
-                    src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
-                    alt={currentUser.displayName} 
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="bg-blue-500 text-white font-semibold">
-                    {currentUser.displayName.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{currentUser.displayName}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
-                  @{currentUser.username}
-                </p>
-                
-                <div className="grid grid-cols-3 gap-2 text-center mb-3">
-                  <div className="p-2">
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentUser.postsCount || 0}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Posts</p>
-                  </div>
-                  <div className="p-2">
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentUser.followingCount || 0}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Following</p>
-                  </div>
-                  <div className="p-2">
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{currentUser.followersCount || 0}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Followers</p>
+          <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border-0 text-white overflow-hidden">
+            <CardContent className="p-6">
+              <div className="text-center relative">
+                {/* Large Profile Avatar with Gradient Border */}
+                <div className="relative mx-auto mb-4">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 p-1">
+                    <Avatar className="w-full h-full">
+                      <AvatarImage 
+                        src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}` : ""} 
+                        alt={currentUser.displayName} 
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl">
+                        {currentUser.displayName.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                 </div>
                 
-                {/* Edit Profile Button */}
-                <EditProfileDialog user={currentUser} />
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-400">{currentUser.followersCount || 1984}</p>
+                    <p className="text-xs text-gray-300">Followers</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-400">{currentUser.followingCount || 1002}</p>
+                    <p className="text-xs text-gray-300">Following</p>
+                  </div>
+                </div>
+                
+                <h3 className="font-bold text-xl text-white mb-1">{currentUser.displayName}</h3>
+                <p className="text-gray-300 text-sm mb-3">@{currentUser.username}</p>
+                
+                {/* Bio with star icon */}
+                <div className="flex items-center justify-center space-x-1 mb-4">
+                  <span className="text-yellow-400">⭐</span>
+                  <p className="text-sm text-gray-300">Hello, I'm AI/UX designer Open to the new Project</p>
+                  <span className="text-yellow-400">⭐</span>
+                </div>
+                
+                <Button className="w-full bg-transparent border border-gray-600 text-white hover:bg-gray-700">
+                  My Profile
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -149,21 +158,58 @@ export function LeftSidebar() {
           </CardContent>
         </Card>
 
-        {/* Simplified Chain Status */}
+        {/* Skills Section */}
         <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardContent className="p-4">
-            <h4 className="font-semibold mb-3 flex items-center space-x-2 text-gray-900 dark:text-white">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>0G Chain Status</span>
-            </h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500 dark:text-gray-400">Network:</span>
-                <span className="text-gray-900 dark:text-white font-mono text-xs">{chainStatus?.network || "Galileo"}</span>
+            <h4 className="font-semibold mb-3 text-gray-900 dark:text-white">Skills</h4>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-center">
+                UX Designer
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500 dark:text-gray-400">Block:</span>
-                <span className="text-gray-900 dark:text-white font-mono text-xs">{chainStatus?.blockHeight?.toLocaleString() || "5.6M"}</span>
+              <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-1 rounded text-center">
+                Front-end and Back-end developing
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 px-2 py-1 rounded text-center">
+                JS coder
+              </div>
+              <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 px-2 py-1 rounded text-center">
+                UX Designer
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Communities Section */}
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <CardContent className="p-4">
+            <h4 className="font-semibold mb-3 text-gray-900 dark:text-white">Communities</h4>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">UX</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">UX Designer community</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">32 your friends are in</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">FE</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Front end developers</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">12 your friends are in</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">BE</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Back end developers</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">41 your friends are in</p>
+                </div>
               </div>
             </div>
           </CardContent>
