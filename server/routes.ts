@@ -1623,15 +1623,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Direct upload endpoint (simplified for development)
   app.put("/api/upload-direct/:objectId", async (req, res) => {
     try {
-      // For development, we'll just confirm the upload
-      // In production, this would handle the actual file storage
       const objectId = req.params.objectId;
       
+      // Check wallet connection
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          error: "Please connect your wallet to upload files"
+        });
+      }
+      
       console.log(`[Media Upload] Direct upload received for object: ${objectId}`);
+      
+      // For development, simulate successful upload
+      // In production, this would use the actual object storage service
+      const simulatedURL = `/api/objects/.private/media/${objectId}`;
       
       res.json({ 
         success: true,
         objectId,
+        url: simulatedURL,
         message: "File uploaded successfully" 
       });
     } catch (error: any) {

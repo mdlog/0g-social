@@ -19,10 +19,7 @@ function formatFileSize(bytes: number): string {
 // Extend Window interface for MetaMask
 declare global {
   interface Window {
-    ethereum?: {
-      request: (args: { method: string; params?: any[] }) => Promise<any>;
-      isMetaMask?: boolean;
-    };
+    ethereum?: any;
   }
 }
 
@@ -87,6 +84,12 @@ export function CreatePost() {
 
       // Get upload URL
       const response = await apiRequest("POST", "/api/posts/upload-media");
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to get upload URL');
+      }
+
       const uploadData = await response.json();
 
       // Upload file
@@ -99,10 +102,11 @@ export function CreatePost() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error(`Upload failed: ${uploadResponse.status}`);
+        throw new Error(`Upload failed: HTTP ${uploadResponse.status}`);
       }
 
-      setUploadedMediaURL(uploadData.uploadURL);
+      const uploadResult = await uploadResponse.json();
+      setUploadedMediaURL(uploadResult.url || uploadData.uploadURL);
       
       toast({
         title: "File uploaded",
@@ -115,7 +119,9 @@ export function CreatePost() {
       setFilePreview(null);
       toast({
         title: "Upload failed",
-        description: `Failed to upload media: ${error.message}`,
+        description: error.message?.includes('Failed to fetch') 
+          ? 'Network error: Please check your connection and try again'
+          : `Failed to upload media: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
