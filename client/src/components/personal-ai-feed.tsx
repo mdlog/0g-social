@@ -102,15 +102,15 @@ export function PersonalAIFeed() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Gagal menambahkan dana');
+        throw new Error(errorData.error || 'Failed to add funds');
       }
 
       return response.json();
     },
     onSuccess: (data) => {
       toast({
-        title: "Akun 0G Compute Berhasil Dibuat",
-        description: `${data.message}. Anda sekarang dapat menggunakan layanan 0G Compute autentik!`,
+        title: "0G Compute Account Successfully Created",
+        description: `${data.message}. You can now use authentic 0G Compute services!`,
       });
       
       // Reset fund amount
@@ -123,17 +123,17 @@ export function PersonalAIFeed() {
     },
     onError: (error: Error) => {
       // Handle setup manual instructions
-      if (error.message.includes('Setup Manual Diperlukan')) {
+      if (error.message.includes('Manual Setup Required')) {
         toast({
-          title: "Setup Manual 0G Compute",
-          description: "Lihat instruksi lengkap di console browser (F12) atau gunakan mode simulasi.",
+          title: "Manual 0G Compute Setup",
+          description: "See complete instructions in browser console (F12) or use simulation mode.",
           variant: "default",
         });
-        console.log("=== INSTRUKSI SETUP 0G COMPUTE ===");
+        console.log("=== 0G COMPUTE SETUP INSTRUCTIONS ===");
         console.log(error.message);
       } else {
         toast({
-          title: "Gagal Menambahkan Dana",
+          title: "Failed to Add Funds",
           description: error.message,
           variant: "destructive",
         });
@@ -142,11 +142,11 @@ export function PersonalAIFeed() {
   });
 
   return (
-    <Card className="cyber-glass dark:cyber-glass-dark border-0 neon-border-cyan">
+    <Card className="elegant-card">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2 text-sm">
-          <Bot className="text-cyan-400 w-5 h-5 flex-shrink-0 pulse-glow" />
-          <span className="leading-tight gradient-neon-text">Your Personal AI Feed</span>
+          <Bot className="text-blue-500 w-5 h-5 flex-shrink-0" />
+          <span className="leading-tight text-gray-900 dark:text-gray-100">Your Personal AI Feed</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -156,23 +156,23 @@ export function PersonalAIFeed() {
             {/* Status Header */}
             <div className="text-center space-y-2">
               <div className="flex justify-center">
-                <div className="w-16 h-16 cyber-glass dark:cyber-glass-dark rounded-2xl flex items-center justify-center neon-border-green">
-                  <Check className="w-8 h-8 text-green-400" />
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800 dark:to-green-700 rounded-2xl flex items-center justify-center border border-green-300 dark:border-green-600">
+                  <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
               </div>
               <div>
-                <p className="text-sm text-green-100 font-medium">AI Feed Active</p>
-                <p className="text-xs text-green-300/60">
+                <p className="text-sm text-gray-900 dark:text-gray-100 font-medium">AI Feed Active</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   {isRealIntegration ? 'Running on 0G Compute Network' : 'Development Simulation Mode'}
                 </p>
                 <div className="flex items-center justify-center mt-2 space-x-2">
                   {isRealIntegration ? (
-                    <span className="inline-flex items-center space-x-1 text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full border border-green-500/40">
+                    <span className="inline-flex items-center space-x-1 text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full border border-green-200 dark:border-green-700">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>REAL 0G COMPUTE</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center space-x-1 text-xs bg-yellow-900/20 text-yellow-400 px-2 py-1 rounded-full border border-yellow-600/30">
+                    <span className="inline-flex items-center space-x-1 text-xs bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded-full border border-yellow-200 dark:border-yellow-700">
                       <AlertCircle className="w-3 h-3" />
                       <span>SIMULATION</span>
                     </span>
@@ -185,15 +185,15 @@ export function PersonalAIFeed() {
                   )}
                 </div>
                 
-                {/* Setup 0G Compute Account jika diperlukan */}
+                {/* Setup 0G Compute Account if needed */}
                 {computeStatus?.mode === 'real' && computeStatus?.connection === false && (
-                  <div className="mt-3 p-3 cyber-glass dark:cyber-glass-dark rounded-lg border border-orange-500/30">
+                  <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
                     <div className="flex items-center space-x-2 mb-2">
-                      <AlertCircle className="w-4 h-4 text-orange-400" />
-                      <p className="text-xs font-medium text-orange-100">Setup Akun 0G Compute</p>
+                      <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                      <p className="text-xs font-medium text-orange-800 dark:text-orange-200">Setup 0G Compute Account</p>
                     </div>
-                    <p className="text-xs text-orange-200/70 mb-3">
-                      Akun 0G Compute belum dibuat. Tambahkan dana untuk menggunakan layanan autentik.
+                    <p className="text-xs text-orange-700 dark:text-orange-300 mb-3">
+                      0G Compute account not created yet. Add funds to use authentic services.
                     </p>
                     
                     <div className="flex items-center space-x-2">
@@ -211,7 +211,7 @@ export function PersonalAIFeed() {
                         onClick={() => addFunds.mutate(fundAmount)}
                         disabled={addFunds.isPending}
                         size="sm"
-                        className="h-8 text-xs bg-orange-600/80 hover:bg-orange-500/80 text-white"
+                        className="h-8 text-xs bg-orange-600 hover:bg-orange-500 text-white"
                       >
                         {addFunds.isPending ? (
                           <div className="flex items-center space-x-1">
@@ -221,7 +221,7 @@ export function PersonalAIFeed() {
                         ) : (
                           <div className="flex items-center space-x-1">
                             <Plus className="w-3 h-3" />
-                            <span>Setup Akun</span>
+                            <span>Setup Account</span>
                           </div>
                         )}
                       </Button>
@@ -266,16 +266,16 @@ export function PersonalAIFeed() {
           /* Deployment Section */
           <div className="text-center space-y-3">
             <div className="flex justify-center">
-              <div className="w-16 h-16 cyber-glass dark:cyber-glass-dark rounded-2xl flex items-center justify-center neon-border-purple">
-                <Users className="w-8 h-8 text-purple-400" />
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-800 dark:to-indigo-800 rounded-2xl flex items-center justify-center border border-purple-200 dark:border-purple-700">
+                <Users className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             
             <div className="space-y-2">
-              <p className="text-sm text-cyan-100 font-medium">
+              <p className="text-sm text-gray-900 dark:text-gray-100 font-medium">
                 Personal AI Feed Available
               </p>
-              <p className="text-xs text-cyan-300/60">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 {computeStatus?.mode === 'real' 
                   ? 'Deploy using authentic 0G Compute Network'
                   : 'Deploy in simulation mode (awaiting 0G Compute mainnet)'
@@ -304,19 +304,19 @@ export function PersonalAIFeed() {
                 )}
               </div>
               
-              {/* Setup 0G Compute Account jika diperlukan */}
+              {/* Setup 0G Compute Account if needed */}
               {computeStatus?.mode === 'real' && !computeStatus?.connection && (
-                <div className="mt-4 p-3 cyber-glass dark:cyber-glass-dark rounded-lg border border-orange-500/30">
+                <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
                   <div className="flex items-center space-x-2 mb-2">
-                    <Wallet className="w-4 h-4 text-orange-400" />
-                    <p className="text-xs font-medium text-orange-100">Setup Akun 0G Compute</p>
+                    <Wallet className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                    <p className="text-xs font-medium text-orange-800 dark:text-orange-200">Setup 0G Compute Account</p>
                   </div>
-                  <p className="text-xs text-orange-200/70 mb-3">
-                    Untuk menggunakan 0G Compute autentik, tambahkan dana ke akun Anda (minimal 0.1 OG). 
-                    Proses ini akan membuat akun baru pada blockchain 0G.
+                  <p className="text-xs text-orange-700 dark:text-orange-300 mb-3">
+                    To use authentic 0G Compute, add funds to your account (minimum 0.1 OG). 
+                    This process will create a new account on the 0G blockchain.
                   </p>
-                  <p className="text-xs text-orange-300/60 mb-3">
-                    💡 Tips: Jika tombol setup tidak berfungsi, lihat instruksi manual di console browser (F12).
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mb-3">
+                    💡 Tip: If the setup button doesn't work, see manual instructions in browser console (F12).
                   </p>
                   
                   <div className="flex items-center space-x-2">
@@ -344,7 +344,7 @@ export function PersonalAIFeed() {
                       ) : (
                         <div className="flex items-center space-x-1">
                           <Plus className="w-3 h-3" />
-                          <span>Buat Akun</span>
+                          <span>Create Account</span>
                         </div>
                       )}
                     </Button>
@@ -357,7 +357,7 @@ export function PersonalAIFeed() {
             <Button
               onClick={() => deployAIFeed.mutate()}
               disabled={deployAIFeed.isPending}
-              className="cyber-button w-full flex items-center space-x-2"
+              className="elegant-button w-full flex items-center space-x-2"
             >
               <Play className="w-4 h-4" />
               <span>
@@ -366,32 +366,32 @@ export function PersonalAIFeed() {
             </Button>
 
             {/* Features Preview */}
-            <div className="space-y-3 pt-4 border-t border-cyan-400/20">
-              <div className="flex items-center space-x-3 p-2 cyber-glass dark:cyber-glass-dark rounded-lg">
-                <Zap className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <Zap className="w-4 h-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
                 <div className="text-xs">
-                  <p className="text-cyan-100 font-medium">Smart Content Filtering</p>
-                  <p className="text-cyan-300/60">AI learns your preferences</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-medium">Smart Content Filtering</p>
+                  <p className="text-gray-600 dark:text-gray-400">AI learns your preferences</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3 p-2 cyber-glass dark:cyber-glass-dark rounded-lg">
-                <Bot className="w-4 h-4 text-purple-400 flex-shrink-0" />
+              <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <Bot className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                 <div className="text-xs">
-                  <p className="text-cyan-100 font-medium">
+                  <p className="text-gray-900 dark:text-gray-100 font-medium">
                     {computeStatus?.mode === 'real' ? '0G Compute Processing' : 'Decentralized Processing'}
                   </p>
-                  <p className="text-cyan-300/60">
+                  <p className="text-gray-600 dark:text-gray-400">
                     {computeStatus?.mode === 'real' ? 'Powered by official 0G SDK' : 'Runs on 0G Compute network'}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3 p-2 cyber-glass dark:cyber-glass-dark rounded-lg">
-                <Users className="w-4 h-4 text-green-400 flex-shrink-0" />
+              <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <Users className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
                 <div className="text-xs">
-                  <p className="text-cyan-100 font-medium">Community Insights</p>
-                  <p className="text-cyan-300/60">Connect with similar interests</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-medium">Community Insights</p>
+                  <p className="text-gray-600 dark:text-gray-400">Connect with similar interests</p>
                 </div>
               </div>
             </div>
