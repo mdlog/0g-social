@@ -79,29 +79,14 @@ export function LeftSidebar() {
 
                 <Avatar className="w-20 h-20 mx-auto mb-4">
                   <AvatarImage 
-                    src={currentUser.avatar ? `${window.location.origin}${currentUser.avatar}?t=${Date.now()}` : ""} 
+                    src={currentUser.avatar ? `${currentUser.avatar}?t=${Date.now()}` : ""} 
                     alt={currentUser.displayName} 
                     className="object-cover"
-                    onError={(e) => {
-                      console.error("❌ Avatar image failed to load:", currentUser.avatar);
-                      console.error("❌ Full URL:", `${window.location.origin}${currentUser.avatar}`);
-                      console.error("❌ Current user data:", currentUser);
-                      e.currentTarget.style.display = 'none';
-                    }}
-                    onLoad={() => {
-                      console.log("✅ Avatar image loaded successfully:", currentUser.avatar);
-                      console.log("✅ Full URL:", `${window.location.origin}${currentUser.avatar}`);
-                    }}
                   />
                   <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 font-semibold">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                
-                {/* Debug Info - temporary */}
-                <div className="text-xs text-gray-500 mb-2">
-                  Debug: {currentUser.avatar || "No avatar"} {currentUser.avatar && `(${Date.now()})`}
-                </div>
                 <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{currentUser.displayName}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                   @{currentUser.username}
