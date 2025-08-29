@@ -73,7 +73,7 @@ export class ObjectStorageService {
           res.send(Buffer.from(buffer));
           return;
         }
-      } catch (fetchError) {
+      } catch (fetchError: any) {
         console.log("Direct serving failed, using redirect fallback:", fetchError.message);
       }
 

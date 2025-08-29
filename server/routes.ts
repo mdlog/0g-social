@@ -6,6 +6,7 @@ import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchem
 import { z } from "zod";
 import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
+import multer from "multer";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
 import { zgComputeRealService } from "./services/zg-compute-real";
@@ -144,6 +145,11 @@ function broadcastToAll(message: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure multer for file uploads
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  });
   const httpServer = createServer(app);
   
   // Setup WebSocket server on /ws path to avoid conflicts with Vite HMR
@@ -1585,7 +1591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Media upload endpoints for posts
-  app.post("/api/posts/upload-media", async (req, res) => {
+  app.post("/api/posts/upload-media", upload.single('file'), async (req, res) => {
     try {
       const walletData = req.session.walletConnection;
       if (!walletData || !walletData.connected || !walletData.address) {
@@ -1604,8 +1610,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get upload URL for media file
-      const uploadURL = await zgStorageService.getMediaUploadURL();
+      // Check if file was uploaded
+      if (!req.file) {
+        return res.status(400).json({
+          message: "No file uploaded",
+          details: "Please select a file to upload"
+        });
+      }
+
+      // Get upload URL from object storage service
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       
       res.json({ 
         uploadURL,
@@ -1620,8 +1634,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Direct upload endpoint (simplified for development)
-  app.put("/api/upload-direct/:objectId", async (req, res) => {
+  // Direct upload endpoint using multer for proper file handling
+  app.put("/api/upload-direct/:objectId", upload.single('file'), async (req, res) => {
     try {
       const objectId = req.params.objectId;
       
@@ -1633,17 +1647,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error: "Please connect your wallet to upload files"
         });
       }
-      
+
+      // Check if file was uploaded
+      if (!req.file && !req.body) {
+        return res.status(400).json({
+          message: "No file uploaded",
+          error: "Please select a file to upload"
+        });
+      }
+
       console.log(`[Media Upload] Direct upload received for object: ${objectId}`);
       
-      // For development, simulate successful upload
-      // In production, this would use the actual object storage service
-      const simulatedURL = `/api/objects/.private/media/${objectId}`;
+      // Use object storage service to handle the uploaded file
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       
       res.json({ 
         success: true,
         objectId,
-        url: simulatedURL,
+        url: uploadURL,
         message: "File uploaded successfully" 
       });
     } catch (error: any) {

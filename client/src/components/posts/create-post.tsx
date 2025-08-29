@@ -82,31 +82,23 @@ export function CreatePost() {
       };
       reader.readAsDataURL(file);
 
-      // Get upload URL
-      const response = await apiRequest("POST", "/api/posts/upload-media");
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload file directly
+      const response = await fetch("/api/posts/upload-media", {
+        method: "POST",
+        body: formData,
+      });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to get upload URL');
+        throw new Error(errorData.message || 'Failed to upload file');
       }
 
       const uploadData = await response.json();
-
-      // Upload file
-      const uploadResponse = await fetch(uploadData.uploadURL, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error(`Upload failed: HTTP ${uploadResponse.status}`);
-      }
-
-      const uploadResult = await uploadResponse.json();
-      setUploadedMediaURL(uploadResult.url || uploadData.uploadURL);
+      setUploadedMediaURL(uploadData.uploadURL);
       
       toast({
         title: "File uploaded",
