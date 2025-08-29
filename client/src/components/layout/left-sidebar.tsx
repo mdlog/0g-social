@@ -59,10 +59,7 @@ export function LeftSidebar() {
 
   const navItems = [
     { icon: Home, label: "Home Feed", href: "/" },
-    { icon: Bot, label: "AI Recommendations", href: "/ai-recommendations" },
-    { icon: Compass, label: "Discover", href: "/discover" },
-    { icon: Search, label: "Discovery Engine", href: "/discovery" },
-    { icon: MessageCircle, label: "Interactions", href: "/interactions" },
+    { icon: Bot, label: "AI Feed", href: "/ai-recommendations" },
     { icon: Users, label: "Communities", href: "/communities" },
     { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
     { icon: Settings, label: "Settings", href: "/settings" },
@@ -77,7 +74,7 @@ export function LeftSidebar() {
             <CardContent className="p-6">
               <div className="text-center">
 
-                <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary/20">
+                <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary ring-opacity-20">
                   <AvatarImage 
                     key={currentUser.avatar}
                     src={currentUser.avatar ? `${currentUser.avatar}?cache=${Math.random()}` : ""} 
@@ -160,7 +157,7 @@ export function LeftSidebar() {
                         variant="ghost"
                         className={`w-full justify-start p-3 rounded-xl transition-all duration-200 ${
                           location === item.href 
-                            ? "bg-primary/10 text-primary shadow-sm" 
+                            ? "bg-primary bg-opacity-10 text-primary shadow-sm" 
                             : "text-muted-foreground hover:text-foreground hover:bg-accent"
                         }`}
                         data-testid={`nav-${item.href.replace('/', '') || 'home'}`}

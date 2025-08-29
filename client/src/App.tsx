@@ -7,12 +7,9 @@ import { RainbowKitProviderWrapper } from "@/providers/rainbowkit-provider";
 import Home from "./pages/home";
 import { ProfilePage } from "./pages/profile";
 import { AIRecommendationsPage } from "./pages/ai-recommendations";
-import { DiscoverPage } from "./pages/discover";
-import { DiscoveryPage } from "./pages/discovery";
 import { CommunitiesPage } from "./pages/communities";
 import { BookmarksPage } from "./pages/bookmarks";
 import { SettingsPage } from "./pages/settings";
-import InteractionsPage from "./pages/interactions";
 import NotFound from "./pages/not-found";
 
 function Router() {
@@ -25,13 +22,9 @@ function Router() {
       <Route path="/profile/:username" component={ProfilePage} />
       <Route path="/profile" component={ProfilePage} />
       <Route path="/ai-recommendations" component={AIRecommendationsPage} />
-      <Route path="/discover" component={DiscoverPage} />
-      <Route path="/discovery" component={DiscoveryPage} />
-      <Route path="/search" component={DiscoveryPage} />
       <Route path="/communities" component={CommunitiesPage} />
       <Route path="/bookmarks" component={BookmarksPage} />
       <Route path="/settings" component={SettingsPage} />
-      <Route path="/interactions" component={InteractionsPage} />
       <Route component={NotFound} />
     </Switch>
   );

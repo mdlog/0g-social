@@ -5,6 +5,11 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 
 # Recent Changes
+- **Application Simplification (2025-08-29)**: Successfully removed irrelevant pages from navigation to focus on core DeSocialAI features
+  - Removed Discover, Discovery Engine, and Interactions pages from navigation
+  - Streamlined navigation to only include: Home Feed, AI Feed, Communities, Bookmarks, and Settings
+  - Cleaned up routing and imports to reduce complexity
+  - Focused application on essential social media functionality
 - **Complete Elegant Design Overhaul (2025-08-27)**: Successfully transformed entire application to elegant minimalist design
   - Integrated Poppins font throughout application for modern typography
   - Created custom elegant CSS classes for consistent styling across components
