@@ -73,11 +73,11 @@ export function LeftSidebar() {
       <div className="sticky top-24 space-y-6">
         {/* User Profile Card - Only show when wallet connected */}
         {currentUser ? (
-          <Card className="elegant-card">
+          <Card className="modern-card">
             <CardContent className="p-6">
               <div className="text-center">
 
-                <Avatar className="w-20 h-20 mx-auto mb-4 elegant-avatar ring-4 ring-blue-100 dark:ring-blue-800">
+                <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary/20">
                   <AvatarImage 
                     key={currentUser.avatar}
                     src={currentUser.avatar ? `${currentUser.avatar}?cache=${Math.random()}` : ""} 
@@ -91,35 +91,35 @@ export function LeftSidebar() {
                       console.log("Avatar loaded successfully:", currentUser.avatar);
                     }}
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-semibold text-lg">
+                  <AvatarFallback className="gradient-brand text-white font-semibold text-lg">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{currentUser.displayName}</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                <h3 className="font-bold text-lg text-foreground mb-1">{currentUser.displayName}</h3>
+                <p className="text-muted-foreground text-sm mb-4">
                   @{currentUser.username}
                 </p>
                 
                 {/* Verification Badge */}
                 <div className="flex items-center justify-center space-x-2 mb-5">
-                  <div className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-full text-xs font-medium shadow-sm">
+                  <div className="modern-badge text-emerald-600">
                     <Shield className="w-3 h-3" />
                     <span>VERIFIED</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-center mb-5">
-                  <div className="p-3 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl backdrop-blur-sm">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{currentUser.postsCount || 0}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Posts</p>
+                  <div className="p-3 modern-card rounded-2xl">
+                    <p className="text-lg font-bold text-foreground">{currentUser.postsCount || 0}</p>
+                    <p className="text-xs text-muted-foreground font-medium">Posts</p>
                   </div>
-                  <div className="p-3 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl backdrop-blur-sm">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{currentUser.followingCount || 0}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Following</p>
+                  <div className="p-3 modern-card rounded-2xl">
+                    <p className="text-lg font-bold text-foreground">{currentUser.followingCount || 0}</p>
+                    <p className="text-xs text-muted-foreground font-medium">Following</p>
                   </div>
-                  <div className="p-3 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl backdrop-blur-sm">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{currentUser.followersCount || 0}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Followers</p>
+                  <div className="p-3 modern-card rounded-2xl">
+                    <p className="text-lg font-bold text-foreground">{currentUser.followersCount || 0}</p>
+                    <p className="text-xs text-muted-foreground font-medium">Followers</p>
                   </div>
                 </div>
                 
@@ -129,18 +129,18 @@ export function LeftSidebar() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="elegant-card">
+          <Card className="modern-card">
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <Shield className="text-gray-600 dark:text-gray-400 w-8 h-8" />
+                <div className="w-20 h-20 gradient-brand rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Shield className="text-white w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2">Connect Wallet</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                <h3 className="font-bold text-lg text-foreground mb-2">Connect Wallet</h3>
+                <p className="text-muted-foreground text-sm mb-4">
                   Connect your wallet to access your profile
                 </p>
                 
-                <p className="text-xs text-gray-500 dark:text-gray-500">
+                <p className="text-xs text-muted-foreground/60">
                   Your profile will appear here after wallet connection
                 </p>
               </div>
@@ -149,7 +149,7 @@ export function LeftSidebar() {
         )}
 
         {/* Navigation Menu */}
-        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <Card className="modern-card">
           <CardContent className="p-4">
             <nav>
               <ul className="space-y-2">
@@ -158,11 +158,12 @@ export function LeftSidebar() {
                     <Link href={item.href} className="block">
                       <Button
                         variant="ghost"
-                        className={`w-full justify-start p-3 rounded-lg transition-all duration-200 ${
+                        className={`w-full justify-start p-3 rounded-xl transition-all duration-200 ${
                           location === item.href 
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" 
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            ? "bg-primary/10 text-primary shadow-sm" 
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
                         }`}
+                        data-testid={`nav-${item.href.replace('/', '') || 'home'}`}
                       >
                         <item.icon className="w-5 h-5 mr-3" />
                         <span className="font-medium">{item.label}</span>
@@ -176,24 +177,24 @@ export function LeftSidebar() {
         </Card>
 
         {/* 0G Chain Status */}
-        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <Card className="modern-card">
           <CardContent className="p-4">
-            <h4 className="font-semibold mb-4 flex items-center space-x-2 text-gray-900 dark:text-gray-100">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2 text-foreground">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
               <span>Network Status</span>
             </h4>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between py-2">
-                <span className="text-gray-600 dark:text-gray-400">Network:</span>
-                <span className="text-gray-900 dark:text-gray-100 font-mono">{chainStatus?.network || "0G Galileo"}</span>
+                <span className="text-muted-foreground">Network:</span>
+                <span className="text-foreground font-mono">{chainStatus?.network || "0G Galileo"}</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-gray-600 dark:text-gray-400">Block:</span>
-                <span className="text-gray-900 dark:text-gray-100 font-mono">{chainStatus?.blockHeight?.toLocaleString() || "5,610,000"}</span>
+                <span className="text-muted-foreground">Block:</span>
+                <span className="text-foreground font-mono">{chainStatus?.blockHeight?.toLocaleString() || "5,610,000"}</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-gray-600 dark:text-gray-400">Gas:</span>
-                <span className="text-gray-900 dark:text-gray-100 font-mono">{chainStatus?.gasPrice || "0.1 Gwei"}</span>
+                <span className="text-muted-foreground">Gas:</span>
+                <span className="text-foreground font-mono">{chainStatus?.gasPrice || "0.1 Gwei"}</span>
               </div>
             </div>
           </CardContent>

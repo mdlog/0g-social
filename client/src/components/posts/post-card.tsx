@@ -185,33 +185,33 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="elegant-card">
+    <Card className="modern-card card-hover">
       <CardContent className="p-6">
         <article className="flex space-x-4">
-          <Avatar className="w-12 h-12 flex-shrink-0 elegant-avatar">
+          <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-primary/20">
             <AvatarImage 
               src={post.author?.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
               alt={post.author?.displayName || "User"} 
               className="object-cover"
             />
-            <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-semibold text-sm">
+            <AvatarFallback className="gradient-brand text-white font-semibold text-sm">
               {(post.author?.displayName || "U").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-3 mb-3">
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
-              <span className="text-gray-600 dark:text-gray-400 text-sm truncate">@{post.author?.username || "unknown"}</span>
+              <h4 className="font-semibold text-foreground text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
+              <span className="text-muted-foreground text-sm truncate">@{post.author?.username || "unknown"}</span>
               {post.author?.isVerified && (
-                <div className="flex items-center space-x-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full text-xs">
+                <div className="modern-badge text-primary">
                   <Shield className="w-3 h-3" />
                   <span>Verified</span>
                 </div>
               )}
-              <span className="text-gray-400 text-sm">•</span>
-              <span className="text-gray-500 dark:text-gray-400 text-sm">{formatTimeAgo(post.createdAt)}</span>
+              <span className="text-muted-foreground text-sm">•</span>
+              <span className="text-muted-foreground text-sm">{formatTimeAgo(post.createdAt)}</span>
               {post.isAiRecommended && (
-                <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full text-xs">
+                <span className="modern-badge bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
                   AI Enhanced
                 </span>
               )}
