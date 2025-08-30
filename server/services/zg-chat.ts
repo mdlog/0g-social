@@ -201,11 +201,12 @@ class ZGChatService {
       console.log(`[0G Chat] Pre-request balance check: ${initialBalanceWei} wei (${initialBalanceEth} OG)`);
       
       // If balance is insufficient for typical 5.7 OG fee, auto-fund immediately  
-      if (initialBalanceEth < 2.0) {
-        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~2.0 OG), auto-funding...`);
+      if (initialBalanceEth < 6.0) {
+        const neededAmount = Math.max(1.0, 6.0 - initialBalanceEth);
+        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~6.0 OG), auto-funding ${neededAmount} OG...`);
         try {
-          await broker.ledger.depositFund(1.0); // Reduced to 1.0 OG for testing
-          console.log('[0G Chat] ✅ Auto-funding successful: added 1.0 OG');
+          await broker.ledger.depositFund(neededAmount);
+          console.log(`[0G Chat] ✅ Auto-funding successful: added ${neededAmount} OG`);
           
           // Verify new balance
           const newAcct = await broker.ledger.getLedger();
