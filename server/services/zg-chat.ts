@@ -43,8 +43,8 @@ const {
   ZG_PRIVATE_KEY,
   ZG_RPC_URL = "https://evmrpc-testnet.0g.ai",
   ZG_PROVIDER_ADDRESS,
-  ZG_MIN_BALANCE = "0.05",
-  ZG_TOPUP_AMOUNT = "0.1",
+  ZG_MIN_BALANCE = "10.0",
+  ZG_TOPUP_AMOUNT = "20.0",
 } = process.env;
 
 class ZGChatService {
@@ -97,9 +97,14 @@ class ZGChatService {
       }
       
       if (total < min) {
-        console.log(`[0G Chat] Balance too low, adding ${ZG_TOPUP_AMOUNT} OG`);
+        console.log(`[0G Chat] Balance too low (${total} OG < ${min} OG), adding ${ZG_TOPUP_AMOUNT} OG`);
         await broker.ledger.depositFund(Number(ZG_TOPUP_AMOUNT));
         console.log('[0G Chat] ✅ Balance topped up successfully');
+        
+        // Get updated balance after top-up
+        const updatedAcct = await broker.ledger.getLedger();
+        const updatedTotal = Number(updatedAcct.totalBalance.toString());
+        console.log(`[0G Chat] Updated balance after top-up: ${updatedTotal} OG`);
       }
     } catch (error: any) {
       console.error('[0G Chat] Balance check failed:', error.message);
