@@ -193,8 +193,30 @@ class ZGChatService {
 
       const broker = this.broker!;
 
-      // Ensure sufficient balance
-      await this.ensureBalance(broker);
+      // Check balance before making request and auto-fund if needed
+      const initialAcct = await broker.ledger.getLedger();
+      const initialBalanceWei = initialAcct.totalBalance.toString();  
+      const initialBalanceEth = parseFloat(ethers.formatEther(initialBalanceWei));
+      
+      console.log(`[0G Chat] Pre-request balance check: ${initialBalanceWei} wei (${initialBalanceEth} OG)`);
+      
+      // If balance is insufficient for typical 5.7 OG fee, auto-fund immediately
+      if (initialBalanceEth < 6.0) {
+        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~6.0 OG), auto-funding...`);
+        try {
+          await broker.ledger.depositFund(20.0);
+          console.log('[0G Chat] ✅ Auto-funding successful: added 20.0 OG');
+          
+          // Verify new balance
+          const newAcct = await broker.ledger.getLedger();
+          const newBalanceWei = newAcct.totalBalance.toString();
+          const newBalanceEth = parseFloat(ethers.formatEther(newBalanceWei));
+          console.log(`[0G Chat] New balance after funding: ${newBalanceWei} wei (${newBalanceEth} OG)`);
+        } catch (fundError: any) {
+          console.error('[0G Chat] Auto-funding failed:', fundError.message);
+          throw new Error(`Auto-funding failed: ${fundError.message}`);
+        }
+      }
 
       // Resolve service provider and model
       const { 
