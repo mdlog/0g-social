@@ -1341,6 +1341,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create account endpoint
+  app.post("/api/zg/chat/create-account", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          error: "Wallet connection required",
+          details: "Please connect your wallet to create account"
+        });
+      }
+      
+      const result = await zgChatService.createAccount();
+      
+      if (result.success) {
+        res.json({ 
+          success: true, 
+          message: "0G Chat account created successfully with 0.1 OG initial funding",
+          txHash: result.txHash
+        });
+      } else {
+        res.status(400).json({ 
+          error: result.error || "Failed to create account"
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ 
+        error: "Failed to create chat account",
+        details: error.message 
+      });
+    }
+  });
+
   // Manual setup endpoint sebagai alternatif
   app.post("/api/zg/compute/manual-setup", async (req, res) => {
     try {

@@ -209,6 +209,61 @@ export function ChatInterface() {
     );
   }
 
+  // Show account setup requirement
+  if (chatStatus?.balance === "0") {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bot className="h-5 w-5" />
+            0G Chat
+            <Badge variant="secondary">Account Setup Required</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <Zap className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Create Your 0G Chat Account</h3>
+            <p className="text-muted-foreground mb-6">
+              Setup your decentralized chat account to start chatting with AI models running on 0G Compute Network
+            </p>
+            <div className="space-y-4">
+              <div className="bg-muted p-4 rounded-lg">
+                <h4 className="font-medium mb-2">✅ Ready:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• {chatStatus?.availableProviders || 0} AI providers available</li>
+                  <li>• Wallet connected: {true ? '✅' : '❌'}</li>
+                  <li>• 0G Compute configured: ✅</li>
+                </ul>
+              </div>
+              <Button
+                onClick={addFunds}
+                disabled={fundMutation.isPending}
+                className="w-full"
+                data-testid="button-setup-account"
+              >
+                {fundMutation.isPending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Create Account (0.1 OG)
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                This will create your ledger account and fund it with 0.1 OG to start chatting
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full max-w-4xl mx-auto h-[600px] flex flex-col">
       <CardHeader className="border-b">

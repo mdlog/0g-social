@@ -311,6 +311,37 @@ class ZGChatService {
   }
 
   /**
+   * Create ledger account if it doesn't exist
+   */
+  async createAccount(): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      if (!this.isInitialized || !this.broker) {
+        await this.initBroker();
+      }
+
+      const broker = this.broker!;
+      console.log(`[0G Chat] Creating ledger account for wallet: ${this.walletAddress}`);
+      
+      // Create account with initial funding using addLedger
+      const tx = await broker.ledger.addLedger("0.1");
+      
+      console.log(`[0G Chat] ✅ Account created with 0.1 OG initial funding`);
+      
+      return {
+        success: true,
+        txHash: typeof tx === 'object' && tx ? (tx as any).hash || (tx as any).transactionHash : undefined
+      };
+
+    } catch (error: any) {
+      console.error('[0G Chat] Failed to create account:', error.message);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Add funds to the compute account
    */
   async addFunds(amount: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
@@ -320,7 +351,38 @@ class ZGChatService {
       }
 
       const broker = this.broker!;
-      const tx = await broker.ledger.depositFund(Number(amount));
+      
+      // Check if account exists first
+      try {
+        await broker.ledger.getLedger();
+        console.log('[0G Chat] Account exists, adding funds...');
+      } catch (ledgerError: any) {
+        if (ledgerError.message.includes('Account does not exist') || ledgerError.reason === 'LedgerNotExists(address)') {
+          console.log('[0G Chat] Account does not exist, creating account first...');
+          const createResult = await this.createAccount();
+          if (!createResult.success) {
+            return createResult;
+          }
+          
+          // If requested amount is more than initial 0.1, add the difference
+          const requestedAmount = parseFloat(amount);
+          if (requestedAmount > 0.1) {
+            const additionalAmount = (requestedAmount - 0.1).toString();
+            console.log(`[0G Chat] Adding additional ${additionalAmount} OG...`);
+            const tx = await broker.ledger.addLedger(additionalAmount);
+            return {
+              success: true,
+              txHash: typeof tx === 'object' && tx ? (tx as any).hash || (tx as any).transactionHash : undefined
+            };
+          }
+          
+          return createResult;
+        }
+        throw ledgerError;
+      }
+      
+      // Account exists, add funds using addLedger
+      const tx = await broker.ledger.addLedger(amount);
       
       console.log(`[0G Chat] ✅ Added ${amount} OG to compute account`);
       
