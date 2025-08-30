@@ -180,7 +180,7 @@ export function ChatInterface() {
   };
 
   const addFunds = () => {
-    fundMutation.mutate('1.0');
+    fundMutation.mutate('10.0');
   };
 
   if (!chatStatus?.isConfigured) {
@@ -250,12 +250,12 @@ export function ChatInterface() {
                 ) : (
                   <>
                     <Zap className="h-4 w-4 mr-2" />
-                    Create Account (1.0 OG)
+                    Create Account (10.0 OG)
                   </>
                 )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                This will create your ledger account and fund it with 1.0 OG to start chatting
+                This will create your ledger account and fund it with 10.0 OG to start chatting
               </p>
             </div>
           </div>

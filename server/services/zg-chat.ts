@@ -335,9 +335,9 @@ class ZGChatService {
       console.log(`[0G Chat] Creating ledger account for wallet: ${this.walletAddress}`);
       
       // Create account with initial funding using addLedger
-      const tx = await broker.ledger.addLedger(1.0);
+      const tx = await broker.ledger.addLedger(10.0);
       
-      console.log(`[0G Chat] ✅ Account created with 1.0 OG initial funding`);
+      console.log(`[0G Chat] ✅ Account created with 10.0 OG initial funding`);
       
       return {
         success: true,
@@ -376,10 +376,10 @@ class ZGChatService {
             return createResult;
           }
           
-          // If requested amount is more than initial 1.0, add the difference
+          // If requested amount is more than initial 10.0, add the difference
           const requestedAmount = parseFloat(amount);
-          if (requestedAmount > 1.0) {
-            const additionalAmount = requestedAmount - 1.0;
+          if (requestedAmount > 10.0) {
+            const additionalAmount = requestedAmount - 10.0;
             console.log(`[0G Chat] Adding additional ${additionalAmount} OG...`);
             const tx = await broker.ledger.addLedger(additionalAmount);
             return {
@@ -394,6 +394,7 @@ class ZGChatService {
       }
       
       // Account exists, add funds using depositFund for existing accounts
+      console.log(`[0G Chat] Adding ${amount} OG to existing account...`);
       const tx = await broker.ledger.depositFund(parseFloat(amount));
       
       console.log(`[0G Chat] ✅ Added ${amount} OG to compute account`);

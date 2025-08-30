@@ -9,10 +9,11 @@ Preferred communication style: Simple, everyday language.
   - ✅ Account creation working with real blockchain transactions (TX: 0xc4ebfc56659e31ab...)
   - ✅ Chat interface fully functional with 3 AI providers (llama-3.3-70b, deepseek-r1-70b)
   - ✅ Real-time balance tracking and provider status display
-  - ✅ Auto-funding increased to 1.0 OG for sufficient chat credits (resolves insufficient balance errors)
+  - ✅ Auto-funding increased to 10.0 OG for sufficient chat credits (resolves insufficient balance errors)
   - ✅ Fixed parameter type issues (numeric vs string) for proper SDK communication
   - ✅ Smart account management: creates account automatically, uses depositFund for top-ups
-  - ✅ Enhanced funding system: 5.0 OG top-up button for extended chat sessions
+  - ✅ Enhanced funding system: 10.0 OG top-up button for extended chat sessions
+  - ✅ Successfully added funds with TX: 0x6dff6f6e89a6869c001a5dfccc9902b4aad3fcb80daf3f87df855f19b05f5ab8
   - Status: PRODUCTION READY - Users can chat with decentralized AI models on 0G Compute Network
 - **Application Simplification (2025-08-29)**: Successfully removed irrelevant pages from navigation to focus on core DeSocialAI features
   - Removed Discover, Discovery Engine, and Interactions pages from navigation
