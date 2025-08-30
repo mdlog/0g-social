@@ -201,12 +201,13 @@ class ZGChatService {
       console.log(`[0G Chat] Pre-request balance check: ${initialBalanceWei} wei (${initialBalanceEth} OG)`);
       
       // According to 0G docs: 0.1 OG = ~10,000 requests (0.00001 OG per request)
-      // Current balance 2.1 OG is sufficient for 210,000 requests - skip auto-funding
-      console.log(`[0G Chat] Balance ${initialBalanceEth} OG is sufficient (need ~0.00001 OG per request)`);
+      // However, actual fee from error logs shows ~5.7 OG per request
+      // Auto-fund if balance is insufficient for actual fee requirement
+      console.log(`[0G Chat] Balance ${initialBalanceEth} OG, checking if sufficient for request...`);
       
-      if (initialBalanceEth < 0.00005) { // Very low threshold, only fund if absolutely necessary
-        const neededAmount = Math.min(0.1, 0.1 - initialBalanceEth); // Target 0.1 OG for 10,000 requests
-        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~0.01 OG), auto-funding ${neededAmount} OG...`);
+      if (initialBalanceEth < 6.0) { // Use real fee requirement from error logs
+        const neededAmount = Math.min(4.0, 6.0 - initialBalanceEth); // Target 6.0 OG based on actual fees
+        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~6.0 OG), auto-funding ${neededAmount} OG...`);
         try {
           await broker.ledger.depositFund(neededAmount);
           console.log(`[0G Chat] ✅ Auto-funding successful: added ${neededAmount} OG`);
@@ -217,9 +218,9 @@ class ZGChatService {
           const newBalanceEth = parseFloat(ethers.formatEther(newBalanceWei));
           console.log(`[0G Chat] New balance after funding: ${newBalanceWei} wei (${newBalanceEth} OG)`);
           
-          // Continue funding until we reach target (0.1 OG for 10,000 requests)
-          if (newBalanceEth < 0.05) {
-            const secondFunding = Math.min(0.05, 0.1 - newBalanceEth);
+          // Continue funding until we reach target (6.0 OG for real fee requirement)
+          if (newBalanceEth < 6.0) {
+            const secondFunding = Math.min(3.0, 6.0 - newBalanceEth);
             console.log(`[0G Chat] Still insufficient (${newBalanceEth} OG), second funding: ${secondFunding} OG`);
             await broker.ledger.depositFund(secondFunding);
             
@@ -228,8 +229,8 @@ class ZGChatService {
             console.log(`[0G Chat] Final balance after second funding: ${finalBalanceEth} OG`);
             
             // One more time if still needed
-            if (finalBalanceEth < 0.05) {
-              const thirdFunding = Math.min(0.05, 0.1 - finalBalanceEth);
+            if (finalBalanceEth < 6.0) {
+              const thirdFunding = Math.min(2.0, 6.0 - finalBalanceEth);
               console.log(`[0G Chat] Third funding attempt: ${thirdFunding} OG`);
               await broker.ledger.depositFund(thirdFunding);
               
@@ -255,8 +256,26 @@ class ZGChatService {
         model
       );
 
+      // Check balance before provider acknowledgment
+      const preAckAcct = await broker.ledger.getLedger();
+      const preAckBalanceWei = preAckAcct.totalBalance.toString();
+      const preAckBalanceEth = parseFloat(ethers.formatEther(preAckBalanceWei));
+      console.log(`[0G Chat] Balance before provider acknowledgment: ${preAckBalanceWei} wei (${preAckBalanceEth} OG)`);
+
       // Acknowledge provider
       await this.acknowledgeProvider(broker, selectedProvider);
+
+      // Check balance after provider acknowledgment
+      const postAckAcct = await broker.ledger.getLedger();
+      const postAckBalanceWei = postAckAcct.totalBalance.toString();
+      const postAckBalanceEth = parseFloat(ethers.formatEther(postAckBalanceWei));
+      console.log(`[0G Chat] Balance after provider acknowledgment: ${postAckBalanceWei} wei (${postAckBalanceEth} OG)`);
+
+      // Check balance right before request to detect any balance drops
+      const preRequestAcct = await broker.ledger.getLedger();
+      const preRequestBalanceWei = preRequestAcct.totalBalance.toString();
+      const preRequestBalanceEth = parseFloat(ethers.formatEther(preRequestBalanceWei));
+      console.log(`[0G Chat] Final balance before request: ${preRequestBalanceWei} wei (${preRequestBalanceEth} OG)`);
 
       // Generate nonce for request headers
       const nonce = messages[messages.length - 1]?.content?.slice(0, 64) || `nonce-${Date.now()}`;
@@ -282,6 +301,13 @@ class ZGChatService {
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => "");
+        
+        // Check balance after failed request to see if it changed
+        const postFailAcct = await broker.ledger.getLedger();
+        const postFailBalanceWei = postFailAcct.totalBalance.toString();
+        const postFailBalanceEth = parseFloat(ethers.formatEther(postFailBalanceWei));
+        console.log(`[0G Chat] Balance after failed request: ${postFailBalanceWei} wei (${postFailBalanceEth} OG)`);
+        
         throw new Error(`Provider error ${response.status}: ${errorText || response.statusText}`);
       }
 
