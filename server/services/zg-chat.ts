@@ -200,10 +200,11 @@ class ZGChatService {
       
       console.log(`[0G Chat] Pre-request balance check: ${initialBalanceWei} wei (${initialBalanceEth} OG)`);
       
-      // If balance is insufficient for typical 5.7 OG fee, auto-fund immediately  
-      if (initialBalanceEth < 6.0) {
-        const neededAmount = Math.min(1.2, 8.0 - initialBalanceEth); // Increased target to 8.0 OG for buffer
-        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~6.0 OG), auto-funding ${neededAmount} OG...`);
+      // According to 0G docs: 0.1 OG = ~10,000 requests (0.00001 OG per request)
+      // Auto-fund if balance is insufficient for ~1000 requests
+      if (initialBalanceEth < 0.01) {
+        const neededAmount = Math.min(0.1, 0.1 - initialBalanceEth); // Target 0.1 OG for 10,000 requests
+        console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~0.01 OG), auto-funding ${neededAmount} OG...`);
         try {
           await broker.ledger.depositFund(neededAmount);
           console.log(`[0G Chat] ✅ Auto-funding successful: added ${neededAmount} OG`);
@@ -214,9 +215,9 @@ class ZGChatService {
           const newBalanceEth = parseFloat(ethers.formatEther(newBalanceWei));
           console.log(`[0G Chat] New balance after funding: ${newBalanceWei} wei (${newBalanceEth} OG)`);
           
-          // Continue funding until we reach target
-          if (newBalanceEth < 6.0) {
-            const secondFunding = Math.min(1.0, 6.0 - newBalanceEth);
+          // Continue funding until we reach target (0.1 OG for 10,000 requests)
+          if (newBalanceEth < 0.05) {
+            const secondFunding = Math.min(0.05, 0.1 - newBalanceEth);
             console.log(`[0G Chat] Still insufficient (${newBalanceEth} OG), second funding: ${secondFunding} OG`);
             await broker.ledger.depositFund(secondFunding);
             
@@ -225,8 +226,8 @@ class ZGChatService {
             console.log(`[0G Chat] Final balance after second funding: ${finalBalanceEth} OG`);
             
             // One more time if still needed
-            if (finalBalanceEth < 6.0) {
-              const thirdFunding = Math.min(0.8, 6.0 - finalBalanceEth);
+            if (finalBalanceEth < 0.05) {
+              const thirdFunding = Math.min(0.05, 0.1 - finalBalanceEth);
               console.log(`[0G Chat] Third funding attempt: ${thirdFunding} OG`);
               await broker.ledger.depositFund(thirdFunding);
               
