@@ -202,7 +202,7 @@ class ZGChatService {
       
       // If balance is insufficient for typical 5.7 OG fee, auto-fund immediately  
       if (initialBalanceEth < 6.0) {
-        const neededAmount = Math.max(1.0, 6.0 - initialBalanceEth);
+        const neededAmount = Math.min(1.5, 6.0 - initialBalanceEth); // Multiple funding cycles to reach target
         console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~6.0 OG), auto-funding ${neededAmount} OG...`);
         try {
           await broker.ledger.depositFund(neededAmount);
@@ -213,6 +213,17 @@ class ZGChatService {
           const newBalanceWei = newAcct.totalBalance.toString();
           const newBalanceEth = parseFloat(ethers.formatEther(newBalanceWei));
           console.log(`[0G Chat] New balance after funding: ${newBalanceWei} wei (${newBalanceEth} OG)`);
+          
+          // If still insufficient after first funding, try one more time
+          if (newBalanceEth < 6.0) {
+            const secondFunding = Math.min(1.0, 6.0 - newBalanceEth);
+            console.log(`[0G Chat] Still insufficient (${newBalanceEth} OG), second funding: ${secondFunding} OG`);
+            await broker.ledger.depositFund(secondFunding);
+            
+            const finalAcct = await broker.ledger.getLedger();
+            const finalBalanceEth = parseFloat(ethers.formatEther(finalAcct.totalBalance.toString()));
+            console.log(`[0G Chat] Final balance after second funding: ${finalBalanceEth} OG`);
+          }
         } catch (fundError: any) {
           console.error('[0G Chat] Auto-funding failed:', fundError.message);
           throw new Error(`Auto-funding failed: ${fundError.message}`);
