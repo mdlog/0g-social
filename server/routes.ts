@@ -10,6 +10,7 @@ import multer from "multer";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
 import { zgComputeRealService } from "./services/zg-compute-real";
+import { zgChatService } from "./services/zg-chat";
 import { zgDAService } from "./services/zg-da";
 import { zgDAClientService } from "./services/zg-da-client";
 import { zgChainService } from "./services/zg-chain";
@@ -1219,6 +1220,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       res.status(500).json({ message: "Failed to add compute funds" });
+    }
+  });
+
+  // 0G Chat Routes - AI Chat via 0G Compute Network
+  app.post("/api/zg/chat", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          error: "Wallet connection required",
+          details: "Please connect your wallet to use 0G Chat"
+        });
+      }
+
+      const { messages, providerAddress, model, temperature, maxTokens } = req.body;
+
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({
+          error: "Messages array is required and cannot be empty"
+        });
+      }
+
+      // Validate message format
+      const invalidMessage = messages.find(msg => 
+        !msg.role || !msg.content || 
+        !['user', 'system', 'assistant'].includes(msg.role)
+      );
+
+      if (invalidMessage) {
+        return res.status(400).json({
+          error: "Invalid message format. Each message must have 'role' and 'content' fields"
+        });
+      }
+
+      console.log(`[0G Chat API] Processing chat request for user: ${walletConnection.address}`);
+
+      const result = await zgChatService.chatCompletion({
+        messages,
+        providerAddress,
+        model,
+        userId: walletConnection.address,
+        temperature,
+        maxTokens
+      });
+
+      if (!result.ok) {
+        return res.status(500).json({
+          error: result.error || "Chat completion failed"
+        });
+      }
+
+      res.json({
+        success: true,
+        provider: result.providerAddress,
+        model: result.model,
+        verified: result.verified,
+        balance: result.balance,
+        response: result.result,
+        usage: result.usage
+      });
+
+    } catch (error: any) {
+      console.error('[0G Chat API] Error:', error.message);
+      res.status(500).json({ 
+        error: "Internal server error",
+        details: error.message 
+      });
+    }
+  });
+
+  app.get("/api/zg/chat/status", async (req, res) => {
+    try {
+      const status = await zgChatService.getServiceStatus();
+      res.json(status);
+    } catch (error: any) {
+      res.status(500).json({ 
+        error: "Failed to get chat service status",
+        details: error.message 
+      });
+    }
+  });
+
+  app.post("/api/zg/chat/fund", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          error: "Wallet connection required",
+          details: "Please connect your wallet to add funds"
+        });
+      }
+
+      const { amount } = req.body;
+      
+      if (!amount || isNaN(parseFloat(amount))) {
+        return res.status(400).json({ error: "Valid amount required" });
+      }
+      
+      const result = await zgChatService.addFunds(amount);
+      
+      if (result.success) {
+        res.json({ 
+          success: true, 
+          message: `Successfully added ${amount} OG to chat account`,
+          txHash: result.txHash
+        });
+      } else {
+        res.status(400).json({ 
+          error: result.error || "Failed to add funds"
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ 
+        error: "Failed to add chat funds",
+        details: error.message 
+      });
     }
   });
 

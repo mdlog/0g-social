@@ -1,4 +1,4 @@
-import { Home, Bot, Compass, Users, Bookmark, Settings, Shield, Search, MessageCircle } from "lucide-react";
+import { Home, Bot, Compass, Users, Bookmark, Settings, Shield, Search, MessageCircle, MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -60,6 +60,7 @@ export function LeftSidebar() {
   const navItems = [
     { icon: Home, label: "Home Feed", href: "/" },
     { icon: Bot, label: "AI Feed", href: "/ai-recommendations" },
+    { icon: MessageSquare, label: "0G Chat", href: "/chat" },
     { icon: Users, label: "Communities", href: "/communities" },
     { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
     { icon: Settings, label: "Settings", href: "/settings" },

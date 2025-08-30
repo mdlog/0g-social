@@ -1,0 +1,342 @@
+/**
+ * 0G Chat Service - Real implementation using 0G Compute Network
+ * Integrates with existing DeSocialAI infrastructure for AI-powered chat
+ */
+
+import { ethers } from "ethers";
+import {
+  createZGComputeNetworkBroker,
+  type ZGComputeNetworkBroker,
+} from "@0glabs/0g-serving-broker";
+
+export interface ChatMessage {
+  role: "user" | "system" | "assistant";
+  content: string;
+}
+
+export interface ChatRequest {
+  messages: ChatMessage[];
+  providerAddress?: string;
+  model?: string;
+  userId?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export interface ChatResponse {
+  ok: boolean;
+  providerAddress?: string;
+  model?: string;
+  verified?: boolean;
+  balance?: string;
+  result?: any;
+  error?: string;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+}
+
+// Configuration from environment variables
+const {
+  ZG_PRIVATE_KEY,
+  ZG_RPC_URL = "https://evmrpc-testnet.0g.ai",
+  ZG_PROVIDER_ADDRESS,
+  ZG_MIN_BALANCE = "0.05",
+  ZG_TOPUP_AMOUNT = "0.1",
+} = process.env;
+
+class ZGChatService {
+  private broker: ZGComputeNetworkBroker | null = null;
+  private isInitialized = false;
+
+  constructor() {
+    console.log('[0G Chat] Service initialized');
+  }
+
+  /**
+   * Initialize broker connection
+   */
+  private async initBroker(): Promise<ZGComputeNetworkBroker> {
+    if (!ZG_PRIVATE_KEY) {
+      throw new Error("Missing ZG_PRIVATE_KEY environment variable");
+    }
+    
+    const provider = new ethers.JsonRpcProvider(ZG_RPC_URL);
+    const wallet = new ethers.Wallet(ZG_PRIVATE_KEY, provider);
+    
+    console.log('[0G Chat] Initializing broker with wallet:', wallet.address);
+    this.broker = await createZGComputeNetworkBroker(wallet);
+    this.isInitialized = true;
+    
+    return this.broker;
+  }
+
+  /**
+   * Ensure sufficient balance for compute operations
+   */
+  private async ensureBalance(broker: ZGComputeNetworkBroker): Promise<void> {
+    try {
+      const acct = await broker.ledger.getLedger();
+      const total = Number(acct.totalBalance.toString());
+      const min = Number(ZG_MIN_BALANCE);
+      
+      console.log(`[0G Chat] Current balance: ${total} OG, minimum required: ${min} OG`);
+      
+      if (Number.isNaN(total)) {
+        throw new Error("Cannot parse ledger balance");
+      }
+      
+      if (total < min) {
+        console.log(`[0G Chat] Balance too low, adding ${ZG_TOPUP_AMOUNT} OG`);
+        await broker.ledger.depositFund(Number(ZG_TOPUP_AMOUNT));
+        console.log('[0G Chat] ✅ Balance topped up successfully');
+      }
+    } catch (error: any) {
+      console.error('[0G Chat] Balance check failed:', error.message);
+      throw new Error(`Balance management failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Resolve service provider and model
+   */
+  private async resolveService(
+    broker: ZGComputeNetworkBroker,
+    preferredProvider?: string,
+    preferredModel?: string
+  ): Promise<{ providerAddress: string; endpoint: string; model: string }> {
+    // Use preferred provider if specified
+    if (preferredProvider) {
+      const meta = await broker.inference.getServiceMetadata(preferredProvider);
+      console.log(`[0G Chat] Using preferred provider: ${preferredProvider}, model: ${meta.model}`);
+      return { 
+        providerAddress: preferredProvider, 
+        endpoint: meta.endpoint, 
+        model: meta.model 
+      };
+    }
+
+    // Discover available services
+    const list = await broker.inference.listService();
+    if (!list.length) {
+      throw new Error("No 0G Compute services available");
+    }
+
+    // Prefer large language models for chat
+    const pick = list.find(s => 
+      /llama|deepseek|qwen|mixtral|claude|gpt/i.test(s.model)
+    ) ?? list[0];
+
+    const meta = await broker.inference.getServiceMetadata(pick.provider);
+    
+    console.log(`[0G Chat] Auto-selected provider: ${pick.provider}, model: ${meta.model}`);
+    
+    return { 
+      providerAddress: pick.provider, 
+      endpoint: meta.endpoint, 
+      model: meta.model 
+    };
+  }
+
+  /**
+   * Acknowledge provider (idempotent operation)
+   */
+  private async acknowledgeProvider(
+    broker: ZGComputeNetworkBroker, 
+    providerAddress: string
+  ): Promise<void> {
+    try {
+      await broker.inference.acknowledgeProviderSigner(providerAddress);
+      console.log(`[0G Chat] ✅ Provider acknowledged: ${providerAddress}`);
+    } catch (error: any) {
+      console.log(`[0G Chat] Provider acknowledgment: ${error.message}`);
+      // Continue anyway as this might already be acknowledged
+    }
+  }
+
+  /**
+   * Main chat completion method
+   */
+  async chatCompletion(request: ChatRequest): Promise<ChatResponse> {
+    try {
+      const { messages, providerAddress, model, temperature = 0.7, maxTokens = 1024 } = request;
+
+      if (!messages || messages.length === 0) {
+        return {
+          ok: false,
+          error: "Messages array is required and cannot be empty"
+        };
+      }
+
+      // Initialize broker if needed
+      if (!this.isInitialized || !this.broker) {
+        await this.initBroker();
+      }
+
+      const broker = this.broker!;
+
+      // Ensure sufficient balance
+      await this.ensureBalance(broker);
+
+      // Resolve service provider and model
+      const { 
+        providerAddress: selectedProvider, 
+        endpoint, 
+        model: selectedModel 
+      } = await this.resolveService(
+        broker, 
+        providerAddress || ZG_PROVIDER_ADDRESS, 
+        model
+      );
+
+      // Acknowledge provider
+      await this.acknowledgeProvider(broker, selectedProvider);
+
+      // Generate nonce for request headers
+      const nonce = messages[messages.length - 1]?.content?.slice(0, 64) || `nonce-${Date.now()}`;
+      const authHeaders = await broker.inference.getRequestHeaders(selectedProvider, nonce);
+
+      console.log(`[0G Chat] Sending request to ${endpoint}/chat/completions`);
+
+      // Make request to compute provider
+      const response = await fetch(`${endpoint}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders,
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          messages,
+          temperature,
+          max_tokens: maxTokens,
+          stream: false
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`Provider error ${response.status}: ${errorText || response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Verify response for TEE services (optional)
+      let verified: boolean | undefined;
+      try {
+        verified = await broker.inference.processResponse(selectedProvider, data);
+      } catch (error) {
+        console.log('[0G Chat] Response verification not available or failed');
+      }
+
+      // Get updated balance
+      const acct = await broker.ledger.getLedger();
+
+      console.log('[0G Chat] ✅ Chat completion successful');
+
+      return {
+        ok: true,
+        providerAddress: selectedProvider,
+        model: selectedModel,
+        verified: verified || false,
+        balance: acct.totalBalance.toString(),
+        result: data,
+        usage: data.usage
+      };
+
+    } catch (error: any) {
+      console.error('[0G Chat] Chat completion failed:', error.message);
+      return {
+        ok: false,
+        error: error.message || "Unknown error occurred"
+      };
+    }
+  }
+
+  /**
+   * Get service status and available providers
+   */
+  async getServiceStatus(): Promise<{
+    isConfigured: boolean;
+    hasPrivateKey: boolean;
+    availableProviders: number;
+    balance?: string;
+    error?: string;
+  }> {
+    try {
+      if (!ZG_PRIVATE_KEY) {
+        return {
+          isConfigured: false,
+          hasPrivateKey: false,
+          availableProviders: 0,
+          error: "No private key configured"
+        };
+      }
+
+      if (!this.isInitialized || !this.broker) {
+        await this.initBroker();
+      }
+
+      const broker = this.broker!;
+      
+      // Get available services
+      const services = await broker.inference.listService();
+      
+      // Get balance
+      let balance = "0";
+      try {
+        const acct = await broker.ledger.getLedger();
+        balance = acct.totalBalance.toString();
+      } catch (error) {
+        console.log('[0G Chat] Could not fetch balance:', error);
+      }
+
+      return {
+        isConfigured: true,
+        hasPrivateKey: true,
+        availableProviders: services.length,
+        balance
+      };
+
+    } catch (error: any) {
+      return {
+        isConfigured: false,
+        hasPrivateKey: Boolean(ZG_PRIVATE_KEY),
+        availableProviders: 0,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Add funds to the compute account
+   */
+  async addFunds(amount: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      if (!this.isInitialized || !this.broker) {
+        await this.initBroker();
+      }
+
+      const broker = this.broker!;
+      const tx = await broker.ledger.depositFund(Number(amount));
+      
+      console.log(`[0G Chat] ✅ Added ${amount} OG to compute account`);
+      
+      return {
+        success: true,
+        txHash: typeof tx === 'object' && tx ? (tx as any).hash || (tx as any).transactionHash : undefined
+      };
+
+    } catch (error: any) {
+      console.error('[0G Chat] Failed to add funds:', error.message);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+}
+
+export const zgChatService = new ZGChatService();
