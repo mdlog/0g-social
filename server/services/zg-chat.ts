@@ -279,7 +279,24 @@ class ZGChatService {
 
       // Generate nonce for request headers
       const nonce = messages[messages.length - 1]?.content?.slice(0, 64) || `nonce-${Date.now()}`;
+      
+      // Check balance right before getting auth headers (this might lock funds)
+      const preAuthAcct = await broker.ledger.getLedger();
+      const preAuthBalanceWei = preAuthAcct.totalBalance.toString();
+      const preAuthBalanceEth = parseFloat(ethers.formatEther(preAuthBalanceWei));
+      console.log(`[0G Chat] Balance before auth headers: ${preAuthBalanceWei} wei (${preAuthBalanceEth} OG)`);
+      
       const authHeaders = await broker.inference.getRequestHeaders(selectedProvider, nonce);
+      
+      // Check balance after getting auth headers
+      const postAuthAcct = await broker.ledger.getLedger();
+      const postAuthBalanceWei = postAuthAcct.totalBalance.toString();
+      const postAuthBalanceEth = parseFloat(ethers.formatEther(postAuthBalanceWei));
+      console.log(`[0G Chat] Balance after auth headers: ${postAuthBalanceWei} wei (${postAuthBalanceEth} OG)`);
+      
+      if (preAuthBalanceEth !== postAuthBalanceEth) {
+        console.log(`[0G Chat] ⚠️ Balance changed after auth headers: ${preAuthBalanceEth} → ${postAuthBalanceEth} OG`);
+      }
 
       console.log(`[0G Chat] Sending request to ${endpoint}/chat/completions`);
 
@@ -307,6 +324,21 @@ class ZGChatService {
         const postFailBalanceWei = postFailAcct.totalBalance.toString();
         const postFailBalanceEth = parseFloat(ethers.formatEther(postFailBalanceWei));
         console.log(`[0G Chat] Balance after failed request: ${postFailBalanceWei} wei (${postFailBalanceEth} OG)`);
+        
+        // Parse provider error to understand balance discrepancy
+        if (errorText.includes("insufficient balance")) {
+          const feeMatch = errorText.match(/total fee of (\d+)/);
+          const availableMatch = errorText.match(/available balance of (\d+)/);
+          if (feeMatch && availableMatch) {
+            const reqFeeWei = feeMatch[1];
+            const availWei = availableMatch[1];
+            const reqFeeEth = parseFloat(ethers.formatEther(reqFeeWei));
+            const availEth = parseFloat(ethers.formatEther(availWei));
+            console.log(`[0G Chat] Provider sees - Required: ${reqFeeEth} OG, Available: ${availEth} OG`);
+            console.log(`[0G Chat] Our balance: ${postFailBalanceEth} OG, Provider balance: ${availEth} OG`);
+            console.log(`[0G Chat] Discrepancy: ${(postFailBalanceEth - availEth).toFixed(6)} OG`);
+          }
+        }
         
         throw new Error(`Provider error ${response.status}: ${errorText || response.statusText}`);
       }
