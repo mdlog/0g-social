@@ -373,7 +373,36 @@ class ZGChatService {
               }
             } else if (retryCount >= 2) {
               console.log(`[0G Chat] Max retry attempts reached. Provider balance cache issue detected.`);
+              console.log(`[0G Chat] Trying alternative provider to bypass cache issue...`);
+              
+              // Try with a different provider to bypass cache issue
+              const availableProviders = await broker.inference.listService();
+              const currentProvider = selectedProvider;
+              const alternativeProvider = availableProviders.find(p => 
+                p.provider !== currentProvider && p.model.includes('chat')
+              );
+              
+              if (alternativeProvider) {
+                console.log(`[0G Chat] Switching to alternative provider: ${alternativeProvider.provider}`);
+                console.log(`[0G Chat] Alternative model: ${alternativeProvider.model}`);
+                
+                try {
+                  return await this.chatCompletion({
+                    messages,
+                    providerAddress: alternativeProvider.provider,
+                    model: alternativeProvider.model,
+                    temperature,
+                    maxTokens
+                  }, 99); // High retry count to skip further retries
+                } catch (altError) {
+                  console.log(`[0G Chat] Alternative provider also failed: ${altError.message}`);
+                }
+              } else {
+                console.log(`[0G Chat] No alternative provider available`);
+              }
+              
               console.log(`[0G Chat] This is a known issue with 0G provider network - balance sync delay.`);
+              console.log(`[0G Chat] Please try again in a few minutes when provider cache updates.`);
             }
           }
         }
