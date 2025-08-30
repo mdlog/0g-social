@@ -76,12 +76,12 @@ export function ChatInterface() {
   // Chat mutation
   const chatMutation = useMutation({
     mutationFn: async (chatMessages: Message[]) => {
-      const response = await apiRequest('/api/zg/chat', 'POST', {
+      const response = await apiRequest('POST', '/api/zg/chat', {
         messages: chatMessages.filter(msg => msg.role !== 'system' || chatMessages.length === 1),
         temperature: 0.7,
         maxTokens: 1024
       });
-      return response as ChatResponse;
+      return await response.json() as ChatResponse;
     },
     onSuccess: (data) => {
       if (data.success && data.response?.choices?.[0]?.message) {
@@ -122,8 +122,8 @@ export function ChatInterface() {
   // Fund account mutation
   const fundMutation = useMutation({
     mutationFn: async (amount: string) => {
-      const response = await apiRequest('/api/zg/chat/fund', 'POST', { amount });
-      return response;
+      const response = await apiRequest('POST', '/api/zg/chat/fund', { amount });
+      return await response.json();
     },
     onSuccess: () => {
       toast({
