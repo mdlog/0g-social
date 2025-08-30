@@ -202,7 +202,7 @@ class ZGChatService {
       
       // If balance is insufficient for typical 5.7 OG fee, auto-fund immediately  
       if (initialBalanceEth < 6.0) {
-        const neededAmount = Math.min(1.5, 6.0 - initialBalanceEth); // Multiple funding cycles to reach target
+        const neededAmount = Math.min(1.2, 8.0 - initialBalanceEth); // Increased target to 8.0 OG for buffer
         console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~6.0 OG), auto-funding ${neededAmount} OG...`);
         try {
           await broker.ledger.depositFund(neededAmount);
@@ -214,7 +214,7 @@ class ZGChatService {
           const newBalanceEth = parseFloat(ethers.formatEther(newBalanceWei));
           console.log(`[0G Chat] New balance after funding: ${newBalanceWei} wei (${newBalanceEth} OG)`);
           
-          // If still insufficient after first funding, try one more time
+          // Continue funding until we reach target
           if (newBalanceEth < 6.0) {
             const secondFunding = Math.min(1.0, 6.0 - newBalanceEth);
             console.log(`[0G Chat] Still insufficient (${newBalanceEth} OG), second funding: ${secondFunding} OG`);
@@ -223,6 +223,17 @@ class ZGChatService {
             const finalAcct = await broker.ledger.getLedger();
             const finalBalanceEth = parseFloat(ethers.formatEther(finalAcct.totalBalance.toString()));
             console.log(`[0G Chat] Final balance after second funding: ${finalBalanceEth} OG`);
+            
+            // One more time if still needed
+            if (finalBalanceEth < 6.0) {
+              const thirdFunding = Math.min(0.8, 6.0 - finalBalanceEth);
+              console.log(`[0G Chat] Third funding attempt: ${thirdFunding} OG`);
+              await broker.ledger.depositFund(thirdFunding);
+              
+              const endAcct = await broker.ledger.getLedger();
+              const endBalanceEth = parseFloat(ethers.formatEther(endAcct.totalBalance.toString()));
+              console.log(`[0G Chat] End balance after third funding: ${endBalanceEth} OG`);
+            }
           }
         } catch (fundError: any) {
           console.error('[0G Chat] Auto-funding failed:', fundError.message);
