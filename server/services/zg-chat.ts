@@ -87,24 +87,27 @@ class ZGChatService {
   private async ensureBalance(broker: ZGComputeNetworkBroker): Promise<void> {
     try {
       const acct = await broker.ledger.getLedger();
-      const total = Number(acct.totalBalance.toString());
+      // Convert from wei to ETH using ethers
+      const balanceInWei = acct.totalBalance.toString();
+      const balanceInEth = parseFloat(ethers.formatEther(balanceInWei));
       const min = Number(ZG_MIN_BALANCE);
       
-      console.log(`[0G Chat] Current balance: ${total} OG, minimum required: ${min} OG`);
+      console.log(`[0G Chat] Current balance: ${balanceInWei} wei (${balanceInEth} OG), minimum required: ${min} OG`);
       
-      if (Number.isNaN(total)) {
+      if (Number.isNaN(balanceInEth)) {
         throw new Error("Cannot parse ledger balance");
       }
       
-      if (total < min) {
-        console.log(`[0G Chat] Balance too low (${total} OG < ${min} OG), adding ${ZG_TOPUP_AMOUNT} OG`);
+      if (balanceInEth < min) {
+        console.log(`[0G Chat] Balance too low (${balanceInEth} OG < ${min} OG), adding ${ZG_TOPUP_AMOUNT} OG`);
         await broker.ledger.depositFund(Number(ZG_TOPUP_AMOUNT));
         console.log('[0G Chat] ✅ Balance topped up successfully');
         
         // Get updated balance after top-up
         const updatedAcct = await broker.ledger.getLedger();
-        const updatedTotal = Number(updatedAcct.totalBalance.toString());
-        console.log(`[0G Chat] Updated balance after top-up: ${updatedTotal} OG`);
+        const updatedWei = updatedAcct.totalBalance.toString();
+        const updatedEth = parseFloat(ethers.formatEther(updatedWei));
+        console.log(`[0G Chat] Updated balance after top-up: ${updatedWei} wei (${updatedEth} OG)`);
       }
     } catch (error: any) {
       console.error('[0G Chat] Balance check failed:', error.message);
