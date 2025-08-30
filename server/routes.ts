@@ -1257,6 +1257,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[0G Chat API] Processing chat request for user: ${walletConnection.address}`);
 
+      // Set wallet address for current session
+      zgChatService.setWalletAddress(walletConnection.address);
+
       const result = await zgChatService.chatCompletion({
         messages,
         providerAddress,
@@ -1293,6 +1296,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/zg/chat/status", async (req, res) => {
     try {
+      const walletConnection = getWalletConnection(req);
+      
+      // Set wallet address if connected
+      if (walletConnection.connected && walletConnection.address) {
+        zgChatService.setWalletAddress(walletConnection.address);
+      }
+      
       const status = await zgChatService.getServiceStatus();
       res.json(status);
     } catch (error: any) {
@@ -1319,6 +1329,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!amount || isNaN(parseFloat(amount))) {
         return res.status(400).json({ error: "Valid amount required" });
       }
+      
+      // Set wallet address for current session
+      zgChatService.setWalletAddress(walletConnection.address);
       
       const result = await zgChatService.addFunds(amount);
       
@@ -1352,6 +1365,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           details: "Please connect your wallet to create account"
         });
       }
+      
+      // Set wallet address for current session
+      zgChatService.setWalletAddress(walletConnection.address);
       
       const result = await zgChatService.createAccount();
       

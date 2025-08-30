@@ -50,9 +50,17 @@ const {
 class ZGChatService {
   private broker: ZGComputeNetworkBroker | null = null;
   private isInitialized = false;
+  private walletAddress: string | null = null;
 
   constructor() {
     console.log('[0G Chat] Service initialized');
+  }
+
+  /**
+   * Set wallet address for current user session
+   */
+  setWalletAddress(address: string) {
+    this.walletAddress = address;
   }
 
   /**
@@ -320,10 +328,14 @@ class ZGChatService {
       }
 
       const broker = this.broker!;
+      if (!this.walletAddress) {
+        throw new Error('Wallet address not set. Please ensure wallet is connected.');
+      }
+      
       console.log(`[0G Chat] Creating ledger account for wallet: ${this.walletAddress}`);
       
       // Create account with initial funding using addLedger
-      const tx = await broker.ledger.addLedger("0.1");
+      const tx = await broker.ledger.addLedger(0.1);
       
       console.log(`[0G Chat] ✅ Account created with 0.1 OG initial funding`);
       
@@ -367,7 +379,7 @@ class ZGChatService {
           // If requested amount is more than initial 0.1, add the difference
           const requestedAmount = parseFloat(amount);
           if (requestedAmount > 0.1) {
-            const additionalAmount = (requestedAmount - 0.1).toString();
+            const additionalAmount = requestedAmount - 0.1;
             console.log(`[0G Chat] Adding additional ${additionalAmount} OG...`);
             const tx = await broker.ledger.addLedger(additionalAmount);
             return {
@@ -382,7 +394,7 @@ class ZGChatService {
       }
       
       // Account exists, add funds using addLedger
-      const tx = await broker.ledger.addLedger(amount);
+      const tx = await broker.ledger.addLedger(parseFloat(amount));
       
       console.log(`[0G Chat] ✅ Added ${amount} OG to compute account`);
       
