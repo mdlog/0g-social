@@ -337,6 +337,37 @@ class ZGChatService {
             console.log(`[0G Chat] Provider sees - Required: ${reqFeeEth} OG, Available: ${availEth} OG`);
             console.log(`[0G Chat] Our balance: ${postFailBalanceEth} OG, Provider balance: ${availEth} OG`);
             console.log(`[0G Chat] Discrepancy: ${(postFailBalanceEth - availEth).toFixed(6)} OG`);
+            
+            // Try balance sync if significant discrepancy found
+            if (postFailBalanceEth - availEth > 0.1) {
+              console.log(`[0G Chat] Large balance discrepancy detected, attempting sync...`);
+              
+              try {
+                // Force balance refresh by making small deposit
+                const syncAmount = 0.001; // Very small amount
+                console.log(`[0G Chat] Attempting balance sync with ${syncAmount} OG deposit...`);
+                await broker.ledger.depositFund(syncAmount);
+                
+                // Check if sync worked
+                const syncAcct = await broker.ledger.getLedger();
+                const syncBalanceEth = parseFloat(ethers.formatEther(syncAcct.totalBalance.toString()));
+                console.log(`[0G Chat] Balance after sync attempt: ${syncBalanceEth} OG`);
+                
+                // Retry the chat request with fresh balance
+                console.log(`[0G Chat] Retrying chat request after balance sync...`);
+                return await this.chatCompletion({
+                  messages,
+                  providerAddress: selectedProvider,
+                  model: selectedModel,
+                  temperature,
+                  maxTokens
+                });
+                
+              } catch (syncError) {
+                console.log(`[0G Chat] Balance sync failed: ${syncError.message}`);
+                // Continue with original error
+              }
+            }
           }
         }
         
