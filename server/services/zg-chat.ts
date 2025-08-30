@@ -201,8 +201,10 @@ class ZGChatService {
       console.log(`[0G Chat] Pre-request balance check: ${initialBalanceWei} wei (${initialBalanceEth} OG)`);
       
       // According to 0G docs: 0.1 OG = ~10,000 requests (0.00001 OG per request)
-      // Auto-fund if balance is insufficient for ~1000 requests
-      if (initialBalanceEth < 0.01) {
+      // Current balance 2.1 OG is sufficient for 210,000 requests - skip auto-funding
+      console.log(`[0G Chat] Balance ${initialBalanceEth} OG is sufficient (need ~0.00001 OG per request)`);
+      
+      if (initialBalanceEth < 0.00005) { // Very low threshold, only fund if absolutely necessary
         const neededAmount = Math.min(0.1, 0.1 - initialBalanceEth); // Target 0.1 OG for 10,000 requests
         console.log(`[0G Chat] Balance ${initialBalanceEth} OG insufficient for chat (need ~0.01 OG), auto-funding ${neededAmount} OG...`);
         try {
