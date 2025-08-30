@@ -175,7 +175,7 @@ class ZGChatService {
   /**
    * Main chat completion method
    */
-  async chatCompletion(request: ChatRequest): Promise<ChatResponse> {
+  async chatCompletion(request: ChatRequest, retryCount = 0): Promise<ChatResponse> {
     try {
       const { messages, providerAddress, model, temperature = 0.7, maxTokens = 1024 } = request;
 
@@ -338,9 +338,9 @@ class ZGChatService {
             console.log(`[0G Chat] Our balance: ${postFailBalanceEth} OG, Provider balance: ${availEth} OG`);
             console.log(`[0G Chat] Discrepancy: ${(postFailBalanceEth - availEth).toFixed(6)} OG`);
             
-            // Try balance sync if significant discrepancy found
-            if (postFailBalanceEth - availEth > 0.1) {
-              console.log(`[0G Chat] Large balance discrepancy detected, attempting sync...`);
+            // Try balance sync if significant discrepancy found (but prevent infinite loop)
+            if (postFailBalanceEth - availEth > 0.1 && retryCount < 2) {
+              console.log(`[0G Chat] Large balance discrepancy detected, attempting sync (retry ${retryCount + 1}/2)...`);
               
               try {
                 // Force balance refresh by making small deposit
@@ -353,6 +353,10 @@ class ZGChatService {
                 const syncBalanceEth = parseFloat(ethers.formatEther(syncAcct.totalBalance.toString()));
                 console.log(`[0G Chat] Balance after sync attempt: ${syncBalanceEth} OG`);
                 
+                // Wait for provider to update (give some time for network sync)
+                console.log(`[0G Chat] Waiting 3 seconds for provider balance sync...`);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
                 // Retry the chat request with fresh balance
                 console.log(`[0G Chat] Retrying chat request after balance sync...`);
                 return await this.chatCompletion({
@@ -361,12 +365,15 @@ class ZGChatService {
                   model: selectedModel,
                   temperature,
                   maxTokens
-                });
+                }, retryCount + 1);
                 
               } catch (syncError) {
                 console.log(`[0G Chat] Balance sync failed: ${syncError.message}`);
                 // Continue with original error
               }
+            } else if (retryCount >= 2) {
+              console.log(`[0G Chat] Max retry attempts reached. Provider balance cache issue detected.`);
+              console.log(`[0G Chat] This is a known issue with 0G provider network - balance sync delay.`);
             }
           }
         }
