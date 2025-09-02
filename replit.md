@@ -5,6 +5,13 @@ DeSocialAI is a fully decentralized, on-chain social media platform built on 0G 
 Preferred communication style: Simple, everyday language.
 AI Integration: STRONGLY REJECTS fallback functionality - user explicitly stated "saya tidak ingin menggunakan fallback" (I don't want to use fallback). Implementation must be purely authentic 0G Compute Network.
 
+## Recent Changes (September 2, 2025)
+- ✅ **Real-Time Updates System**: Post dan notifikasi muncul instant tanpa refresh halaman
+- ✅ **WebSocket Optimization**: Stable connection dengan auto-reconnection dan error handling
+- ✅ **Fee Structure Clarity**: Platform pays all 0G fees, user posting gratis 100%
+- ✅ **Enhanced UI**: Header/footer responsive, storage hash display di PostCard
+- ✅ **Performance**: Removed aggressive polling, pure WebSocket-driven updates
+
 # System Architecture
 
 ## Frontend Architecture
