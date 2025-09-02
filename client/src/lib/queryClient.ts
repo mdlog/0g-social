@@ -38,7 +38,23 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    
+    // Safe JSON parsing with better error handling
+    const text = await res.text();
+    if (!text || text.trim() === '') {
+      return null;
+    }
+    
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      console.error('JSON Parse Error:', { 
+        error, 
+        responseText: text.substring(0, 200),
+        queryKey: queryKey.join("/")
+      });
+      throw new Error(`Invalid JSON response from ${queryKey.join("/")}: ${(error as Error).message}`);
+    }
   };
 
 export const queryClient = new QueryClient({

@@ -31,7 +31,11 @@ export function useWebSocket() {
 
       ws.current.onmessage = (event) => {
         try {
-          const message: WebSocketMessage = JSON.parse(event.data);
+          // Ensure event.data is a string and not an object
+          const data = typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
+          if (!data || data.trim() === '') return;
+          
+          const message: WebSocketMessage = JSON.parse(data);
           
           switch (message.type) {
             case 'new_post':
@@ -114,7 +118,7 @@ export function useWebSocket() {
                 predicate: (query) => {
                   const queryKey = query.queryKey as string[];
                   return queryKey[0] && typeof queryKey[0] === 'string' && 
-                         queryKey[0].includes('/comments');
+                         queryKey[0].includes('/comments') ? true : false;
                 }
               });
               
