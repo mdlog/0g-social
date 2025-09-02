@@ -1067,6 +1067,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Notification endpoints
+  app.get("/api/notifications", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required",
+          details: "You must connect your wallet to view notifications"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const notifications = await storage.getNotifications(user.id);
+      res.json(notifications);
+    } catch (error: any) {
+      console.error('[Get Notifications Error]', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/notifications/mark-all-read", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.markAllNotificationsAsRead(user.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Mark All Notifications Read Error]', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/notifications/:notificationId/read", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData || !walletData.connected || !walletData.address) {
+        return res.status(401).json({ 
+          message: "Wallet connection required"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.markNotificationAsRead(req.params.notificationId, user.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Mark Notification Read Error]', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ===========================================
   // WAVE 2: ADVANCED SOCIAL FEATURES ROUTES
   // ===========================================

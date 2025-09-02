@@ -1,27 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, Heart, MessageCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useWebSocket } from "@/hooks/use-websocket";
 
 export function SimpleNotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications] = useState([
-    {
-      id: '1',
-      type: 'like',
-      title: 'Your post received a like',
-      message: 'Someone liked your post about 0G Chain',
-      isRead: false,
-      createdAt: new Date().toISOString(),
+  const queryClient = useQueryClient();
+  const { connected: wsConnected } = useWebSocket();
+
+  // Fetch notifications from server
+  const { data: notifications = [], isLoading } = useQuery({
+    queryKey: ["/api/notifications"],
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  // Mark all as read mutation
+  const markAllAsReadMutation = useMutation({
+    mutationFn: () => apiRequest("/api/notifications/mark-all-read", "POST", {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
     },
-    {
-      id: '2',
-      type: 'comment',
-      title: 'New comment on your post',
-      message: 'Someone commented on your post',
-      isRead: false,
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
+  });
+
+  // Listen for real-time notifications
+  useEffect(() => {
+    if (wsConnected) {
+      const handleNewNotification = (event: MessageEvent) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'new_notification') {
+          // Refetch notifications when new one arrives
+          queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+        }
+      };
+
+      // Add WebSocket listener for notifications
+      window.addEventListener('message', handleNewNotification);
+      return () => window.removeEventListener('message', handleNewNotification);
     }
-  ]);
+  }, [wsConnected, queryClient]);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -104,12 +122,13 @@ export function SimpleNotificationDropdown() {
               variant="outline"
               size="sm"
               className="w-full"
+              disabled={markAllAsReadMutation.isPending}
               onClick={() => {
-                // Mark all as read logic here
+                markAllAsReadMutation.mutate();
                 setIsOpen(false);
               }}
             >
-              Mark all as read
+              {markAllAsReadMutation.isPending ? 'Marking...' : 'Mark all as read'}
             </Button>
           </div>
         </div>
