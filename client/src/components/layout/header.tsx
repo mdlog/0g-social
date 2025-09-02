@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Bell, Moon, Sun, Search, Wifi, WifiOff } from "lucide-react";
+import { Moon, Sun, Search, Wifi, WifiOff } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { RainbowKitWallet } from "@/components/wallet/rainbowkit-wallet";
+import { SimpleNotificationDropdown } from "@/components/notifications/simple-notification-dropdown";
 import logoUrl from "@/assets/desocialai-logo.png";
 
 export function Header() {
@@ -53,6 +54,9 @@ export function Header() {
 
           {/* Right Navigation */}
           <div className="flex items-center space-x-3">
+            {/* Notifications */}
+            <SimpleNotificationDropdown />
+            
             {/* RainbowKit Wallet Connection */}
             <RainbowKitWallet />
 

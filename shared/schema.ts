@@ -113,6 +113,20 @@ export const communityMemberships = pgTable("community_memberships", {
   joinedAt: timestamp("joined_at").defaultNow(),
 });
 
+// Notifications system
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  recipientId: varchar("recipient_id").notNull().references(() => users.id),
+  senderId: varchar("sender_id").references(() => users.id), // null for system notifications
+  type: text("type").notNull(), // 'like' | 'comment' | 'follow' | 'repost' | 'mention' | 'system'
+  postId: varchar("post_id").references(() => posts.id), // null for non-post notifications
+  commentId: varchar("comment_id").references(() => comments.id), // for comment notifications
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  metadata: jsonb("metadata").default({}), // Additional data like post preview, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Wave 2: Governance & Voting
 export const proposals = pgTable("proposals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -367,6 +381,9 @@ export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertFollow = z.infer<typeof insertFollowSchema>;
 export type InsertLike = z.infer<typeof insertLikeSchema>;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
 export type InsertRepost = z.infer<typeof insertRepostSchema>;
 
 // Wave 2: Advanced Insert Types

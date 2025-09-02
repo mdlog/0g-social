@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema, insertShareSchema, insertCommentLikeSchema } from "@shared/schema";
+import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema, insertShareSchema, insertCommentLikeSchema, type Notification } from "@shared/schema";
 import { z } from "zod";
 import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
@@ -679,6 +679,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
       
+      // Create notification for post author (if not liking own post)
+      const post = await storage.getPost(likeData.postId);
+      if (post && post.authorId !== user.id) {
+        await storage.createNotification({
+          userId: post.authorId,
+          type: 'like',
+          title: 'Your post received a like',
+          message: `${user.displayName || user.username} liked your post`,
+          isRead: false,
+          metadata: {
+            postId: post.id,
+            postPreview: post.content.substring(0, 50) + '...',
+            likerUsername: user.username,
+            likerDisplayName: user.displayName
+          }
+        });
+        
+        // Broadcast notification to author if connected
+        broadcastToAll({
+          type: 'new_notification',
+          userId: post.authorId,
+          notification: {
+            type: 'like',
+            message: `${user.displayName || user.username} liked your post`,
+            metadata: { postPreview: post.content.substring(0, 50) + '...' }
+          }
+        });
+      }
+      
       console.log(`[0G DA] ✅ Like recorded for user ${user.id} on post ${likeData.postId}`);
       res.json(like);
     } catch (error: any) {
@@ -758,6 +787,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       console.log(`[0G DA] ✅ Comment recorded for user ${user.id} on post ${commentData.postId}`);
+      
+      // Create notification for post author (if not commenting on own post)
+      const post = await storage.getPost(commentData.postId);
+      if (post && post.authorId !== user.id) {
+        await storage.createNotification({
+          userId: post.authorId,
+          type: 'comment',
+          title: 'New comment on your post',
+          message: `${user.displayName || user.username} commented on your post`,
+          isRead: false,
+          metadata: {
+            postId: post.id,
+            postPreview: post.content.substring(0, 50) + '...',
+            commentPreview: commentData.content.substring(0, 50) + '...',
+            commenterUsername: user.username,
+            commenterDisplayName: user.displayName
+          }
+        });
+        
+        // Broadcast notification to author if connected
+        broadcastToAll({
+          type: 'new_notification',
+          userId: post.authorId,
+          notification: {
+            type: 'comment',
+            message: `${user.displayName || user.username} commented on your post`,
+            metadata: { 
+              postPreview: post.content.substring(0, 50) + '...',
+              commentPreview: commentData.content.substring(0, 50) + '...'
+            }
+          }
+        });
+      }
       
       // Get full comment data with author information for broadcasting
       const fullCommentData = await storage.getCommentsByPost(commentData.postId);
@@ -2868,6 +2930,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Error fetching user collections:', error);
       res.status(500).json({ message: 'Failed to fetch collections' });
+    }
+  });
+
+  // ===========================================
+  // NOTIFICATION SYSTEM ENDPOINTS
+  // ===========================================
+  
+  // Get user notifications
+  app.get("/api/notifications", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          message: "Wallet connection required"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletConnection.address);
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        });
+      }
+
+      const notifications = await storage.getNotifications(user.id);
+      res.json(notifications);
+    } catch (error: any) {
+      console.error("Get notifications error:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark all notifications as read
+  app.post("/api/notifications/mark-all-read", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          message: "Wallet connection required"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletConnection.address);
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        });
+      }
+
+      await storage.markAllNotificationsAsRead(user.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Mark all notifications read error:", error);
+      res.status(500).json({ message: "Failed to mark notifications as read" });
+    }
+  });
+
+  // Mark single notification as read
+  app.put("/api/notifications/:id/read", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          message: "Wallet connection required"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletConnection.address);
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        });
+      }
+
+      await storage.markNotificationAsRead(req.params.id, user.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Mark notification read error:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
     }
   });
 

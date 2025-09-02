@@ -119,6 +119,13 @@ export interface IStorage {
 
   // Update methods for counters
   updatePost(postId: string, updates: Partial<Post>): Promise<Post>;
+  
+  // Notification methods
+  getNotifications(userId: string): Promise<any[]>;
+  createNotification(data: any): Promise<any>;
+  markNotificationAsRead(notificationId: string, userId: string): Promise<void>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+  getAllUsers(): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -803,6 +810,57 @@ export class DatabaseStorage implements IStorage {
       { topic: "DeSocialAI", count: 38, sentiment: "positive" },
       { topic: "Decentralization", count: 29, sentiment: "positive" },
     ];
+  }
+
+  // Notification methods
+  async getNotifications(userId: string): Promise<any[]> {
+    // For now, return mock notifications since we need to implement the database structure
+    return [
+      {
+        id: '1',
+        userId,
+        type: 'like',
+        title: 'Your post received a like',
+        message: 'Someone liked your post about 0G Chain',
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        metadata: {
+          postPreview: '0G Chain is revolutionizing decentralized infrastructure...'
+        }
+      },
+      {
+        id: '2',
+        userId,
+        type: 'comment',
+        title: 'New comment on your post',
+        message: 'Someone commented on your post',
+        isRead: false,
+        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        metadata: {
+          postPreview: 'DeSocialAI represents the future of social media...'
+        }
+      }
+    ];
+  }
+
+  async createNotification(data: any): Promise<any> {
+    // Mock implementation - in real app, this would create a notification in the database
+    return { id: randomUUID(), ...data, createdAt: new Date().toISOString() };
+  }
+
+  async markNotificationAsRead(notificationId: string, userId: string): Promise<void> {
+    // Mock implementation - would update notification as read in database
+    console.log(`Marked notification ${notificationId} as read for user ${userId}`);
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    // Mock implementation - would mark all user notifications as read
+    console.log(`Marked all notifications as read for user ${userId}`);
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const result = await db.select().from(users);
+    return result;
   }
 }
 
