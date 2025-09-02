@@ -98,24 +98,33 @@ export class ZGChatServiceAuthentic {
         const balanceOG = parseFloat(ethers.formatEther(ledger.totalBalance || BigInt(0)));
         console.log(`[0G Chat] Account Balance: ${balanceOG} OG (raw: ${ledger.totalBalance})`);
         
-        // More lenient balance check - allow small amounts for testing
-        if (balanceOG < 0.0001) {
-          console.log(`[0G Chat] Balance too low: ${balanceOG} OG, attempting to add funds...`);
+        // Add funds if insufficient (as per troubleshooting documentation)
+        if (balanceOG < 0.01) {
+          console.log(`[0G Chat] Insufficient balance: ${balanceOG} OG, adding funds...`);
           
-          // Try to add small amount of funds for testing
           try {
-            await broker.ledger.addLedger(ethers.parseEther("0.01")); // Add 0.01 OG
-            console.log(`[0G Chat] ✅ Added 0.01 OG to account`);
+            await broker.ledger.addLedger(ethers.parseEther("0.1")); // Add 0.1 OG as recommended
+            console.log(`[0G Chat] ✅ Added 0.1 OG to ledger`);
+            
+            // Check new balance
+            const newLedger = await broker.ledger.getLedger();
+            const newBalance = parseFloat(ethers.formatEther(newLedger.totalBalance || BigInt(0)));
+            console.log(`[0G Chat] New balance: ${newBalance} OG`);
           } catch (fundError: any) {
             console.log(`[0G Chat] Failed to add funds: ${fundError.message}`);
-            // Continue anyway for testing - some providers might work with zero balance
-            console.log(`[0G Chat] Continuing with zero balance for testing...`);
+            throw new Error(`Insufficient balance and failed to add funds: ${fundError.message}`);
           }
         }
       } catch (balanceError: any) {
-        console.log(`[0G Chat] Balance check failed (non-critical): ${balanceError.message}`);
-        // Continue execution even if balance check fails
-        console.log(`[0G Chat] Proceeding without balance verification...`);
+        console.log(`[0G Chat] Balance check failed: ${balanceError.message}`);
+        // Try to add funds even if balance check failed
+        try {
+          console.log(`[0G Chat] Attempting to add funds despite balance check failure...`);
+          await broker.ledger.addLedger(ethers.parseEther("0.05"));
+          console.log(`[0G Chat] ✅ Added 0.05 OG emergency funds`);
+        } catch (emergencyError: any) {
+          console.log(`[0G Chat] Emergency funding failed: ${emergencyError.message}`);
+        }
       }
 
       // Discover available services as per documentation
@@ -145,41 +154,29 @@ export class ZGChatServiceAuthentic {
 
       let lastError = "";
 
-      // Try each provider with smart switching (20-second timeout each)
-      for (const provider of providersToTry) {
+      // Try all official providers as per troubleshooting documentation
+      for (const [model, provider] of Object.entries(OFFICIAL_PROVIDERS)) {
         try {
-          console.log(`[0G Chat] Trying provider: ${provider}`);
+          console.log(`[0G Chat] Trying ${model}...`);
           
           // Find service for this provider
           const service = services.find(s => s.provider === provider);
           if (!service) {
-            console.log(`[0G Chat] Provider ${provider} not found in services list`);
+            console.log(`[0G Chat] ${model} not found in services list`);
             continue;
           }
 
           const result = await this.tryProvider(broker, service, messages, temperature, maxTokens);
           
           if (result.ok) {
-            console.log(`[0G Chat] ✅ Success with provider: ${provider}`);
+            console.log(`[0G Chat] ✅ Success with ${model}`);
             return result;
           }
           
         } catch (providerError: any) {
-          console.log(`[0G Chat] Provider ${provider} failed: ${providerError.message}`);
+          console.log(`[0G Chat] ${model} failed, trying next...`);
           lastError = providerError.message;
-          
-          // Check if this is a "busy" error for smart switching
-          if (providerError.message.includes('busy') || 
-              providerError.message.includes('overloaded') ||
-              providerError.message.includes('timeout') ||
-              providerError.message.includes('503') ||
-              providerError.message.includes('504') ||
-              providerError.message.includes('429')) {
-            console.log(`[0G Chat] 🔄 Provider busy, switching to next provider...`);
-            continue; // Try next provider immediately
-          }
-          
-          continue;
+          continue; // Try next provider as per documentation pattern
         }
       }
 
@@ -220,11 +217,11 @@ export class ZGChatServiceAuthentic {
       
       console.log(`[0G Chat] Service metadata - Endpoint: ${finalEndpoint}, Model: ${finalModel}`);
 
-      // Step 3: Generate auth headers (single use as per documentation)
-      const requestContent = messages[messages.length - 1]?.content || "chat request";
+      // Step 3: Generate fresh auth headers (single use as per troubleshooting documentation)
+      const requestContent = JSON.stringify(messages); // Use full message content for headers
       const headers = await broker.inference.getRequestHeaders(providerAddress, requestContent);
       
-      console.log(`[0G Chat] Generated auth headers for provider: ${providerAddress}`);
+      console.log(`[0G Chat] Generated fresh auth headers for provider: ${providerAddress}`);
 
       // Step 4: Send request with 20-second timeout for smart switching
       const controller = new AbortController();
@@ -253,11 +250,20 @@ export class ZGChatServiceAuthentic {
           const errorText = await response.text();
           console.log(`[0G Chat] Provider ${providerAddress} returned ${response.status}: ${errorText}`);
           
-          // Check for busy indicators for smart switching
+          // Enhanced error handling for specific issues
+          if (errorText.includes('insufficient balance')) {
+            throw new Error(`Provider balance sync issue: ${errorText}`);
+          }
+          
+          if (errorText.includes('headers already used')) {
+            throw new Error(`Headers reuse error: ${errorText}`);
+          }
+          
+          // Check for provider busy/offline indicators  
           if (response.status === 503 || response.status === 504 || 
               response.status === 429 || errorText.includes('busy') || 
-              errorText.includes('overloaded')) {
-            throw new Error(`Provider busy: ${response.status} - ${errorText}`);
+              errorText.includes('overloaded') || errorText.includes('offline')) {
+            throw new Error(`Provider not responding: ${response.status} - ${errorText}`);
           }
           
           throw new Error(`HTTP ${response.status}: ${errorText}`);
