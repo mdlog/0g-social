@@ -96,12 +96,16 @@ export function ChatInterface() {
       return await response.json() as ChatResponse;
     },
     onSuccess: (data) => {
-      if (data.success && data.response?.choices?.[0]?.message) {
+      // Handle both real and simulation responses
+      const responseContent = data.success && data.response?.choices?.[0]?.message?.content ||
+                             data.ok && data.result?.choices?.[0]?.message?.content;
+      
+      if (responseContent) {
         const assistantMessage: Message = {
           role: 'assistant',
-          content: data.response.choices[0].message.content,
+          content: responseContent,
           timestamp: new Date(),
-          verified: data.verified
+          verified: data.verified || false
         };
         
         setMessages(prev => [...prev, assistantMessage]);
@@ -111,9 +115,15 @@ export function ChatInterface() {
           queryClient.invalidateQueries({ queryKey: ['/api/zg/chat/status'] });
         }
         
+        // Different toast messages for different modes
+        const isSimulation = data.model === "local-fallback" || data.providerAddress === "simulation-mode";
+        
         toast({
-          title: "Response received",
-          description: `Via ${data.model} ${data.verified ? '(Verified)' : ''}`,
+          title: isSimulation ? "Simulation mode response" : "Response received",
+          description: isSimulation 
+            ? "Using fallback mode due to provider sync issues"
+            : `Via ${data.model} ${data.verified ? '(Verified)' : ''}`,
+          variant: isSimulation ? "default" : "default"
         });
       } else {
         throw new Error(data.error || 'No response received');
