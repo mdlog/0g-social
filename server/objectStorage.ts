@@ -53,34 +53,42 @@ export class ObjectStorageService {
     });
   }
 
-  // Downloads an object to the response.
+  // Downloads an object to the response with enhanced CORS and direct serving
   async downloadObject(file: any, res: Response, cacheTtlSec: number = 3600) {
     try {
       if (!file || !file.url) {
+        console.error("[OBJECT STORAGE] File not found - no URL provided");
         return res.status(404).json({ error: "File not found" });
       }
 
-      // Try direct serving first for better compatibility
-      try {
-        const response = await fetch(file.url);
-        if (response.ok) {
-          const buffer = await response.arrayBuffer();
-          const contentType = response.headers.get('content-type') || 'image/jpeg';
-          
-          res.setHeader('Content-Type', contentType);
-          res.setHeader('Cache-Control', `public, max-age=${cacheTtlSec}`);
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.send(Buffer.from(buffer));
-          return;
-        }
-      } catch (fetchError: any) {
-        console.log("Direct serving failed, using redirect fallback:", fetchError.message);
+      console.log(`[OBJECT STORAGE] Fetching file from: ${file.url}`);
+
+      // Always use direct serving with proper CORS headers
+      const response = await fetch(file.url);
+      
+      if (!response.ok) {
+        console.error(`[OBJECT STORAGE] Failed to fetch: ${response.status} ${response.statusText}`);
+        return res.status(response.status).json({ error: "Failed to fetch file from storage" });
       }
 
-      // Fallback to redirect
-      res.redirect(302, file.url);
+      const buffer = await response.arrayBuffer();
+      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      
+      console.log(`[OBJECT STORAGE] ✅ Successfully fetched ${buffer.byteLength} bytes, type: ${contentType}`);
+
+      // Set comprehensive headers for proper serving
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Length', buffer.byteLength.toString());
+      res.setHeader('Cache-Control', `public, max-age=${cacheTtlSec}`);
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      
+      res.send(Buffer.from(buffer));
+      
     } catch (error) {
-      console.error("Error downloading file:", error);
+      console.error(`[OBJECT STORAGE] ❌ Error downloading file:`, error);
       if (!res.headersSent) {
         res.status(500).json({ error: "Error downloading file" });
       }
