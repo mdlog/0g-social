@@ -122,11 +122,10 @@ class ZGChatService {
     const services = await broker.inference.listService();
     const workingProviders = [];
     
-    // Prioritize known working providers first
+    // Prioritize known working providers first - switch primary to avoid cache issues
     const knownGoodProviders = [
-      "0xf07240Efa67755B5311bc75784a061eDB47165Dd", // Primary working provider (proven fast)
-      "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3", // Secondary provider  
-      "0x1234567890abcdef1234567890abcdef12345678"  // Fallback if available
+      "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3", // Try this as primary (was secondary)
+      "0xf07240Efa67755B5311bc75784a061eDB47165Dd", // Secondary (was having cache issues)
     ];
     
     // Add known good providers first
@@ -164,31 +163,66 @@ class ZGChatService {
     preferredProvider?: string,
     preferredModel?: string
   ): Promise<{ providerAddress: string; endpoint: string; model: string }> {
-    // Use preferred provider if specified
+    // Use preferred provider if specified, but with fallback if it's problematic
     if (preferredProvider) {
-      const meta = await broker.inference.getServiceMetadata(preferredProvider);
-      console.log(`[0G Chat] Using preferred provider: ${preferredProvider}, model: ${meta.model}`);
-      return { 
-        providerAddress: preferredProvider, 
-        endpoint: meta.endpoint, 
-        model: meta.model 
-      };
+      try {
+        const meta = await broker.inference.getServiceMetadata(preferredProvider);
+        console.log(`[0G Chat] Using preferred provider: ${preferredProvider}, model: ${meta.model}`);
+        return { 
+          providerAddress: preferredProvider, 
+          endpoint: meta.endpoint, 
+          model: meta.model 
+        };
+      } catch (error: any) {
+        console.log(`[0G Chat] Preferred provider ${preferredProvider} unavailable: ${error.message}`);
+        // Continue to auto-selection
+      }
     }
 
-    // Discover available services
+    // Discover available services with smart prioritization
     const list = await broker.inference.listService();
     if (!list.length) {
       throw new Error("No 0G Compute services available");
     }
 
-    // Prefer large language models for chat
+    // Prioritize alternative provider first to avoid known cache issues
+    const priorityProviders = [
+      "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3", // Start with this one
+      "0xf07240Efa67755B5311bc75784a061eDB47165Dd"  // Previous primary had cache issues
+    ];
+
+    // Try priority providers first
+    for (const priorityProvider of priorityProviders) {
+      const service = list.find(s => 
+        s.provider === priorityProvider && 
+        /llama|deepseek|qwen|mixtral|claude|gpt|chat/i.test(s.model)
+      );
+      
+      if (service) {
+        try {
+          const meta = await broker.inference.getServiceMetadata(service.provider);
+          console.log(`[0G Chat] Selected priority provider: ${service.provider}, model: ${meta.model}`);
+          
+          return { 
+            providerAddress: service.provider, 
+            endpoint: meta.endpoint, 
+            model: meta.model 
+          };
+        } catch (error: any) {
+          console.log(`[0G Chat] Priority provider ${service.provider} failed: ${error.message}`);
+          continue;
+        }
+      }
+    }
+
+    // Fallback to any available chat model
     const pick = list.find(s => 
-      /llama|deepseek|qwen|mixtral|claude|gpt/i.test(s.model)
+      /llama|deepseek|qwen|mixtral|claude|gpt|chat/i.test(s.model)
     ) ?? list[0];
 
     const meta = await broker.inference.getServiceMetadata(pick.provider);
     
-    console.log(`[0G Chat] Auto-selected provider: ${pick.provider}, model: ${meta.model}`);
+    console.log(`[0G Chat] Fallback to provider: ${pick.provider}, model: ${meta.model}`);
     
     return { 
       providerAddress: pick.provider, 
@@ -391,23 +425,39 @@ class ZGChatService {
               
               try {
                 const workingProviders = await this.getWorkingProviders(broker);
-                const alternativeProvider = workingProviders.find(p => p.provider !== selectedProvider);
+                console.log(`[0G Chat] Available providers for fallback: ${workingProviders.map(p => p.provider).join(', ')}`);
                 
-                if (alternativeProvider) {
-                  console.log(`[0G Chat] Switching to alternative provider: ${alternativeProvider.provider}`);
-                  console.log(`[0G Chat] Alternative model: ${alternativeProvider.model}`);
-                  
-                  // Try alternative provider immediately without balance sync delay
-                  return await this.chatCompletion({
-                    messages,
-                    providerAddress: alternativeProvider.provider,
-                    model: alternativeProvider.model,
-                    temperature,
-                    maxTokens
-                  }, retryCount + 1);
+                // Try ALL alternative providers, not just the first one
+                for (const alternativeProvider of workingProviders) {
+                  if (alternativeProvider.provider !== selectedProvider) {
+                    console.log(`[0G Chat] Attempting alternative provider: ${alternativeProvider.provider}`);
+                    console.log(`[0G Chat] Alternative model: ${alternativeProvider.model}`);
+                    
+                    try {
+                      // Try alternative provider immediately without balance sync delay
+                      const result = await this.chatCompletion({
+                        messages,
+                        providerAddress: alternativeProvider.provider,
+                        model: alternativeProvider.model,
+                        temperature,
+                        maxTokens
+                      }, retryCount + 1);
+                      
+                      // If successful, return immediately
+                      if (result.ok) {
+                        console.log(`[0G Chat] ✅ Success with alternative provider: ${alternativeProvider.provider}`);
+                        return result;
+                      }
+                    } catch (altError: any) {
+                      console.log(`[0G Chat] Alternative provider ${alternativeProvider.provider} failed: ${altError.message}`);
+                      continue; // Try next provider
+                    }
+                  }
                 }
+                
+                console.log(`[0G Chat] All alternative providers failed or unavailable`);
               } catch (altError) {
-                console.log(`[0G Chat] Alternative provider failed: ${altError.message}`);
+                console.log(`[0G Chat] Alternative provider discovery failed: ${altError.message}`);
               }
               
               // Fallback to balance sync if no alternative provider works
@@ -445,10 +495,41 @@ class ZGChatService {
             } else if (retryCount >= 2) {
               console.log(`[0G Chat] Max retry attempts reached. Provider balance cache issue detected.`);
               
+              // Last resort: Try forcing a different provider even with high retry count
+              try {
+                const workingProviders = await this.getWorkingProviders(broker);
+                for (const lastResortProvider of workingProviders) {
+                  if (lastResortProvider.provider !== selectedProvider) {
+                    console.log(`[0G Chat] Last resort: trying provider ${lastResortProvider.provider}`);
+                    
+                    try {
+                      // Force try with timeout bypass
+                      const result = await this.chatCompletion({
+                        messages,
+                        providerAddress: lastResortProvider.provider,
+                        model: lastResortProvider.model,
+                        temperature,
+                        maxTokens
+                      }, 99); // High retry count to skip retry logic
+                      
+                      if (result.ok) {
+                        console.log(`[0G Chat] ✅ Last resort success with: ${lastResortProvider.provider}`);
+                        return result;
+                      }
+                    } catch (lastError) {
+                      console.log(`[0G Chat] Last resort provider failed: ${lastError.message}`);
+                      continue;
+                    }
+                  }
+                }
+              } catch (finalError) {
+                console.log(`[0G Chat] Final fallback attempt failed: ${finalError.message}`);
+              }
+              
               // Return meaningful error for frontend
               return {
                 ok: false,
-                error: "Provider balance sync issue. The 0G Network provider cache is out of sync with your balance. Please wait 2-3 minutes and try again. This is a known temporary issue with the 0G Network.",
+                error: "Provider balance sync issue. All 0G Network providers are experiencing cache sync delays. This is a known temporary issue - please try again in 2-3 minutes.",
                 balance: postFailBalanceWei,
                 providerAddress: selectedProvider,
                 model: selectedModel
