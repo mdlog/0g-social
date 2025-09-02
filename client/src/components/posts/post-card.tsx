@@ -359,7 +359,7 @@ export function PostCard({ post }: PostCardProps) {
                   <div className="mb-4 text-center text-gray-500 dark:text-gray-400">
                     Loading comments...
                   </div>
-                ) : (console.log('[DEBUG Frontend] Rendering comments:', comments.length, comments) || comments.length > 0) ? (
+                ) : comments.length > 0 ? (
                   <div className="mb-4 space-y-3 max-h-60 overflow-y-auto">
                     {comments.map((comment: any) => (
                       <div key={comment.id} className="flex space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
