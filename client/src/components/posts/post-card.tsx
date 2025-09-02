@@ -240,22 +240,61 @@ export function PostCard({ post }: PostCardProps) {
               </div>
             )}
 
-            {/* Simple 0G Network verification status */}
-            {post.storageHash && post.transactionHash && (
-              <div className="mb-3 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                <div className="flex items-center space-x-2 text-sm">
+            {/* Enhanced Storage Hash Display - supports both L1 hash + Storage hash or Storage hash only */}
+            {(post.storageHash || post.transactionHash) && (
+              <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <div className="flex items-center space-x-2 text-sm mb-2">
                   <Database className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <span className="text-green-700 dark:text-green-300">Stored on 0G Network</span>
-                  <a 
-                    href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
-                    title="View on blockchain explorer"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <span className="font-medium text-green-700 dark:text-green-300">Stored on 0G Network</span>
                 </div>
+                
+                {/* L1 Transaction Hash */}
+                {post.transactionHash && (
+                  <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-300 mb-1">
+                    <Shield className="w-3 h-3" />
+                    <span className="font-mono">L1 Hash:</span>
+                    <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">
+                      {post.transactionHash.slice(0, 8)}...{post.transactionHash.slice(-6)}
+                    </code>
+                    <a 
+                      href={`https://chainscan-galileo.0g.ai/tx/${post.transactionHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
+                      title="View L1 transaction on blockchain explorer"
+                      data-testid={`link-l1-hash-${post.id}`}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                )}
+                
+                {/* Storage Hash */}
+                {post.storageHash && (
+                  <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-300">
+                    <Database className="w-3 h-3" />
+                    <span className="font-mono">Storage:</span>
+                    <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">
+                      {post.storageHash.slice(0, 8)}...{post.storageHash.slice(-6)}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+                      onClick={() => {
+                        navigator.clipboard.writeText(post.storageHash || '');
+                        toast({
+                          title: "Storage hash copied",
+                          description: "Storage hash copied to clipboard"
+                        });
+                      }}
+                      title="Copy full storage hash"
+                      data-testid={`button-copy-storage-${post.id}`}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
