@@ -375,27 +375,59 @@ class ZGChatService {
 
       console.log(`[0G Chat] Sending request to ${endpoint}/chat/completions`);
 
-      // Make request to compute provider with faster timeout for better UX
+      // Make request to compute provider with smart timeout handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout (reduced from 60)
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // Reduced to 20 seconds for faster switching
       
-      const response = await fetch(`${endpoint}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...authHeaders,
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages,
-          temperature,
-          max_tokens: maxTokens,
-          stream: false
-        }),
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
+      try {
+        const response = await fetch(`${endpoint}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders,
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages,
+            temperature,
+            max_tokens: maxTokens,
+            stream: false
+          }),
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        // If response is not ok but not a timeout, try alternative provider immediately
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log(`[0G Chat] Provider ${selectedProvider} returned ${response.status}: ${errorText}`);
+          
+          // Check for common "busy" indicators
+          if (response.status === 503 || response.status === 504 || 
+              response.status === 429 || errorText.includes('busy') || 
+              errorText.includes('overloaded') || errorText.includes('timeout')) {
+            
+            console.log(`[0G Chat] Provider ${selectedProvider} is busy/overloaded. Trying alternative provider immediately...`);
+            
+            // Try alternative provider without retry count increase
+            const workingProviders = await this.getWorkingProviders(broker);
+            const alternativeProvider = workingProviders.find(p => p.provider !== selectedProvider);
+            
+            if (alternativeProvider) {
+              console.log(`[0G Chat] Switching to alternative provider due to busy status: ${alternativeProvider.provider}`);
+              return await this.chatCompletion({
+                messages,
+                providerAddress: alternativeProvider.provider,
+                model: alternativeProvider.model,
+                temperature,
+                maxTokens
+              }, retryCount); // Keep same retry count since this is provider switching, not a retry
+            }
+          }
+          
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => "");
