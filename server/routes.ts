@@ -204,7 +204,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       console.log(`Created new user for wallet ${walletConnection.address}: ${user.id}`);
     } else {
-      console.log(`Found existing user for wallet ${walletConnection.address}: ${user.id}, avatar: ${user.avatar}`);
+      console.log(`[AVATAR DEBUG] Found existing user for wallet ${walletConnection.address}: ${user.id}`);
+      console.log(`[AVATAR DEBUG] Current avatar value: "${user.avatar}" (type: ${typeof user.avatar})`);
+      console.log(`[AVATAR DEBUG] Avatar is ${user.avatar ? 'NOT empty' : 'EMPTY or NULL'}`);
     }
 
     // Note: getUserByWalletAddress already recalculates post count for accuracy
@@ -1836,11 +1838,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update avatar after upload
   app.put("/api/users/me/avatar", async (req, res) => {
     try {
+      console.log(`[AVATAR UPDATE] Request session:`, req.session.id);
+      console.log(`[AVATAR UPDATE] Wallet connection:`, req.session.walletConnection);
+      
       const walletConnection = getWalletConnection(req);
       
       if (!walletConnection.connected || !walletConnection.address) {
+        console.log(`[AVATAR UPDATE] Wallet not connected:`, walletConnection);
         return res.status(401).json({
-          message: "Wallet connection required"
+          message: "Wallet connection required",
+          walletStatus: walletConnection
         });
       }
 
@@ -1848,10 +1855,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "avatarURL is required" });
       }
 
+      console.log(`[AVATAR UPDATE] Processing avatar update for wallet: ${walletConnection.address}`);
+      console.log(`[AVATAR UPDATE] Received avatarURL: ${req.body.avatarURL}`);
+
       // Get current user
       let user = await storage.getUserByWalletAddress(walletConnection.address);
       
       if (!user) {
+        console.log(`[AVATAR UPDATE] User not found for wallet: ${walletConnection.address}`);
         return res.status(404).json({
           message: "User profile not found"
         });
@@ -1867,19 +1878,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update user avatar with additional logging
-      console.log(`Updating avatar for user ${user.id} with path: ${avatarPath}`);
+      console.log(`[AVATAR UPDATE] Updating avatar for user ${user.id} with path: ${avatarPath}`);
       const updatedUser = await storage.updateUserProfile(user.id, { 
         avatar: avatarPath 
       });
       
-      console.log(`Avatar updated successfully. User avatar field:`, updatedUser.avatar);
+      console.log(`[AVATAR UPDATE] ✅ Avatar updated successfully. User avatar field:`, updatedUser.avatar);
       
       res.json({
+        success: true,
         avatar: avatarPath,
         user: updatedUser
       });
     } catch (error) {
-      console.error("Avatar update error:", error);
+      console.error("[AVATAR UPDATE] ❌ Avatar update error:", error);
       res.status(500).json({ error: "Failed to update avatar" });
     }
   });

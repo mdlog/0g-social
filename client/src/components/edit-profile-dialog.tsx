@@ -139,11 +139,15 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
         throw new Error(`Upload failed: ${uploadResponse.status}`);
       }
 
+      console.log("[AVATAR UPLOAD] Updating avatar with URL:", uploadData.uploadURL);
+      
       // Update avatar on backend
       const avatarResponse = await apiRequest("PUT", "/api/users/me/avatar", { 
         avatarURL: uploadData.uploadURL 
       });
       const avatarData = await avatarResponse.json();
+      
+      console.log("[AVATAR UPLOAD] Avatar update response:", avatarData);
 
       // Update form value
       form.setValue("avatar", avatarData.avatar);
