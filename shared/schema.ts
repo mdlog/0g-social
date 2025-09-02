@@ -119,6 +119,7 @@ export const notifications = pgTable("notifications", {
   recipientId: varchar("recipient_id").notNull().references(() => users.id),
   senderId: varchar("sender_id").references(() => users.id), // null for system notifications
   type: text("type").notNull(), // 'like' | 'comment' | 'follow' | 'repost' | 'mention' | 'system'
+  title: text("title").notNull(), // Notification title
   postId: varchar("post_id").references(() => posts.id), // null for non-post notifications
   commentId: varchar("comment_id").references(() => comments.id), // for comment notifications
   message: text("message").notNull(),

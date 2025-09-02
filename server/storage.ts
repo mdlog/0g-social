@@ -1,6 +1,6 @@
 import { type User, type Post, type Follow, type Like, type Comment, type Repost, type InsertUser, type InsertPost, type InsertFollow, type InsertLike, type InsertComment, type InsertRepost, type PostWithAuthor, type UserProfile, type UpdateUserProfile, type Share, type CommentLike, type Bookmark, type Collection, type InsertShare, type InsertCommentLike, type InsertBookmark, type InsertCollection } from "@shared/schema";
 import { db } from "./db";
-import { users, posts, follows, likes, comments, reposts, shares, commentLikes, bookmarks, collections } from "@shared/schema";
+import { users, posts, follows, likes, comments, reposts, shares, commentLikes, bookmarks, collections, notifications } from "@shared/schema";
 import { eq, desc, and, sql, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
@@ -814,48 +814,88 @@ export class DatabaseStorage implements IStorage {
 
   // Notification methods
   async getNotifications(userId: string): Promise<any[]> {
-    // For now, return mock notifications since we need to implement the database structure
-    return [
-      {
-        id: '1',
-        userId,
-        type: 'like',
-        title: 'Your post received a like',
-        message: 'Someone liked your post about 0G Chain',
-        isRead: false,
-        createdAt: new Date().toISOString(),
-        metadata: {
-          postPreview: '0G Chain is revolutionizing decentralized infrastructure...'
-        }
-      },
-      {
-        id: '2',
-        userId,
-        type: 'comment',
-        title: 'New comment on your post',
-        message: 'Someone commented on your post',
-        isRead: false,
-        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-        metadata: {
-          postPreview: 'DeSocialAI represents the future of social media...'
-        }
-      }
-    ];
+    try {
+      const result = await db
+        .select({
+          id: notifications.id,
+          type: notifications.type,
+          title: notifications.title,
+          message: notifications.message,
+          isRead: notifications.isRead,
+          createdAt: notifications.createdAt,
+          metadata: notifications.metadata,
+          sender: {
+            id: users.id,
+            username: users.username,
+            displayName: users.displayName,
+            avatar: users.avatar
+          }
+        })
+        .from(notifications)
+        .leftJoin(users, eq(users.id, notifications.senderId))
+        .where(eq(notifications.recipientId, userId))
+        .orderBy(desc(notifications.createdAt))
+        .limit(20);
+
+      return result.map(notification => ({
+        ...notification,
+        createdAt: notification.createdAt.toISOString()
+      }));
+    } catch (error) {
+      console.error('[Get Notifications Error]', error);
+      return [];
+    }
   }
 
   async createNotification(data: any): Promise<any> {
-    // Mock implementation - in real app, this would create a notification in the database
-    return { id: randomUUID(), ...data, createdAt: new Date().toISOString() };
+    try {
+      const [notification] = await db
+        .insert(notifications)
+        .values({
+          recipientId: data.userId,
+          senderId: data.senderId || null,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          isRead: data.isRead || false,
+          postId: data.metadata?.postId || null,
+          commentId: data.metadata?.commentId || null,
+          metadata: data.metadata || {}
+        })
+        .returning();
+
+      console.log(`[NOTIFICATION] ✅ Created notification: ${data.type} for user ${data.userId}`);
+      return notification;
+    } catch (error) {
+      console.error('[Create Notification Error]', error);
+      return null;
+    }
   }
 
   async markNotificationAsRead(notificationId: string, userId: string): Promise<void> {
-    // Mock implementation - would update notification as read in database
-    console.log(`Marked notification ${notificationId} as read for user ${userId}`);
+    try {
+      await db
+        .update(notifications)
+        .set({ isRead: true })
+        .where(and(eq(notifications.id, notificationId), eq(notifications.recipientId, userId)));
+      
+      console.log(`[NOTIFICATION] ✅ Marked notification ${notificationId} as read for user ${userId}`);
+    } catch (error) {
+      console.error('[Mark Notification Read Error]', error);
+    }
   }
 
   async markAllNotificationsAsRead(userId: string): Promise<void> {
-    // Mock implementation - would mark all user notifications as read
-    console.log(`Marked all notifications as read for user ${userId}`);
+    try {
+      await db
+        .update(notifications)
+        .set({ isRead: true })
+        .where(eq(notifications.recipientId, userId));
+      
+      console.log(`[NOTIFICATION] ✅ Marked all notifications as read for user ${userId}`);
+    } catch (error) {
+      console.error('[Mark All Notifications Read Error]', error);
+    }
   }
 
   async getAllUsers(): Promise<User[]> {

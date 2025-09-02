@@ -684,6 +684,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (post && post.authorId !== user.id) {
         await storage.createNotification({
           userId: post.authorId,
+          senderId: user.id,
           type: 'like',
           title: 'Your post received a like',
           message: `${user.displayName || user.username} liked your post`,
@@ -793,6 +794,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (post && post.authorId !== user.id) {
         await storage.createNotification({
           userId: post.authorId,
+          senderId: user.id,
           type: 'comment',
           title: 'New comment on your post',
           message: `${user.displayName || user.username} commented on your post`,
