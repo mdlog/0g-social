@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Moon, Sun, Search, Wifi, WifiOff, Bell } from "lucide-react";
+import { Moon, Sun, Search, Wifi, WifiOff } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { Button } from "@/components/ui/button";
@@ -86,17 +86,7 @@ export function Header() {
               )}
             </Button>
 
-            {/* Notifications - disabled temporarily */}
-            {currentUser && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-10 h-10 rounded-xl hover:bg-accent transition-all duration-200 relative"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-background"></span>
-              </Button>
-            )}
+
           </div>
         </div>
       </div>
