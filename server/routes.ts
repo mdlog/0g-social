@@ -1885,6 +1885,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`[AVATAR UPDATE] ✅ Avatar updated successfully. User avatar field:`, updatedUser.avatar);
       
+      // Clear any invalid avatar if file doesn't exist
+      try {
+        const testFile = await objectStorageService.getObjectEntityFile(avatarPath.replace('/api', ''));
+        if (!testFile) {
+          console.log(`[AVATAR UPDATE] ⚠️ Avatar file not found in storage, clearing avatar field`);
+          await storage.updateUserProfile(user.id, { avatar: null });
+          return res.json({
+            success: true,
+            avatar: null,
+            message: "Avatar file not found, cleared from profile"
+          });
+        }
+      } catch (err) {
+        console.log(`[AVATAR UPDATE] Could not verify avatar file existence:`, err);
+      }
+      
       res.json({
         success: true,
         avatar: avatarPath,
@@ -1920,6 +1936,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!res.headersSent) {
         res.status(500).json({ error: "Failed to download file" });
       }
+    }
+  });
+
+  // Clear invalid avatars endpoint
+  app.delete("/api/users/me/avatar", async (req, res) => {
+    try {
+      const walletConnection = getWalletConnection(req);
+      
+      if (!walletConnection.connected || !walletConnection.address) {
+        return res.status(401).json({
+          message: "Wallet connection required"
+        });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletConnection.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Clear avatar
+      const updatedUser = await storage.updateUserProfile(user.id, { 
+        avatar: null 
+      });
+      
+      console.log(`[AVATAR CLEAR] ✅ Avatar cleared for user: ${user.id}`);
+      
+      res.json({
+        success: true,
+        message: "Avatar cleared successfully",
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error("[AVATAR CLEAR] ❌ Clear avatar error:", error);
+      res.status(500).json({ error: "Failed to clear avatar" });
     }
   });
 

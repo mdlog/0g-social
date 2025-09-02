@@ -88,34 +88,16 @@ export function LeftSidebar() {
             <CardContent className="p-6">
               <div className="text-center">
 
-                <div className="relative w-20 h-20 mx-auto mb-4">
-                  {/* Debug info */}
-                  <div className="absolute -top-8 left-0 text-xs text-gray-400">
-                    {currentUser.avatar ? "Has Avatar" : "No Avatar"}
-                  </div>
-                  
-                  <Avatar className="w-full h-full ring-4 ring-primary ring-opacity-20">
-                    {currentUser.avatar && (
-                      <img
-                        key={`avatar-${currentUser.id}-${Date.now()}`}
-                        src={`${currentUser.avatar}?t=${Date.now()}`}
-                        alt={currentUser.displayName}
-                        className="w-full h-full object-cover rounded-full"
-                        onError={(e) => {
-                          console.error("[SIDEBAR AVATAR] ❌ Failed to load:", e.currentTarget.src);
-                          console.error("[SIDEBAR AVATAR] Avatar path:", currentUser.avatar);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                        onLoad={() => {
-                          console.log("[SIDEBAR AVATAR] ✅ Successfully loaded:", currentUser.avatar);
-                        }}
-                      />
-                    )}
-                    <AvatarFallback className="gradient-brand text-white font-semibold text-lg w-full h-full flex items-center justify-center">
-                      {currentUser.displayName.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
+                <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary ring-opacity-20">
+                  <AvatarImage 
+                    src={currentUser.avatar ? `${currentUser.avatar}?t=${Date.now()}` : ""} 
+                    alt={currentUser.displayName} 
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="gradient-brand text-white font-semibold text-lg">
+                    {currentUser.displayName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <h3 className="font-bold text-lg text-foreground mb-1">{currentUser.displayName}</h3>
                 <p className="text-muted-foreground text-sm mb-4">
                   @{currentUser.username}
