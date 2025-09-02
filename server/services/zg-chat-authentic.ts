@@ -103,7 +103,7 @@ export class ZGChatServiceAuthentic {
           console.log(`[0G Chat] Insufficient balance: ${balanceOG} OG, adding funds...`);
           
           try {
-            await broker.ledger.addLedger(ethers.parseEther("0.1")); // Add 0.1 OG as recommended
+            await broker.ledger.addLedger(ethers.parseEther("0.1").toString()); // Add 0.1 OG as recommended
             console.log(`[0G Chat] ✅ Added 0.1 OG to ledger`);
             
             // Check new balance
@@ -120,26 +120,68 @@ export class ZGChatServiceAuthentic {
         // Try to add funds even if balance check failed
         try {
           console.log(`[0G Chat] Attempting to add funds despite balance check failure...`);
-          await broker.ledger.addLedger(ethers.parseEther("0.05"));
+          await broker.ledger.addLedger(ethers.parseEther("0.05").toString());
           console.log(`[0G Chat] ✅ Added 0.05 OG emergency funds`);
         } catch (emergencyError: any) {
           console.log(`[0G Chat] Emergency funding failed: ${emergencyError.message}`);
         }
       }
 
-      // Discover available services as per documentation
+      // Discover available services with retry and fallback for 504 errors
       let services: any[] = [];
-      try {
-        services = await broker.inference.listService();
-        console.log(`[0G Chat] Found ${services.length} available services`);
-      } catch (error: any) {
-        console.log(`[0G Chat] Service discovery failed: ${error.message}`);
-        throw new Error(`Service discovery failed: ${error.message}`);
+      let serviceDiscoveryAttempts = 0;
+      const maxServiceDiscoveryAttempts = 2;
+      
+      while (serviceDiscoveryAttempts < maxServiceDiscoveryAttempts && services.length === 0) {
+        try {
+          console.log(`[0G Chat] Service discovery attempt ${serviceDiscoveryAttempts + 1}/${maxServiceDiscoveryAttempts}`);
+          
+          // Add timeout to service discovery to handle 504 errors
+          const discoveryPromise = broker.inference.listService();
+          const timeoutPromise = new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error('Service discovery timeout')), 10000)
+          );
+          
+          services = await Promise.race([discoveryPromise, timeoutPromise]);
+          console.log(`[0G Chat] Found ${services.length} available services`);
+          
+          if (services.length > 0) {
+            break; // Success, exit retry loop
+          }
+          
+        } catch (discoveryError: any) {
+          serviceDiscoveryAttempts++;
+          console.log(`[0G Chat] Service discovery failed (attempt ${serviceDiscoveryAttempts}): ${discoveryError.message}`);
+          
+          if (serviceDiscoveryAttempts >= maxServiceDiscoveryAttempts) {
+            // Use fallback providers if service discovery completely fails
+            console.log(`[0G Chat] Service discovery failed completely. Using fallback provider configuration.`);
+            break;
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+      
+      // If service discovery failed, create fallback service objects for official providers
+      if (services.length === 0) {
+        console.log(`[0G Chat] Using fallback provider configuration due to network issues`);
+        services = [
+          { provider: OFFICIAL_PROVIDERS["deepseek-r1-70b"], model: "phala/deepseek-chat-v3-0324" },
+          { provider: OFFICIAL_PROVIDERS["llama-3.3-70b-instruct"], model: "phala/llama-3.3-70b-instruct" }
+        ];
+        console.log(`[0G Chat] Using ${services.length} fallback providers`);
       }
 
       if (services.length === 0) {
         throw new Error("No 0G Compute providers are currently available");
       }
+      
+      // Log available services
+      services.forEach((service, index) => {
+        console.log(`[0G Chat] Service ${index + 1}: ${service.provider} (${service.model})`);
+      });
 
       // Use official providers with smart switching
       const providersToTry = [

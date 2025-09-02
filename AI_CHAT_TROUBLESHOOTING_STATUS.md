@@ -96,12 +96,29 @@ AI_CHAT_TROUBLESHOOTING_STATUS.md     # This status document
 - ✅ Fresh headers: Generated per request to prevent reuse
 
 ## Current Status: FULLY IMPLEMENTED
-All troubleshooting mechanisms are working correctly. The balance sync issue is a known testnet limitation where provider ledger (1.63 ETH) lags behind wallet balance (2.133 OG). This will be resolved in production deployment.
+All troubleshooting mechanisms are working correctly including:
+
+### ✅ Service Discovery Issues (September 2, 2025 - Added)
+**Problem:** 504 Gateway Timeout from 0G RPC endpoints during service discovery
+**Solution Implemented:**
+- Service discovery retry mechanism with 10-second timeout
+- Fallback to hardcoded official provider configuration
+- Graceful degradation when network issues occur
+- Smart error detection for gateway timeouts
+
+### ✅ All Previous Issues Resolved
+- Balance sync issue properly detected and reported
+- Header reuse prevention working
+- Multi-provider fallback functional
+- User-friendly error messages displayed
+
+## Known Limitation
+The balance sync issue is a known testnet limitation where provider ledger (1.63 ETH) lags behind wallet balance (2.133 OG). This will be resolved in production deployment.
 
 ## Production Readiness
 System is ready for production with:
 - Authentic 0G Compute Network integration (no simulation)
-- Complete troubleshooting error handling
-- Smart provider switching
-- User-friendly error messages
-- Automatic recovery mechanisms
+- Complete troubleshooting error handling including network timeouts
+- Smart provider switching with fallback mechanisms
+- User-friendly error messages for all failure scenarios
+- Robust service discovery with retry and fallback

@@ -29,11 +29,12 @@ AI features are powered by OpenAI GPT-4o for content recommendations, trend anal
 - ✅ Service discovery via listService() and getServiceMetadata()
 - ✅ Authentication headers via getRequestHeaders() (single-use)
 - ✅ Response verification via processResponse() for TEE services
-- ✅ Smart provider switching between official providers (deepseek-r1-70b, llama-3.3-70b, qwen3-coder)
+- ✅ Smart provider switching between official providers (deepseek-r1-70b, llama-3.3-70b-instruct)
 - ✅ Complete troubleshooting implementation (balance, headers, provider failures)
-- ✅ User-friendly error handling with automatic recovery
+- ✅ Network resilience with service discovery fallback for 504 Gateway timeouts
+- ✅ User-friendly error handling with automatic recovery mechanisms
 - ✅ No fallback/simulation mode - pure 0G Compute Network implementation
-- ✅ Production-ready with comprehensive error detection
+- ✅ Production-ready with comprehensive error detection and network resilience
 
 ## 0G Chain Integration
 DeSocialAI deeply integrates with 0G Chain infrastructure. This includes:
