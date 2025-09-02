@@ -50,6 +50,7 @@ export class ZGChatServiceFixed {
     }
 
     console.log('[0G Chat] Initializing broker with wallet:', this.walletAddress);
+    // Use the same initialization pattern as the working zg-chat service
     this.broker = new ZGComputeNetworkBroker(ZG_PRIVATE_KEY, ZG_RPC_URL);
     this.isInitialized = true;
   }
@@ -76,10 +77,23 @@ export class ZGChatServiceFixed {
       let services: any[] = [];
       try {
         services = await broker.inference.listService();
+        console.log(`[0G Chat] Found ${services.length} available services`);
       } catch (error: any) {
-        console.log(`[0G Chat] Service listing failed: ${error.message}`);
-        // Return simulation mode if service discovery fails
-        return this.getSimulationResponse();
+        console.log(`[0G Chat] Service listing API failed: ${error.message}`);
+        // Use direct provider connection instead of service discovery
+        services = [
+          {
+            provider: "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3",
+            endpoint: "https://inference-testnet.0g.ai", 
+            model: "meta-llama/Llama-2-7b-chat-hf"
+          },
+          {
+            provider: "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
+            endpoint: "https://inference-testnet-2.0g.ai",
+            model: "meta-llama/Llama-2-7b-chat-hf"
+          }
+        ];
+        console.log(`[0G Chat] Using hardcoded provider endpoints`);
       }
 
       // Filter for chat services and prioritize known good providers
@@ -114,8 +128,7 @@ export class ZGChatServiceFixed {
       }
 
       if (workingProviders.length === 0) {
-        console.log(`[0G Chat] No providers available, using simulation mode`);
-        return this.getSimulationResponse();
+        throw new Error("No 0G Compute providers are available. Please try again later.");
       }
 
       // Try each provider with smart switching
@@ -139,9 +152,8 @@ export class ZGChatServiceFixed {
         }
       }
 
-      // All providers failed - return simulation mode
-      console.log(`[0G Chat] All providers failed, using simulation mode`);
-      return this.getSimulationResponse();
+      // All providers failed - throw error
+      throw new Error(`All 0G Compute providers failed. Last error: ${lastError}. Please try again later.`);
 
     } catch (error: any) {
       console.error(`[0G Chat] Chat completion error:`, error.message);
@@ -163,24 +175,24 @@ export class ZGChatServiceFixed {
     const { provider: providerAddress, endpoint, model } = provider;
 
     try {
-      // Acknowledge provider (optional, may fail)
+      // Acknowledge provider (required for 0G Compute)
       try {
         await broker.inference.acknowledgeProviderSigner(providerAddress);
-      } catch (error) {
-        console.log(`[0G Chat] Provider acknowledgment failed, continuing...`);
+        console.log(`[0G Chat] Provider ${providerAddress} acknowledged successfully`);
+      } catch (error: any) {
+        console.log(`[0G Chat] Provider acknowledgment failed: ${error.message}`);
+        throw new Error(`Failed to acknowledge provider: ${error.message}`);
       }
 
-      // Create auth headers
+      // Create auth headers (required for 0G Compute)
       let authHeaders: any = {};
       try {
         const nonce = `nonce-${Date.now()}`;
         authHeaders = await broker.inference.getRequestHeaders(providerAddress, nonce);
-      } catch (error) {
-        console.log(`[0G Chat] Auth headers failed, using basic headers`);
-        authHeaders = {
-          "User-Agent": "0G-Chat-Client/1.0",
-          "X-Provider": providerAddress
-        };
+        console.log(`[0G Chat] Auth headers created successfully`);
+      } catch (error: any) {
+        console.log(`[0G Chat] Auth headers creation failed: ${error.message}`);
+        throw new Error(`Failed to create auth headers: ${error.message}`);
       }
 
       // Make request with timeout
@@ -245,33 +257,7 @@ export class ZGChatServiceFixed {
     }
   }
 
-  private getSimulationResponse(): ChatResponse {
-    return {
-      ok: true,
-      providerAddress: "simulation-mode",
-      model: "local-fallback",
-      verified: false,
-      balance: "2.133",
-      result: {
-        choices: [{
-          message: {
-            role: "assistant",
-            content: "Saya sedang berjalan dalam simulation mode karena semua provider 0G Network sedang sibuk atau mengalami masalah teknis. Balance Anda (2.133 OG) sudah cukup untuk transaksi.\n\nIni adalah kondisi sementara - silakan coba lagi dalam beberapa menit untuk mendapatkan respons autentik dari 0G Compute Network. Sementara ini, saya tetap bisa membantu dengan pertanyaan umum menggunakan mode fallback ini."
-          }
-        }],
-        usage: {
-          prompt_tokens: 50,
-          completion_tokens: 100,
-          total_tokens: 150
-        }
-      },
-      usage: {
-        promptTokens: 50,
-        completionTokens: 100,
-        totalTokens: 150
-      }
-    };
-  }
+  // Removed simulation response - no fallback mode
 
   async getServiceStatus(): Promise<{
     isConfigured: boolean;
