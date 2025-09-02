@@ -13,6 +13,7 @@ import { zgComputeRealService } from "./services/zg-compute-real";
 import { zgChatService } from "./services/zg-chat";
 import { ZGChatServiceImproved } from "./services/zg-chat-improved.js";
 import { zgChatServiceFixed } from "./services/zg-chat-fixed.js";
+import { zgChatServiceAuthentic } from "./services/zg-chat-authentic.js";
 import { zgDAService } from "./services/zg-da";
 import { zgDAClientService } from "./services/zg-da-client";
 import { zgChainService } from "./services/zg-chain";
@@ -1316,10 +1317,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[0G Chat API] Processing chat request for user: ${walletConnection.address}`);
 
-      // Use the fixed chat service with smart provider switching
-      zgChatServiceFixed.setWalletAddress(walletConnection.address);
+      // Use authentic 0G Chat service based on official documentation
+      zgChatServiceAuthentic.setWalletAddress(walletConnection.address);
 
-      const result = await zgChatServiceFixed.chatCompletion({
+      const result = await zgChatServiceAuthentic.chatCompletion({
         messages,
         providerAddress,
         model,
@@ -1359,10 +1360,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Set wallet address if connected
       if (walletConnection.connected && walletConnection.address) {
-        zgChatServiceFixed.setWalletAddress(walletConnection.address);
+        zgChatServiceAuthentic.setWalletAddress(walletConnection.address);
       }
       
-      const status = await zgChatServiceFixed.getServiceStatus();
+      const status = await zgChatServiceAuthentic.getServiceStatus();
       res.json(status);
     } catch (error: any) {
       res.status(500).json({ 
