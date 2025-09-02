@@ -481,11 +481,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const post = await storage.createPost(newPost);
 
       // Broadcast new post to all connected WebSocket clients for real-time updates
+      console.log('[Real-time] 📨 Broadcasting new post to all clients...');
       broadcastToAll({
         type: 'new_post',
-        data: post,
+        data: {
+          post,
+          authorInfo: {
+            id: user.id,
+            displayName: user.displayName,
+            username: user.username,
+            walletAddress: walletData.address
+          }
+        },
         timestamp: Date.now()
       });
+      
+      // Create notification for followers
+      const followers = await storage.getFollowers(user.id);
+      for (const follower of followers) {
+        await storage.createNotification({
+          userId: follower.id,
+          senderId: user.id,
+          type: 'new_post',
+          title: 'New post from user you follow',
+          message: `${user.displayName || user.username} posted: ${postData.content.substring(0, 50)}...`,
+          isRead: false,
+          metadata: {
+            postId: post.id,
+            postPreview: postData.content.substring(0, 100) + '...',
+            authorUsername: user.username,
+            authorDisplayName: user.displayName
+          }
+        });
+        
+        // Broadcast notification to follower if connected
+        broadcastToAll({
+          type: 'new_notification',
+          userId: follower.id,
+          data: {
+            type: 'new_post',
+            message: `${user.displayName || user.username} posted: ${postData.content.substring(0, 50)}...`,
+            metadata: { 
+              postPreview: postData.content.substring(0, 100) + '...',
+              authorDisplayName: user.displayName || user.username
+            }
+          },
+          timestamp: Date.now()
+        });
+      }
 
       // If 0G Storage failed, still return success with helpful message and retry info
       if (!storageResult.success) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { queryClient } from '@/lib/queryClient';
 
 interface WebSocketMessage {
@@ -13,6 +13,73 @@ export function useWebSocket() {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttempts = 5;
+
+  const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
+    console.log('📨 WebSocket message received:', message.type);
+    
+    switch (message.type) {
+      case 'new_post':
+        console.log('📨 New post received, refreshing feed immediately...');
+        
+        // Invalidate and refetch all post-related queries immediately
+        queryClient.invalidateQueries({ 
+          predicate: (query) => {
+            const queryKey = query.queryKey as string[];
+            return queryKey[0] === '/api/posts' || queryKey[0] === '/api/posts/feed';
+          }
+        });
+        
+        // Force immediate refetch for instant display
+        queryClient.refetchQueries({ 
+          predicate: (query) => {
+            const queryKey = query.queryKey as string[];
+            return queryKey[0] === '/api/posts/feed';
+          }
+        });
+        
+        // Update user profile for post count
+        queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
+        break;
+        
+      case 'post_liked':
+        console.log('❤️ Post liked, refreshing posts...');
+        queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
+        break;
+      
+      case 'new_comment':
+        const postId = message.data.postId;
+        console.log(`💬 New comment received for post ${postId}, refreshing...`);
+        
+        // Invalidate all comment queries for this post
+        queryClient.invalidateQueries({ 
+          predicate: (query) => {
+            const queryKey = query.queryKey as string[];
+            return queryKey[0] === '/api/posts' && queryKey[2] === 'comments' && queryKey[1] === postId;
+          }
+        });
+        
+        // Update post queries to show new comment count
+        queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
+        break;
+        
+      case 'new_notification':
+        console.log('🔔 New notification received, refreshing notifications...');
+        queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+        break;
+        
+      case 'profile_update':
+        console.log('👤 Profile update received, refreshing user data...');
+        queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
+        break;
+        
+      default:
+        console.log('📨 Unknown WebSocket message type:', message.type);
+    }
+  }, []);
 
   const connect = useCallback(() => {
     if (ws.current?.readyState === WebSocket.OPEN) return;
@@ -31,108 +98,33 @@ export function useWebSocket() {
 
       ws.current.onmessage = (event) => {
         try {
-          // Ensure event.data is a string and not an object
-          const data = typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
+          // Ensure event.data is a string and parse safely
+          let data: string;
+          if (typeof event.data === 'string') {
+            data = event.data;
+          } else if (event.data instanceof Blob) {
+            // Handle blob data asynchronously
+            event.data.text().then(text => {
+              try {
+                const message = JSON.parse(text);
+                handleWebSocketMessage(message);
+              } catch (err) {
+                console.error('Failed to parse blob WebSocket message:', err);
+              }
+            });
+            return;
+          } else {
+            data = JSON.stringify(event.data);
+          }
+          
           if (!data || data.trim() === '') return;
           
           const message: WebSocketMessage = JSON.parse(data);
+          handleWebSocketMessage(message);
           
-          switch (message.type) {
-            case 'new_post':
-              // Force immediate refresh of ALL queries related to posts
-              console.log('📨 New post received, refreshing feed...');
-              
-              // Invalidate all post queries with exact matching
-              queryClient.invalidateQueries({ 
-                predicate: (query) => {
-                  const queryKey = query.queryKey as string[];
-                  return queryKey[0] === '/api/posts' || queryKey[0] === '/api/posts/feed';
-                }
-              });
-              
-              // Also force refetch user profiles for post counts
-              queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
-              
-              // Force immediate refetch instead of just invalidating
-              const refetchPromise = queryClient.refetchQueries({ 
-                predicate: (query) => {
-                  const queryKey = query.queryKey as string[];
-                  return queryKey[0] === '/api/posts/feed';
-                }
-              });
-              
-              console.log('🔄 Forcing refetch of feed queries...');
-              refetchPromise.then(() => {
-                console.log('✅ Feed refetch completed');
-              }).catch((error) => {
-                console.error('❌ Feed refetch failed:', error);
-              });
-              break;
-            
-            case 'post_liked':
-              // Refresh posts to show updated like count
-              queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
-              break;
-            
-            case 'new_comment':
-              // Force refresh of comment data for the specific post
-              const postId = message.data.postId;
-              console.log(`📨 New comment received for post ${postId}, refreshing comments...`);
-              
-              // Invalidate all comment queries for this post
-              queryClient.invalidateQueries({ 
-                predicate: (query) => {
-                  const queryKey = query.queryKey as string[];
-                  return queryKey[0] === '/api/posts' && queryKey[2] === 'comments' && queryKey[1] === postId;
-                }
-              });
-              
-              // Also invalidate general post queries to update comment counts
-              queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
-              
-              // Force immediate refetch of comments for this specific post
-              queryClient.refetchQueries({ 
-                predicate: (query) => {
-                  const queryKey = query.queryKey as string[];
-                  return queryKey[0] === '/api/posts' && queryKey[2] === 'comments' && queryKey[1] === postId;
-                }
-              });
-              
-              console.log(`✅ Comment queries refreshed for post ${postId}`);
-              break;
-            
-            case 'profile_update':
-              // Force refresh of all user-related data when profile is updated
-              const updatedUserId = message.data.userId;
-              console.log(`📨 Profile update received for user ${updatedUserId}, refreshing all user data...`);
-              
-              // Invalidate all user-related queries
-              queryClient.invalidateQueries({ queryKey: ['/api/users/me'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/posts/feed'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-              
-              // Force refresh all comment data that might contain user info
-              queryClient.invalidateQueries({ 
-                predicate: (query) => {
-                  const queryKey = query.queryKey as string[];
-                  return queryKey[0] && typeof queryKey[0] === 'string' && 
-                         queryKey[0].includes('/comments') ? true : false;
-                }
-              });
-              
-              // Force immediate refetch of critical data
-              queryClient.refetchQueries({ queryKey: ['/api/posts/feed'] });
-              
-              console.log(`✅ Profile update handled for user ${updatedUserId}`);
-              break;
-            
-            default:
-              console.log('Unknown WebSocket message:', message);
-          }
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error('WebSocket message parsing error:', error);
+          console.error('Raw message data:', event.data);
         }
       };
 
@@ -158,7 +150,7 @@ export function useWebSocket() {
     } catch (error) {
       console.error('Error creating WebSocket connection:', error);
     }
-  }, []);
+  }, [handleWebSocketMessage]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

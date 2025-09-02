@@ -18,7 +18,13 @@ export function Feed() {
     queryKey: ["/api/posts/feed", limit, offset],
     queryFn: async () => {
       console.log(`🔄 Fetching feed: limit=${limit}, offset=${offset}`);
-      const response = await fetch(`/api/posts/feed?limit=${limit}&offset=${offset}`);
+      const response = await fetch(`/api/posts/feed?limit=${limit}&offset=${offset}`, {
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch posts");
       const data = await response.json();
       console.log(`✅ Feed fetched: ${data.length} posts`);
@@ -29,7 +35,8 @@ export function Feed() {
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: 5000, // Aggressive polling every 5 seconds as fallback
+    // Remove aggressive polling since WebSocket will handle real-time updates
+    refetchInterval: false,
   });
 
   const loadMore = () => {
