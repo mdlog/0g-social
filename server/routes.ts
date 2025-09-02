@@ -2970,25 +2970,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Mark all notifications as read
   app.post("/api/notifications/mark-all-read", async (req, res) => {
     try {
+      console.log("[MARK ALL READ] 🔄 Request received");
+      console.log("[MARK ALL READ] Session ID:", req.sessionID);
+      console.log("[MARK ALL READ] Session data:", JSON.stringify(req.session));
+      
       const walletConnection = getWalletConnection(req);
+      console.log("[MARK ALL READ] Wallet connection data:", JSON.stringify(walletConnection));
       
       if (!walletConnection.connected || !walletConnection.address) {
+        console.log("[MARK ALL READ] ❌ Wallet not connected or no address");
         return res.status(401).json({
           message: "Wallet connection required"
         });
       }
 
+      console.log("[MARK ALL READ] Looking for user with address:", walletConnection.address);
       const user = await storage.getUserByWalletAddress(walletConnection.address);
       if (!user) {
+        console.log("[MARK ALL READ] ❌ User not found for address:", walletConnection.address);
         return res.status(404).json({
           message: "User not found"
         });
       }
 
+      console.log("[MARK ALL READ] ✅ Found user:", user.id, "- marking all notifications as read");
       await storage.markAllNotificationsAsRead(user.id);
+      console.log("[MARK ALL READ] ✅ Successfully marked all notifications as read");
       res.json({ success: true });
     } catch (error: any) {
-      console.error("Mark all notifications read error:", error);
+      console.error("[MARK ALL READ] ❌ Error:", error);
       res.status(500).json({ message: "Failed to mark notifications as read" });
     }
   });
