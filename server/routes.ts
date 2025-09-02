@@ -961,15 +961,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      if (!result || !result.success) {
+      if (!result || !result.instanceId) {
         return res.status(500).json({
           error: 'Failed to deploy AI feed',
-          details: result?.error || 'Unknown error'
+          details: 'Deployment service unavailable'
         });
       }
       
       // Store deployment status in session
-      req.session.aiFeed = {
+      (req.session as any).aiFeed = {
         deployed: true,
         deploymentId: result?.instanceId || 'sim-' + Date.now(),
         deployedAt: new Date().toISOString(),
@@ -983,7 +983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         deploymentId: result?.instanceId || 'sim-' + Date.now(),
         status: 'active',
         mode: result?.mode || 'simulation',
-        message: (result?.mode || 'simulation') === 'production' 
+        message: (result?.mode || 'simulation') === 'real' 
           ? 'Personal AI feed deployed successfully on 0G Compute'
           : 'Personal AI feed deployed in simulation mode (awaiting 0G Compute mainnet)'
       });
@@ -1004,7 +1004,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const aiFeed = req.session.aiFeed || { deployed: false };
+      const aiFeed = (req.session as any).aiFeed || { deployed: false };
       
       res.json({
         deployed: aiFeed.deployed || false,
@@ -1029,7 +1029,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const aiFeed = req.session.aiFeed;
+      const aiFeed = (req.session as any).aiFeed;
       if (!aiFeed?.deployed) {
         return res.status(400).json({
           error: "AI feed not deployed",
