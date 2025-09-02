@@ -152,9 +152,17 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
       // Update form value
       form.setValue("avatar", avatarData.avatar);
       
-      // Immediately invalidate user queries to refresh avatar everywhere
-      queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
-      queryClient.refetchQueries({ queryKey: ["/api/users/me"] });
+      // Force complete cache refresh to ensure avatar shows immediately
+      await queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/users/me"] });
+      
+      // Additional cache invalidation for all user-related queries
+      await queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      
+      // Close dialog after successful upload
+      setTimeout(() => {
+        setOpen(false);
+      }, 1000);
       
       toast({
         title: "Avatar uploaded",
@@ -178,6 +186,10 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
 
   const onSubmit = (data: UpdateUserProfile) => {
     console.log("Form submission data:", data);
+    // Preserve avatar if it was uploaded but not part of the form update
+    if (!data.avatar && user.avatar) {
+      data.avatar = user.avatar;
+    }
     updateProfileMutation.mutate(data);
   };
 

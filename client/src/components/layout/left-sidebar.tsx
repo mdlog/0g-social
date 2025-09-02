@@ -77,16 +77,16 @@ export function LeftSidebar() {
 
                 <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary ring-opacity-20">
                   <AvatarImage 
-                    key={currentUser.avatar}
-                    src={currentUser.avatar ? `${currentUser.avatar}?cache=${Math.random()}` : ""} 
+                    key={`${currentUser.avatar}-${Date.now()}`}
+                    src={currentUser.avatar ? `${currentUser.avatar}?t=${Date.now()}` : ""} 
                     alt={currentUser.displayName} 
                     className="object-cover"
                     onError={(e) => {
-                      console.log("Avatar load error:", e.currentTarget.src);
-                      console.log("Current user avatar path:", currentUser.avatar);
+                      console.log("[SIDEBAR AVATAR] Load error:", e.currentTarget.src);
+                      console.log("[SIDEBAR AVATAR] Current user avatar path:", currentUser.avatar);
                     }}
                     onLoad={() => {
-                      console.log("Avatar loaded successfully:", currentUser.avatar);
+                      console.log("[SIDEBAR AVATAR] Loaded successfully:", currentUser.avatar);
                     }}
                   />
                   <AvatarFallback className="gradient-brand text-white font-semibold text-lg">
