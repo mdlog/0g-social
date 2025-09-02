@@ -21,13 +21,15 @@ The system uses simplified authentication with mock user sessions for developmen
 ## AI Integration
 AI features are powered by OpenAI GPT-4o for content recommendations, trend analysis, and user insights. 
 
-**0G Compute Smart Provider Switching (September 2025):**
-- Automatic provider failover with 20-second timeout for faster response
-- Intelligent busy detection (503, 504, 429 errors) with instant switching
-- Multi-provider fallback system with prioritized provider selection
-- Network error detection and automatic provider switching
-- Simulation mode fallback with informative messaging when all providers are busy
-- Balance sync mechanisms for provider synchronization issues
+**0G Compute Network Integration (September 2, 2025):**
+- Authentic SDK implementation following official documentation (docs.0g.ai)
+- Uses createZGComputeNetworkBroker() for proper initialization
+- Implements acknowledgeProviderSigner() before requests (required)
+- Service discovery via listService() and getServiceMetadata()
+- Authentication headers via getRequestHeaders() (single-use)
+- Response verification via processResponse() for TEE services
+- Smart provider switching between official providers (deepseek-r1-70b, llama-3.3-70b)
+- No fallback/simulation mode - pure 0G Compute Network implementation
 
 ## 0G Chain Integration
 DeSocialAI deeply integrates with 0G Chain infrastructure. This includes:
