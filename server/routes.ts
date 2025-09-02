@@ -2427,9 +2427,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      // Convert to array and sort by trending score
+      // Convert to array and sort by posts count first (most posts first), then by trending score
       const trendingHashtags = Array.from(hashtagCounts.values())
-        .sort((a, b) => b.trendingScore - a.trendingScore)
+        .sort((a, b) => {
+          // First sort by posts count (descending - most posts first)
+          if (b.postsCount !== a.postsCount) {
+            return b.postsCount - a.postsCount;
+          }
+          // If posts count is equal, then sort by trending score
+          return b.trendingScore - a.trendingScore;
+        })
         .slice(0, limit);
 
       console.log(`[Hashtags] Found ${hashtagCounts.size} unique hashtags, returning top ${trendingHashtags.length}`);
