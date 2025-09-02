@@ -412,7 +412,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🌐 Links
 
-- **Live Demo**: [DeSocialAI Platform](https://desocialai.replit.app)
+- **Live Demo**: [DeSocialAI Platform](https://desocialai.xyz/)
 - **0G Chain Documentation**: [docs.0g.ai](https://docs.0g.ai)
 - **0G Compute Network**: [Decentralized AI Processing](https://docs.0g.ai/0g-compute)
 
