@@ -1023,18 +1023,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/hashtags/trending", async (req, res) => {
-    try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const userId = req.session.user?.id;
-
-      const hashtags = await storage.getTrendingHashtags(limit, userId);
-      res.json(hashtags);
-    } catch (error) {
-      console.error("Error fetching trending hashtags:", error);
-      res.status(500).json({ error: "Failed to fetch trending hashtags" });
-    }
-  });
+  // REMOVED DUPLICATE - using real hashtag implementation at line 2258
 
   // Network Stats
   app.get("/api/stats", async (req, res) => {
@@ -2254,47 +2243,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Trending hashtags endpoint
+  // Real-time hashtags trending endpoint based on actual posts content
   app.get('/api/hashtags/trending', async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
+      const userId = req.session.user?.id;
       
-      // Get all posts and extract hashtags
+      // Get all posts and extract hashtags from content
       const posts = await storage.getPosts(1000, 0);
       const hashtagCounts = new Map<string, any>();
       
+      console.log(`[Hashtags] Analyzing ${posts.length} posts for hashtag extraction...`);
+      
       posts.forEach(post => {
-        if (post.hashtags && Array.isArray(post.hashtags)) {
-          post.hashtags.forEach((tag: string) => {
+        // Extract hashtags from post content using regex
+        const content = post.content || '';
+        const hashtagMatches = content.match(/#[\w]+/g);
+        
+        if (hashtagMatches) {
+          hashtagMatches.forEach((hashtagWithSymbol: string) => {
+            const tag = hashtagWithSymbol.slice(1); // Remove # symbol
+            
             if (!hashtagCounts.has(tag)) {
               hashtagCounts.set(tag, {
                 id: crypto.randomUUID(),
-                tag,
+                name: tag,
                 postsCount: 0,
-                engagementRate: 0,
-                growth24h: 0,
-                category: 'general'
+                trendingScore: 0,
+                isFollowing: false,
+                likesCount: 0,
+                commentsCount: 0,
+                category: getCategoryForHashtag(tag)
               });
             }
             
             const current = hashtagCounts.get(tag);
             current.postsCount += 1;
-            current.engagementRate += (post.likesCount + post.commentsCount) / Math.max(current.postsCount, 1);
+            current.likesCount += post.likesCount || 0;
+            current.commentsCount += post.commentsCount || 0;
+            
+            // Calculate trending score based on engagement
+            const engagementScore = (current.likesCount + current.commentsCount) / current.postsCount;
+            const recencyBonus = (Date.now() - new Date(post.createdAt).getTime()) < (24 * 60 * 60 * 1000) ? 1.5 : 1;
+            current.trendingScore = Math.round(engagementScore * recencyBonus * 10);
           });
         }
       });
 
-      // Convert to array and sort by engagement
+      // Convert to array and sort by trending score
       const trendingHashtags = Array.from(hashtagCounts.values())
-        .map(hashtag => ({
-          ...hashtag,
-          engagementRate: Math.round(hashtag.engagementRate),
-          growth24h: Math.round((Math.random() - 0.5) * 50), // Simulate growth
-          category: getCategoryForHashtag(hashtag.tag)
-        }))
-        .sort((a, b) => (b.postsCount * b.engagementRate) - (a.postsCount * a.engagementRate))
+        .sort((a, b) => b.trendingScore - a.trendingScore)
         .slice(0, limit);
 
+      console.log(`[Hashtags] Found ${hashtagCounts.size} unique hashtags, returning top ${trendingHashtags.length}`);
+      console.log(`[Hashtags] Top hashtags:`, trendingHashtags.map(h => ({ name: h.name, posts: h.postsCount, score: h.trendingScore })));
+      
       res.json(trendingHashtags);
     } catch (error) {
       console.error('Error fetching trending hashtags:', error);
