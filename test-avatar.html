@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avatar Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .avatar-test { 
+            width: 200px; 
+            height: 200px; 
+            border: 2px solid #ddd; 
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Avatar Loading Test</h1>
+    <p>Direct URL test:</p>
+    <img src="/api/objects/.private/446bedc0-ced7-4104-96a9-0b734831fd8e" 
+         class="avatar-test"
+         onload="console.log('✅ Avatar loaded successfully')"
+         onerror="console.error('❌ Avatar failed to load')">
+    
+    <p>With timestamp:</p>
+    <img src="/api/objects/.private/446bedc0-ced7-4104-96a9-0b734831fd8e?t=1234567890" 
+         class="avatar-test"
+         onload="console.log('✅ Avatar with timestamp loaded successfully')"
+         onerror="console.error('❌ Avatar with timestamp failed to load')">
+         
+    <script>
+        console.log("Avatar test page loaded");
+        console.log("Testing avatar URLs...");
+    </script>
+</body>
+</html>

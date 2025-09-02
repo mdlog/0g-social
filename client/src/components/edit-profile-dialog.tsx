@@ -214,7 +214,7 @@ export function EditProfileDialog({ user, trigger }: EditProfileDialogProps) {
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-20 w-20">
               <AvatarImage 
-                src={avatarPreview || (form.watch("avatar") ? `${window.location.origin}${form.watch("avatar")}` : "") || (user.avatar ? `${window.location.origin}${user.avatar}` : "")} 
+                src={avatarPreview || (user.avatar ? `${user.avatar}?t=${Date.now()}` : "")} 
                 alt={user.displayName}
                 className="object-cover"
               />
