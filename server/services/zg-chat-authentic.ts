@@ -95,10 +95,11 @@ export class ZGChatServiceAuthentic {
       // Check account balance with improved error handling
       try {
         const ledger = await broker.ledger.getLedger();
-        const balanceOG = parseFloat(ethers.formatEther(ledger.totalBalance || BigInt(0)));
-        console.log(`[0G Chat] Account Balance: ${balanceOG} OG (raw: ${ledger.totalBalance})`);
+        const balanceWei = ledger.totalBalance || BigInt(0);
+        const balanceOG = parseFloat(ethers.formatEther(balanceWei));
+        console.log(`[0G Chat] Account Balance: ${balanceOG} OG (${balanceWei.toString()} wei)`);
         
-        // Add funds if insufficient (as per troubleshooting documentation)
+        // Add funds if insufficient (as per troubleshooting documentation)  
         if (balanceOG < 0.01) {
           console.log(`[0G Chat] Insufficient balance: ${balanceOG} OG, adding funds...`);
           
