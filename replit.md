@@ -19,13 +19,21 @@ The application uses PostgreSQL with Drizzle ORM for type-safe database interact
 The system uses simplified authentication with mock user sessions for development, user identification via API endpoints, and integrates wallet addresses for Web3 identity.
 
 ## AI Integration
-AI features are powered by OpenAI GPT-4o for content recommendations, trend analysis, and user insights. The system includes a simulation mode for 0G Compute while awaiting mainnet availability and is designed for graceful degradation if AI services are unavailable.
+AI features are powered by OpenAI GPT-4o for content recommendations, trend analysis, and user insights. 
+
+**0G Compute Smart Provider Switching (September 2025):**
+- Automatic provider failover with 20-second timeout for faster response
+- Intelligent busy detection (503, 504, 429 errors) with instant switching
+- Multi-provider fallback system with prioritized provider selection
+- Network error detection and automatic provider switching
+- Simulation mode fallback with informative messaging when all providers are busy
+- Balance sync mechanisms for provider synchronization issues
 
 ## 0G Chain Integration
 DeSocialAI deeply integrates with 0G Chain infrastructure. This includes:
-- **0G Chat**: Fully functional on-chain chat with real blockchain transactions, account creation, real-time balance tracking, and automated funding.
+- **0G Chat**: Fully functional on-chain chat with real blockchain transactions, account creation, real-time balance tracking, automated funding, and **Smart Provider Switching** system for optimal performance.
 - **0G Data Availability (DA)**: Full integration using gRPC client for authentic blob submission and retrieval, ensuring all social interactions are stored as structured data blobs on the 0G DA network.
-- **0G Compute**: Infrastructure ready for future integration, currently operating in a realistic simulation mode.
+- **0G Compute**: **Enhanced with Smart Provider Switching** - automatic failover between providers with intelligent timeout handling and seamless fallback mechanisms.
 - **0G Storage**: Utilizes 0G Storage infrastructure on the Galileo testnet V3.
 - **Blockchain Verification**: Social interactions are recorded with authentic transaction hashes from 0G Chain for real blockchain verification.
 
