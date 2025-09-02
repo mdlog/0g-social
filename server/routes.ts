@@ -982,6 +982,194 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // === ADVANCED TECHNOLOGY FEATURES ===
+  
+  // AI Personal Assistant & Agent Management
+  app.post("/api/ai/agents", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { aiAgentService } = await import('./services/ai-agent-service');
+      const agent = await aiAgentService.createAgent(user.id, req.body);
+      
+      console.log(`[AI Agent] ✅ Created agent ${agent.id} for user ${user.id}`);
+      res.json(agent);
+    } catch (error: any) {
+      console.error('[AI Agent] Creation failed:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/ai/agents", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { aiAgentService } = await import('./services/ai-agent-service');
+      const agents = await aiAgentService.getAgentsByUser(user.id);
+      
+      res.json(agents);
+    } catch (error: any) {
+      console.error('[AI Agent] Fetch failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/ai/agents/:agentId/generate", async (req, res) => {
+    try {
+      const { agentId } = req.params;
+      const { prompt, context } = req.body;
+
+      const { aiAgentService } = await import('./services/ai-agent-service');
+      const content = await aiAgentService.generateContent(agentId, prompt, context);
+      
+      console.log(`[AI Agent] ✅ Generated content via agent ${agentId}`);
+      res.json({ content, agentId, timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error('[AI Agent] Content generation failed:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Advanced Analytics & Intelligence
+  app.get("/api/analytics/user", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { advancedAnalyticsService } = await import('./services/advanced-analytics');
+      const timeRange = req.query.range as '7d' | '30d' | '90d' || '30d';
+      const analytics = await advancedAnalyticsService.generateUserAnalytics(user.id, timeRange);
+      
+      console.log(`[Analytics] ✅ Generated user analytics for ${user.id}`);
+      res.json(analytics);
+    } catch (error: any) {
+      console.error('[Analytics] User analytics failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/analytics/trends", async (req, res) => {
+    try {
+      const { advancedAnalyticsService } = await import('./services/advanced-analytics');
+      const trends = await advancedAnalyticsService.generateTrendAnalysis();
+      
+      console.log(`[Analytics] ✅ Generated trend analysis`);
+      res.json(trends);
+    } catch (error: any) {
+      console.error('[Analytics] Trend analysis failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/analytics/predict-viral", async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      const { advancedAnalyticsService } = await import('./services/advanced-analytics');
+      const prediction = await advancedAnalyticsService.predictViralContent(content);
+      
+      console.log(`[Analytics] ✅ Viral prediction completed`);
+      res.json(prediction);
+    } catch (error: any) {
+      console.error('[Analytics] Viral prediction failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Blockchain Verification & Authenticity
+  app.post("/api/verify/content", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { contentId, content } = req.body;
+      
+      const { blockchainVerificationService } = await import('./services/blockchain-verification');
+      const verification = await blockchainVerificationService.verifyContent(
+        contentId, content, user.id, walletData.address
+      );
+      
+      console.log(`[Verification] ✅ Content verified: ${contentId} (Score: ${verification.verificationScore})`);
+      res.json(verification);
+    } catch (error: any) {
+      console.error('[Verification] Content verification failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/verify/reputation/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      const { blockchainVerificationService } = await import('./services/blockchain-verification');
+      const reputation = await blockchainVerificationService.getUserReputation(userId);
+      
+      res.json(reputation);
+    } catch (error: any) {
+      console.error('[Verification] Reputation fetch failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/verify/identity", async (req, res) => {
+    try {
+      const walletData = req.session.walletConnection;
+      if (!walletData?.connected || !walletData.address) {
+        return res.status(401).json({ message: "Wallet connection required" });
+      }
+
+      const user = await storage.getUserByWalletAddress(walletData.address);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { signature } = req.body;
+      
+      const { blockchainVerificationService } = await import('./services/blockchain-verification');
+      const verification = await blockchainVerificationService.verifyUserIdentity(
+        user.id, walletData.address, signature
+      );
+      
+      console.log(`[Verification] ✅ Identity verified for user ${user.id}`);
+      res.json(verification);
+    } catch (error: any) {
+      console.error('[Verification] Identity verification failed:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // === END ADVANCED TECHNOLOGY FEATURES ===
+
   // Personal AI Feed endpoints
   app.post("/api/ai/feed/deploy", async (req, res) => {
     try {
