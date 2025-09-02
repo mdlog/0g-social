@@ -54,9 +54,6 @@ export function Header() {
 
           {/* Right Navigation */}
           <div className="flex items-center space-x-3">
-            {/* Notifications */}
-            <SimpleNotificationDropdown />
-            
             {/* RainbowKit Wallet Connection */}
             <RainbowKitWallet />
 
@@ -86,7 +83,8 @@ export function Header() {
               )}
             </Button>
 
-
+            {/* Notifications - positioned at the far right */}
+            <SimpleNotificationDropdown />
           </div>
         </div>
       </div>
