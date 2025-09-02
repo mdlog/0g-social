@@ -89,12 +89,28 @@ export function LeftSidebar() {
               <div className="text-center">
 
                 <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary ring-opacity-20">
-                  <AvatarImage 
-                    src={currentUser.avatar ? `${currentUser.avatar}?t=${Date.now()}` : ""} 
-                    alt={currentUser.displayName} 
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="gradient-brand text-white font-semibold text-lg">
+                  {currentUser.avatar ? (
+                    <img 
+                      src={`${currentUser.avatar}?cache=${currentUser.id}`}
+                      alt={currentUser.displayName}
+                      className="w-full h-full object-cover rounded-full"
+                      loading="eager"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                      onLoad={(e) => {
+                        e.currentTarget.style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <AvatarFallback 
+                    className="gradient-brand text-white font-semibold text-lg"
+                    style={{ 
+                      display: currentUser.avatar ? 'none' : 'flex',
+                      opacity: currentUser.avatar ? '0' : '1',
+                      transition: 'opacity 0.2s ease-in-out'
+                    }}
+                  >
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

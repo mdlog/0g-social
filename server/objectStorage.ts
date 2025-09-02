@@ -76,10 +76,11 @@ export class ObjectStorageService {
       
       console.log(`[OBJECT STORAGE] ✅ Successfully fetched ${buffer.byteLength} bytes, type: ${contentType}`);
 
-      // Set comprehensive headers for proper serving
+      // Set comprehensive headers for proper serving and aggressive caching
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Length', buffer.byteLength.toString());
-      res.setHeader('Cache-Control', `public, max-age=${cacheTtlSec}`);
+      res.setHeader('Cache-Control', `public, max-age=${cacheTtlSec}, immutable`);
+      res.setHeader('ETag', `"${Date.now()}"`);
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
