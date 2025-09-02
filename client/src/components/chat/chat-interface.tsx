@@ -73,14 +73,26 @@ export function ChatInterface() {
     refetchInterval: 30000
   });
 
-  // Chat mutation
+  // Chat mutation with enhanced error handling
   const chatMutation = useMutation({
     mutationFn: async (chatMessages: Message[]) => {
-      const response = await apiRequest('POST', '/api/zg/chat', {
-        messages: chatMessages.filter(msg => msg.role !== 'system' || chatMessages.length === 1),
-        temperature: 0.7,
-        maxTokens: 1024
+      const response = await fetch('/api/zg/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: chatMessages.filter(msg => msg.role !== 'system' || chatMessages.length === 1),
+          temperature: 0.7,
+          maxTokens: 1024
+        })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
       return await response.json() as ChatResponse;
     },
     onSuccess: (data) => {
@@ -108,9 +120,21 @@ export function ChatInterface() {
       }
     },
     onError: (error: any) => {
+      const errorMessage = error.message || 'Failed to get AI response';
+      
+      // Provide helpful error message based on the error type
+      let userFriendlyMessage = errorMessage;
+      if (errorMessage.includes('insufficient balance')) {
+        userFriendlyMessage = 'Provider balance sync issue. Please wait a few minutes and try again.';
+      } else if (errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
+        userFriendlyMessage = 'Connection timeout. Provider may be busy, please try again.';
+      } else if (errorMessage.includes('Wallet connection required')) {
+        userFriendlyMessage = 'Please connect your wallet first.';
+      }
+
       toast({
         title: "Chat failed",
-        description: error.message || 'Failed to get AI response',
+        description: userFriendlyMessage,
         variant: "destructive"
       });
     },

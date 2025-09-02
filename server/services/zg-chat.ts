@@ -300,7 +300,10 @@ class ZGChatService {
 
       console.log(`[0G Chat] Sending request to ${endpoint}/chat/completions`);
 
-      // Make request to compute provider
+      // Make request to compute provider with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(`${endpoint}/chat/completions`, {
         method: "POST",
         headers: {
@@ -314,7 +317,10 @@ class ZGChatService {
           max_tokens: maxTokens,
           stream: false
         }),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => "");
@@ -373,36 +379,15 @@ class ZGChatService {
               }
             } else if (retryCount >= 2) {
               console.log(`[0G Chat] Max retry attempts reached. Provider balance cache issue detected.`);
-              console.log(`[0G Chat] Trying alternative provider to bypass cache issue...`);
               
-              // Try with a different provider to bypass cache issue
-              const availableProviders = await broker.inference.listService();
-              const currentProvider = selectedProvider;
-              const alternativeProvider = availableProviders.find(p => 
-                p.provider !== currentProvider && p.model.includes('chat')
-              );
-              
-              if (alternativeProvider) {
-                console.log(`[0G Chat] Switching to alternative provider: ${alternativeProvider.provider}`);
-                console.log(`[0G Chat] Alternative model: ${alternativeProvider.model}`);
-                
-                try {
-                  return await this.chatCompletion({
-                    messages,
-                    providerAddress: alternativeProvider.provider,
-                    model: alternativeProvider.model,
-                    temperature,
-                    maxTokens
-                  }, 99); // High retry count to skip further retries
-                } catch (altError) {
-                  console.log(`[0G Chat] Alternative provider also failed: ${altError.message}`);
-                }
-              } else {
-                console.log(`[0G Chat] No alternative provider available`);
-              }
-              
-              console.log(`[0G Chat] This is a known issue with 0G provider network - balance sync delay.`);
-              console.log(`[0G Chat] Please try again in a few minutes when provider cache updates.`);
+              // Return meaningful error for frontend
+              return {
+                ok: false,
+                error: "Provider balance sync issue. The 0G Network provider cache is out of sync with your balance. Please wait 2-3 minutes and try again. This is a known temporary issue with the 0G Network.",
+                balance: postFailBalanceWei,
+                providerAddress: selectedProvider,
+                model: selectedModel
+              };
             }
           }
         }
