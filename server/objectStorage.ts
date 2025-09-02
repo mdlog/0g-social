@@ -149,8 +149,8 @@ export class ObjectStorageService {
         const expectedPath = `/${bucketName}/${objectName}`;
         
         if (expectedPath.startsWith(privateDir)) {
-          const entityId = objectName.replace("uploads/", "");
-          return `/objects/${entityId}`;
+          // Keep the full object name without removing uploads/ prefix
+          return `/objects/${objectName}`;
         }
       }
       

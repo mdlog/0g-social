@@ -1868,14 +1868,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Normalize object path for storage and convert to /api/objects path
+      // Extract object ID from uploadURL and create proper avatar path
       const objectStorageService = new ObjectStorageService();
       let avatarPath = objectStorageService.normalizeObjectEntityPath(req.body.avatarURL);
+      
+      console.log(`[AVATAR UPDATE] Normalized path from ${req.body.avatarURL} to ${avatarPath}`);
       
       // Convert /objects/... to /api/objects/... for frontend consumption
       if (avatarPath.startsWith('/objects/')) {
         avatarPath = `/api${avatarPath}`;
       }
+      
+      console.log(`[AVATAR UPDATE] Final avatar path: ${avatarPath}`);
 
       // Update user avatar with additional logging
       console.log(`[AVATAR UPDATE] Updating avatar for user ${user.id} with path: ${avatarPath}`);
