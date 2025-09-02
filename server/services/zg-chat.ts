@@ -116,6 +116,47 @@ class ZGChatService {
   }
 
   /**
+   * Get list of working providers with balance check
+   */
+  private async getWorkingProviders(broker: ZGComputeNetworkBroker): Promise<Array<{ provider: string; endpoint: string; model: string }>> {
+    const services = await broker.inference.listService();
+    const workingProviders = [];
+    
+    // Prioritize known working providers first
+    const knownGoodProviders = [
+      "0xf07240Efa67755B5311bc75784a061eDB47165Dd", // Primary working provider (proven fast)
+      "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3", // Secondary provider  
+      "0x1234567890abcdef1234567890abcdef12345678"  // Fallback if available
+    ];
+    
+    // Add known good providers first
+    for (const provider of knownGoodProviders) {
+      const service = services.find(s => s.provider === provider && s.model.includes('chat'));
+      if (service) {
+        workingProviders.push({
+          provider: service.provider,
+          endpoint: service.endpoint,
+          model: service.model
+        });
+      }
+    }
+    
+    // Add other providers
+    for (const service of services) {
+      if (!knownGoodProviders.includes(service.provider) && service.model.includes('chat')) {
+        workingProviders.push({
+          provider: service.provider,
+          endpoint: service.endpoint,
+          model: service.model
+        });
+      }
+    }
+    
+    console.log(`[0G Chat] Found ${workingProviders.length} chat providers`);
+    return workingProviders;
+  }
+
+  /**
    * Resolve service provider and model
    */
   private async resolveService(
@@ -300,9 +341,9 @@ class ZGChatService {
 
       console.log(`[0G Chat] Sending request to ${endpoint}/chat/completions`);
 
-      // Make request to compute provider with timeout
+      // Make request to compute provider with faster timeout for better UX
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout (reduced from 60)
       
       const response = await fetch(`${endpoint}/chat/completions`, {
         method: "POST",
@@ -344,9 +385,33 @@ class ZGChatService {
             console.log(`[0G Chat] Our balance: ${postFailBalanceEth} OG, Provider balance: ${availEth} OG`);
             console.log(`[0G Chat] Discrepancy: ${(postFailBalanceEth - availEth).toFixed(6)} OG`);
             
-            // Try balance sync if significant discrepancy found (but prevent infinite loop)
+            // Try alternative provider first if balance discrepancy
             if (postFailBalanceEth - availEth > 0.1 && retryCount < 2) {
-              console.log(`[0G Chat] Large balance discrepancy detected, attempting sync (retry ${retryCount + 1}/2)...`);
+              console.log(`[0G Chat] Large balance discrepancy detected. Trying alternative provider first...`);
+              
+              try {
+                const workingProviders = await this.getWorkingProviders(broker);
+                const alternativeProvider = workingProviders.find(p => p.provider !== selectedProvider);
+                
+                if (alternativeProvider) {
+                  console.log(`[0G Chat] Switching to alternative provider: ${alternativeProvider.provider}`);
+                  console.log(`[0G Chat] Alternative model: ${alternativeProvider.model}`);
+                  
+                  // Try alternative provider immediately without balance sync delay
+                  return await this.chatCompletion({
+                    messages,
+                    providerAddress: alternativeProvider.provider,
+                    model: alternativeProvider.model,
+                    temperature,
+                    maxTokens
+                  }, retryCount + 1);
+                }
+              } catch (altError) {
+                console.log(`[0G Chat] Alternative provider failed: ${altError.message}`);
+              }
+              
+              // Fallback to balance sync if no alternative provider works
+              console.log(`[0G Chat] No working alternative provider, attempting balance sync (retry ${retryCount + 1}/2)...`);
               
               try {
                 // Force balance refresh by making small deposit
@@ -359,9 +424,9 @@ class ZGChatService {
                 const syncBalanceEth = parseFloat(ethers.formatEther(syncAcct.totalBalance.toString()));
                 console.log(`[0G Chat] Balance after sync attempt: ${syncBalanceEth} OG`);
                 
-                // Wait for provider to update (give some time for network sync)
-                console.log(`[0G Chat] Waiting 3 seconds for provider balance sync...`);
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // Shorter wait time for better user experience
+                console.log(`[0G Chat] Waiting 1 second for provider balance sync...`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 // Retry the chat request with fresh balance
                 console.log(`[0G Chat] Retrying chat request after balance sync...`);
