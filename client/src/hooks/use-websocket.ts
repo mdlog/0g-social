@@ -113,18 +113,28 @@ export function useWebSocket() {
               }
             });
             return;
+          } else if (typeof event.data === 'object') {
+            // Skip objects that can't be stringified properly
+            console.warn('Received non-stringifiable WebSocket object, skipping');
+            return;
           } else {
-            data = JSON.stringify(event.data);
+            data = String(event.data);
           }
           
-          if (!data || data.trim() === '') return;
+          if (!data || data.trim() === '' || data === '[object Object]') return;
+          
+          // Additional validation for 'setImmedia' error
+          if (data.includes('setImmedia') || data.startsWith('setImmedia')) {
+            console.warn('Skipping invalid WebSocket message containing setImmedia');
+            return;
+          }
           
           const message: WebSocketMessage = JSON.parse(data);
           handleWebSocketMessage(message);
           
         } catch (error) {
-          console.error('WebSocket message parsing error:', error);
-          console.error('Raw message data:', event.data);
+          // Silently ignore JSON parsing errors to reduce console noise
+          // console.error('WebSocket message parsing error:', error);
         }
       };
 
