@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Moon, Sun, Search, Wifi, WifiOff } from "lucide-react";
+import { Moon, Sun, Search, Wifi, WifiOff, Bell } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { Button } from "@/components/ui/button";
