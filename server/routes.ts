@@ -12,6 +12,7 @@ import { zgComputeService } from "./services/zg-compute";
 import { zgComputeRealService } from "./services/zg-compute-real";
 import { zgChatService } from "./services/zg-chat";
 import { ZGChatServiceImproved } from "./services/zg-chat-improved.js";
+import { zgChatServiceFixed } from "./services/zg-chat-fixed.js";
 import { zgDAService } from "./services/zg-da";
 import { zgDAClientService } from "./services/zg-da-client";
 import { zgChainService } from "./services/zg-chain";
@@ -1315,11 +1316,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[0G Chat API] Processing chat request for user: ${walletConnection.address}`);
 
-      // Use improved chat service with smart provider switching
-      const improvedChatService = new ZGChatServiceImproved();
-      improvedChatService.setWalletAddress(walletConnection.address);
+      // Use the fixed chat service with smart provider switching
+      zgChatServiceFixed.setWalletAddress(walletConnection.address);
 
-      const result = await improvedChatService.chatCompletion({
+      const result = await zgChatServiceFixed.chatCompletion({
         messages,
         providerAddress,
         model,
@@ -1359,25 +1359,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Set wallet address if connected
       if (walletConnection.connected && walletConnection.address) {
-        const improvedChatService = new ZGChatServiceImproved();
-        improvedChatService.setWalletAddress(walletConnection.address);
-        
-        // Simple status check for improved service
-        const status = {
-          isConfigured: true,
-          hasPrivateKey: !!process.env.COMBINED_SERVER_PRIVATE_KEY,
-          availableProviders: 2, // We know we have 2 providers
-          balance: "2.133"
-        };
-        return res.json(status);
+        zgChatServiceFixed.setWalletAddress(walletConnection.address);
       }
       
-      // Fallback for not connected
-      const status = {
-        isConfigured: true,
-        hasPrivateKey: !!process.env.COMBINED_SERVER_PRIVATE_KEY,
-        availableProviders: 2
-      };
+      const status = await zgChatServiceFixed.getServiceStatus();
       res.json(status);
     } catch (error: any) {
       res.status(500).json({ 

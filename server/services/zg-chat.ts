@@ -375,7 +375,7 @@ class ZGChatService {
 
       console.log(`[0G Chat] Sending request to ${endpoint}/chat/completions`);
 
-      // Make request to compute provider with smart timeout handling
+      // Make request to compute provider with smart timeout handling and provider switching
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 20000); // Reduced to 20 seconds for faster switching
       
@@ -398,31 +398,58 @@ class ZGChatService {
         
         clearTimeout(timeoutId);
         
-        // If response is not ok but not a timeout, try alternative provider immediately
+        // Smart provider switching on busy/error responses
         if (!response.ok) {
           const errorText = await response.text();
           console.log(`[0G Chat] Provider ${selectedProvider} returned ${response.status}: ${errorText}`);
           
-          // Check for common "busy" indicators
+          // Check for common "busy" indicators that suggest switching providers
           if (response.status === 503 || response.status === 504 || 
               response.status === 429 || errorText.includes('busy') || 
               errorText.includes('overloaded') || errorText.includes('timeout')) {
             
-            console.log(`[0G Chat] Provider ${selectedProvider} is busy/overloaded. Trying alternative provider immediately...`);
+            console.log(`[0G Chat] Provider ${selectedProvider} is busy/overloaded. Attempting smart provider switch...`);
             
-            // Try alternative provider without retry count increase
-            const workingProviders = await this.getWorkingProviders(broker);
-            const alternativeProvider = workingProviders.find(p => p.provider !== selectedProvider);
-            
-            if (alternativeProvider) {
-              console.log(`[0G Chat] Switching to alternative provider due to busy status: ${alternativeProvider.provider}`);
-              return await this.chatCompletion({
-                messages,
-                providerAddress: alternativeProvider.provider,
-                model: alternativeProvider.model,
-                temperature,
-                maxTokens
-              }, retryCount); // Keep same retry count since this is provider switching, not a retry
+            // Try alternative provider without retry count increase (smart switching)
+            try {
+              const services = await broker.inference.listService();
+              const workingProviders = [];
+              
+              // Prioritized provider list for smart switching
+              const knownGoodProviders = [
+                "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3", // Primary
+                "0xf07240Efa67755B5311bc75784a061eDB47165Dd", // Secondary
+              ];
+              
+              // Add known good providers first
+              for (const provider of knownGoodProviders) {
+                const service = services.find(s => s.provider === provider && s.model.includes('chat'));
+                if (service && service.provider !== selectedProvider) {
+                  workingProviders.push({
+                    provider: service.provider,
+                    endpoint: service.endpoint,
+                    model: service.model
+                  });
+                }
+              }
+              
+              // Try first available alternative provider
+              if (workingProviders.length > 0) {
+                const alternativeProvider = workingProviders[0];
+                console.log(`[0G Chat] Switching to alternative provider due to busy status: ${alternativeProvider.provider}`);
+                
+                return await this.chatCompletion({
+                  messages,
+                  providerAddress: alternativeProvider.provider,
+                  model: alternativeProvider.model,
+                  temperature,
+                  maxTokens
+                }, retryCount); // Keep same retry count since this is provider switching
+              } else {
+                console.log(`[0G Chat] No alternative providers available for switching`);
+              }
+            } catch (switchError: any) {
+              console.log(`[0G Chat] Provider switching failed: ${switchError.message}`);
             }
           }
           
