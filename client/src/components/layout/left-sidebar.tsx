@@ -33,10 +33,20 @@ export function LeftSidebar() {
   }>({
     queryKey: ["/api/users/me"],
     retry: false, // Don't retry on 401 errors
-    refetchInterval: 5000, // Check every 5 seconds for wallet changes
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache at all
+    refetchInterval: 2000, // Check every 2 seconds for avatar changes
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     queryFn: async () => {
       const res = await fetch("/api/users/me", {
         credentials: "include",
+        cache: "no-cache", // Prevent browser caching
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        }
       });
       
       if (res.status === 401) {
@@ -48,7 +58,10 @@ export function LeftSidebar() {
         throw new Error(`${res.status}: ${res.statusText}`);
       }
       
-      return await res.json();
+      const userData = await res.json();
+      console.log("[SIDEBAR] Fetched user data:", userData);
+      console.log("[SIDEBAR] Avatar value:", userData?.avatar);
+      return userData;
     },
   });
 
@@ -77,16 +90,17 @@ export function LeftSidebar() {
 
                 <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary ring-opacity-20">
                   <AvatarImage 
-                    key={`${currentUser.avatar}-${Date.now()}`}
-                    src={currentUser.avatar ? `${currentUser.avatar}?t=${Date.now()}` : ""} 
+                    key={`avatar-${currentUser.id}-${Date.now()}`}
+                    src={currentUser.avatar ? `${currentUser.avatar}?cache=${Math.random()}&t=${Date.now()}` : ""} 
                     alt={currentUser.displayName} 
                     className="object-cover"
                     onError={(e) => {
-                      console.log("[SIDEBAR AVATAR] Load error:", e.currentTarget.src);
-                      console.log("[SIDEBAR AVATAR] Current user avatar path:", currentUser.avatar);
+                      console.error("[SIDEBAR AVATAR] Load error:", e.currentTarget.src);
+                      console.error("[SIDEBAR AVATAR] Current user avatar path:", currentUser.avatar);
+                      console.error("[SIDEBAR AVATAR] User object:", currentUser);
                     }}
                     onLoad={() => {
-                      console.log("[SIDEBAR AVATAR] Loaded successfully:", currentUser.avatar);
+                      console.log("[SIDEBAR AVATAR] ✅ Loaded successfully:", currentUser.avatar);
                     }}
                   />
                   <AvatarFallback className="gradient-brand text-white font-semibold text-lg">
