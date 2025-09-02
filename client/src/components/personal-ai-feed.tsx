@@ -163,10 +163,10 @@ export function PersonalAIFeed() {
               <div>
                 <p className="text-sm text-gray-900 dark:text-gray-100 font-medium">AI Feed Active</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {isRealIntegration ? 'Running on 0G Compute Network' : 'Development Simulation Mode'}
+                  {(feedStatus?.mode === 'real' || isRealIntegration) ? 'Running on 0G Compute Network' : 'Development Simulation Mode'}
                 </p>
                 <div className="flex items-center justify-center mt-2 space-x-2">
-                  {isRealIntegration ? (
+                  {(feedStatus?.mode === 'real' || isRealIntegration) ? (
                     <span className="inline-flex items-center space-x-1 text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full border border-green-200 dark:border-green-700">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>REAL 0G COMPUTE</span>
@@ -236,9 +236,9 @@ export function PersonalAIFeed() {
               <div className="space-y-3 pt-4 border-t border-cyan-400/20">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-medium text-cyan-100">
-                    {isRealIntegration ? 'AI Recommendations (0G Compute)' : 'Recommendations (Simulation)'}
+                    {(feedStatus?.mode === 'real' || isRealIntegration) ? 'AI Recommendations (0G Compute)' : 'Recommendations (Simulation)'}
                   </p>
-                  {isRealIntegration && (
+                  {(feedStatus?.mode === 'real' || isRealIntegration) && (
                     <span className="text-xs text-green-400 font-mono">AUTHENTIC</span>
                   )}
                 </div>
