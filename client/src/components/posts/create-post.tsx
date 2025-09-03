@@ -241,37 +241,21 @@ export function CreatePost() {
     e.preventDefault();
     if (!content.trim()) return;
     
-    console.log("[DIRECT TEST] Starting direct POST test...");
+    console.log("[FRONTEND] Starting post creation with MetaMask signature...");
     
-    try {
-      // DIRECT TEST: Simple POST without MetaMask
-      const formData = new FormData();
-      formData.append('content', content.trim());
-      formData.append('signature', 'test_signature');
-      formData.append('message', 'test_message');
-      formData.append('address', 'test_address');
-      
-      console.log("[DIRECT TEST] FormData created, keys:", Array.from(formData.keys()));
-      console.log("[DIRECT TEST] Sending to /api/posts...");
-      
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      console.log("[DIRECT TEST] Response:", response.status, response.statusText);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log("[DIRECT TEST] Error:", errorText);
-      } else {
-        const result = await response.json();
-        console.log("[DIRECT TEST] Success:", result);
-      }
-      
-    } catch (error) {
-      console.log("[DIRECT TEST] Fetch error:", error);
-    }
+    const postData = {
+      content: content.trim(),
+      file: selectedFile, // Fixed: should be 'file' not 'mediaFile'
+    };
+    
+    console.log("[FRONTEND] Post data prepared:", {
+      content: postData.content,
+      hasFile: !!postData.file,
+      fileName: postData.file?.name
+    });
+    
+    // Use mutation to handle post creation with proper error handling
+    createPostMutation.mutate(postData);
   };
 
   const isWalletConnected = walletStatus?.connected === true;
