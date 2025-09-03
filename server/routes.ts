@@ -366,6 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("[UPLOAD ENDPOINT] POST /api/posts called");
       console.log("[UPLOAD ENDPOINT] Request body keys:", Object.keys(req.body));
+      console.log("[UPLOAD ENDPOINT] Request body values:", JSON.stringify(req.body, null, 2));
       console.log("[UPLOAD ENDPOINT] File:", req.file ? `${req.file.originalname} (${req.file.size} bytes)` : 'No file');
 
       // Check if wallet is connected
