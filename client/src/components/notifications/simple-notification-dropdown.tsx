@@ -18,13 +18,25 @@ export function SimpleNotificationDropdown() {
 
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       console.log("[NOTIFICATION] Sending mark all as read request...");
-      return apiRequest("/api/notifications/mark-all-read", "POST", {});
+      return fetch("/api/notifications/mark-all-read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({}),
+      }).then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      });
     },
     onSuccess: (data) => {
       console.log("[NOTIFICATION] ✅ Mark all as read successful:", data);
+      // Immediately refresh notifications to update the UI
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      queryClient.refetchQueries({ queryKey: ["/api/notifications"] });
     },
     onError: (error) => {
       console.error("[NOTIFICATION] ❌ Mark all as read failed:", error);
