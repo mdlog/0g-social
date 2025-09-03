@@ -296,10 +296,6 @@ export class DatabaseStorage implements IStorage {
     return postsWithAuthor;
   }
 
-  async updatePost(id: string, updates: Partial<InsertPost>): Promise<void> {
-    await db.update(posts).set(updates).where(eq(posts.id, id));
-  }
-
   async deletePost(id: string): Promise<void> {
     await db.delete(posts).where(eq(posts.id, id));
   }
@@ -560,11 +556,6 @@ export class DatabaseStorage implements IStorage {
   async getUserCollections(userId: string, includeBookmarks?: boolean): Promise<any[]> {
     // TODO: Implement user collections fetching
     return [];
-  }
-
-  async createCollection(data: any, userId: string): Promise<any> {
-    // TODO: Implement collection creation
-    throw new Error("Collection creation not yet implemented");
   }
 
   async createTip(data: any, senderId: string): Promise<any> {

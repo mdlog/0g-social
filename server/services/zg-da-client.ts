@@ -212,3 +212,4 @@ Pastikan DA Client Node Docker sedang berjalan:
 
 // Export singleton instance
 export const zgDAClientService = new ZGDAClientService();
+export const zgDAService = zgDAClientService;

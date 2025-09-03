@@ -23,6 +23,9 @@ export interface DeploymentResult {
   status: 'deploying' | 'active' | 'failed';
   endpoint?: string;
   mode: 'real' | 'simulation';
+  networkType?: string;
+  hasValidAccount?: boolean;
+  note?: string;
 }
 
 export interface ZGComputeInstance {
@@ -481,3 +484,4 @@ Alternatif: Akun akan otomatis dibuat saat 0G Compute mainnet diluncurkan (Q2-Q3
 }
 
 export const zgComputeRealService = new ZGComputeRealService();
+export const zgComputeService = zgComputeRealService;
