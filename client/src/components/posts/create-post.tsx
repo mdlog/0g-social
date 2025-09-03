@@ -116,7 +116,8 @@ export function CreatePost() {
         // Create message to sign
         const timestamp = Date.now();
         const fileInfo = data.file ? `\nFile: ${data.file.name} (${data.file.size} bytes)` : '';
-        const message = `0G Social Post Signature\n\nContent: ${data.content}${fileInfo}\nTimestamp: ${timestamp}\n\nBy signing this message, you authorize posting this content to the 0G Storage network.`;
+        const contentDisplay = data.content || '[Media post without text]';
+        const message = `0G Social Post Signature\n\nContent: ${contentDisplay}${fileInfo}\nTimestamp: ${timestamp}\n\nBy signing this message, you authorize posting this content to the 0G Storage network.`;
         
         // Request signature from user
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
@@ -239,13 +240,15 @@ export function CreatePost() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    
+    // Allow post if there's content OR file (media)
+    if (!content.trim() && !selectedFile) return;
     
     console.log("[FRONTEND] Starting post creation with MetaMask signature...");
     
     const postData = {
-      content: content.trim(),
-      file: selectedFile, // Fixed: should be 'file' not 'mediaFile'
+      content: content.trim() || '', // Allow empty content if there's a file
+      file: selectedFile,
     };
     
     console.log("[FRONTEND] Post data prepared:", {
@@ -259,7 +262,9 @@ export function CreatePost() {
   };
 
   const isWalletConnected = walletStatus?.connected === true;
-  const isDisabled = !content.trim() || createPostMutation.isPending || !isWalletConnected;
+  // Button is enabled if there's content OR file, wallet connected, and not pending
+  const hasContentOrFile = content.trim() || selectedFile;
+  const isDisabled = !hasContentOrFile || createPostMutation.isPending || !isWalletConnected;
   const characterCount = content.length;
   const maxCharacters = 280;
   const isOverLimit = characterCount > maxCharacters;
