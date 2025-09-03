@@ -122,10 +122,15 @@ export function CreatePost() {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         const account = accounts[0];
         
+        console.log('[FRONTEND DEBUG] Signing message with account:', account);
+        console.log('[FRONTEND DEBUG] Message to sign:', message);
+        
         const signature = await window.ethereum.request({
           method: 'personal_sign',
           params: [message, account],
         });
+        
+        console.log('[FRONTEND DEBUG] Signature received:', signature);
 
         // Step 2: Prepare form data for backend (includes file if present)
         const formData = new FormData();
