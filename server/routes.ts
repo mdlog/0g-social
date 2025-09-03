@@ -496,9 +496,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (mediaResult.success) {
             mediaStorageHash = mediaResult.hash;
             mediaTransactionHash = mediaResult.transactionHash;
-            // Generate temporary media URL for database storage
-            mediaUploadURL = `/api/objects/.private/uploads/${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-            console.log(`[UPLOAD ENDPOINT] ✅ Media uploaded to 0G Storage successfully`);
+            // Don't set mediaUploadURL - we use mediaStorageHash for 0G Storage files
+            console.log(`[UPLOAD ENDPOINT] ✅ Media uploaded to 0G Storage successfully with hash: ${mediaResult.hash}`);
           } else {
             console.warn(`[UPLOAD ENDPOINT] Media upload to 0G Storage failed: ${mediaResult.error}`);
           }
@@ -511,7 +510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newPost = {
         content: postData.content,
         authorId: user.id, // Use proper user UUID, not wallet address
-        imageUrl: mediaUploadURL || null,
+        imageUrl: null, // Always null for 0G Storage media - use mediaStorageHash instead
         mediaType: req.file?.mimetype || null,
         mediaStorageHash,
         likesCount: 0,
