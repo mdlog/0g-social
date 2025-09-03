@@ -27,15 +27,16 @@ export function Header() {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-4">
             <div className="relative group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center shadow-xl ring-1 ring-white/20 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center shadow-xl ring-1 ring-white/20 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl" style={{borderRadius: "18px"}}>
                 <img 
                   src={logoUrl} 
                   alt="DeSocialAI Logo" 
-                  className="w-8 h-8 object-contain drop-shadow-lg"
+                  className="w-full h-full object-contain p-1 drop-shadow-lg"
+                  style={{borderRadius: "16px"}}
                 />
               </div>
               {/* Subtle glow effect on hover */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg -z-10"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg -z-10" style={{borderRadius: "18px"}}></div>
             </div>
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
