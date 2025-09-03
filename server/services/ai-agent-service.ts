@@ -1,4 +1,4 @@
-import { zgComputeService } from './zg-compute-real';
+import { zgComputeService } from './zg-compute';
 
 export interface AIAgent {
   id: string;

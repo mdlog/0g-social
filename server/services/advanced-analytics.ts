@@ -1,5 +1,5 @@
-import { zgComputeService } from './zg-compute-real';
-import { zgDAService } from './zg-da-client';
+import { zgComputeService } from './zg-compute';
+import { zgDAService } from './zg-da';
 
 export interface UserAnalytics {
   userId: string;

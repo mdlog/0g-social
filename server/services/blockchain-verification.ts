@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { zgDAService } from './zg-da-client';
+import { zgDAService } from './zg-da';
 import crypto from 'crypto';
 
 export interface VerificationResult {

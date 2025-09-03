@@ -9,13 +9,11 @@ import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecomme
 import multer from "multer";
 import { zgStorageService } from "./services/zg-storage";
 import { zgComputeService } from "./services/zg-compute";
-import { zgComputeRealService } from "./services/zg-compute-real";
 import { zgChatService } from "./services/zg-chat";
 import { ZGChatServiceImproved } from "./services/zg-chat-improved.js";
 import { zgChatServiceFixed } from "./services/zg-chat-fixed.js";
 import { zgChatServiceAuthentic } from "./services/zg-chat-authentic.js";
 import { zgDAService } from "./services/zg-da";
-import { zgDAClientService } from "./services/zg-da-client";
 import { zgChainService } from "./services/zg-chain";
 import { verifyMessage } from "ethers";
 import crypto from "crypto";
@@ -1183,7 +1181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Deploy AI using real 0G Compute service (with fallback to simulation)
-      const result = await zgComputeRealService.deployUserAI(walletConnection.address, {
+      const result = await zgComputeService.deployUserAI(walletConnection.address, {
         userId: walletConnection.address,
         algorithmType: 'engagement',
         preferences: {
@@ -1275,7 +1273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userPosts = await storage.getPostsByUser(walletConnection.address, 5, 0);
       
       // Generate personalized recommendations using real 0G Compute (with OpenAI fallback)
-      const recommendations = await zgComputeRealService.generateRecommendations(walletConnection.address, userPosts);
+      const recommendations = await zgComputeService.generateRecommendations(walletConnection.address, userPosts);
       
       res.json(recommendations);
     } catch (error) {
@@ -1446,7 +1444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
       
-      const result = await zgComputeRealService.deployUserAI(userId, config);
+      const result = await zgComputeService.deployUserAI(userId, config);
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1455,7 +1453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/zg/compute/instance", async (req, res) => {
     try {
-      const instance = await zgComputeRealService.getComputeStats(); // getUserInstance method doesn't exist
+      const instance = await zgComputeService.getComputeStats(); // getUserInstance method doesn't exist
       res.json(instance);
     } catch (error: any) {
       res.status(500).json({ message: "Failed to get compute instance" });
@@ -1464,7 +1462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/zg/compute/stats", async (req, res) => {
     try {
-      const stats = await zgComputeRealService.getComputeStats();
+      const stats = await zgComputeService.getComputeStats();
       res.json(stats);
     } catch (error: any) {
       res.status(500).json({ message: "Failed to get compute stats" });
@@ -1474,8 +1472,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // New endpoints for real 0G Compute integration
   app.get("/api/zg/compute/status", async (req, res) => {
     try {
-      const status = zgComputeRealService.getEnvironmentStatus();
-      const connection = await zgComputeRealService.checkConnection();
+      const status = zgComputeService.getEnvironmentStatus();
+      const connection = await zgComputeService.checkConnection();
       
       res.json({
         ...status,
@@ -1496,7 +1494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Valid amount required" });
       }
       
-      const result = await zgComputeRealService.addFunds(amount);
+      const result = await zgComputeService.addFunds(amount);
       
       if (result.success) {
         res.json({ 
@@ -1728,7 +1726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // DA Client status endpoint
   app.get("/api/zg/da/client-status", async (req, res) => {
     try {
-      const status = zgDAClientService.getStatus();
+      const status = zgDAService.getStatus();
       res.json({
         ...status,
         instructions: status.connected ? 
@@ -1745,7 +1743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/zg/da/test-submit", async (req, res) => {
     try {
       const testData = req.body.data || "Test blob submission untuk DeSocialAI";
-      const result = await zgDAClientService.submitBlob(testData);
+      const result = await zgDAService.submitBlob(testData);
       
       res.json({
         success: result.success,
