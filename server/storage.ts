@@ -113,7 +113,6 @@ export interface IStorage {
   // Bookmarks & Collections (enhanced)
   getBookmark(userId: string, postId: string): Promise<any>;
   deleteBookmark(userId: string, postId: string): Promise<void>;
-  createCollection(data: any): Promise<any>;
   updateCollection(collectionId: string, updates: any): Promise<any>;
   getCollectionBookmarksCount(collectionId: string): Promise<number>;
 
@@ -214,7 +213,9 @@ export class DatabaseStorage implements IStorage {
 
   // Post methods
   async createPost(insertPost: InsertPost & { storageHash?: string; transactionHash?: string; authorId: string }): Promise<Post> {
-    const [post] = await db.insert(posts).values(insertPost).returning();
+    const result = await db.insert(posts).values(insertPost).returning();
+    const post = result[0];
+    if (!post) throw new Error("Failed to create post");
     
     // Increment the author's posts count
     await db
@@ -270,6 +271,14 @@ export class DatabaseStorage implements IStorage {
             email: null,
             bio: null,
             avatar: null,
+            nftProfilePicture: null,
+            nftProfileContract: null,
+            nftProfileTokenId: null,
+            reputationScore: 0,
+            skillBadges: [],
+            verifiedLinks: [],
+            isPremium: false,
+            premiumExpiresAt: null,
             walletAddress: post.authorId,
             isVerified: false,
             followingCount: 0,
@@ -373,11 +382,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Comment methods
-  async createComment(comment: InsertComment): Promise<Comment> {
+  async createComment(comment: InsertComment & { authorId: string }): Promise<Comment> {
     const [newComment] = await db.insert(comments).values({
       postId: comment.postId,
       authorId: comment.authorId,
-      content: comment.content
+      content: comment.content,
+      parentCommentId: comment.parentCommentId
     }).returning();
     
     // Update comments count in posts table
@@ -830,7 +840,7 @@ export class DatabaseStorage implements IStorage {
 
       return result.map(notification => ({
         ...notification,
-        createdAt: notification.createdAt.toISOString()
+        createdAt: notification.createdAt ? notification.createdAt.toISOString() : null
       }));
     } catch (error) {
       console.error('[Get Notifications Error]', error);
