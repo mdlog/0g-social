@@ -513,8 +513,14 @@ Your post is saved locally. Please check your connection or try again later.`;
     try {
       console.log(`[0G Storage] Storing ${metadata.type} media file: ${metadata.originalName}`);
       
+      // Debug: Check indexer and signer status
+      console.log(`[0G Storage DEBUG] Indexer status: ${this.indexer ? 'INITIALIZED' : 'NOT INITIALIZED'}`);
+      console.log(`[0G Storage DEBUG] Signer status: ${this.signer ? 'INITIALIZED' : 'NOT INITIALIZED'}`);
+      console.log(`[0G Storage DEBUG] Private key available: ${this.privateKey ? 'YES' : 'NO'}`);
+      
       // If no private key or clients not initialized, use simulation mode
       if (!this.indexer || !this.signer) {
+        console.error(`[0G Storage] Cannot proceed - missing initialization. Indexer: ${!!this.indexer}, Signer: ${!!this.signer}`);
         return this.simulateStorage(fileBuffer, metadata);
       }
 
