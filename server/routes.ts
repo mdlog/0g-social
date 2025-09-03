@@ -2053,6 +2053,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Media upload endpoints for posts - Using 0G Storage
   app.post("/api/posts/upload-media", upload.single('file'), async (req, res) => {
+    console.log(`[UPLOAD ENDPOINT] POST /api/posts/upload-media called`);
+    console.log(`[UPLOAD ENDPOINT] Headers:`, req.headers);
+    console.log(`[UPLOAD ENDPOINT] Session:`, req.session?.walletConnection);
     try {
       const walletData = req.session.walletConnection;
       if (!walletData || !walletData.connected || !walletData.address) {
