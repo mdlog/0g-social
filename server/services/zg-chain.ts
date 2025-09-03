@@ -142,10 +142,10 @@ export class ZGChainService {
     const gasPrice = await this.getGasPrice();
     
     return {
-      chainId: 16601,
-      networkName: "0G-Galileo-Testnet",
-      rpcUrl: "https://evmrpc-testnet.0g.ai",
-      blockExplorer: "https://chainscan-galileo.0g.ai",
+      chainId: 16600,
+      networkName: "0G-Newton-Testnet",
+      rpcUrl: "https://rpc-testnet.0g.ai",
+      blockExplorer: "https://chainscan-newton.0g.ai",
       blockHeight,
       gasPrice,
     };
