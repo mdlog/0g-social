@@ -120,12 +120,14 @@ export function LeftSidebar() {
                 </p>
                 
                 {/* Verification Badge */}
-                <div className="flex items-center justify-center space-x-2 mb-5">
-                  <div className="modern-badge text-emerald-600">
-                    <Shield className="w-3 h-3" />
-                    <span>VERIFIED</span>
+                {currentUser.isVerified && (
+                  <div className="flex items-center justify-center space-x-2 mb-5">
+                    <div className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
+                      <Shield className="w-3 h-3" />
+                      <span>VERIFIED</span>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="grid grid-cols-3 gap-3 text-center mb-5">
                   <div className="p-3 modern-card rounded-2xl">
