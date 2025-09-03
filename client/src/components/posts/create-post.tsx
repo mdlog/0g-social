@@ -378,7 +378,11 @@ export function CreatePost() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => {
+                        console.log("[FRONTEND DEBUG] Upload button clicked");
+                        console.log("[FRONTEND DEBUG] File input ref:", fileInputRef.current);
+                        fileInputRef.current?.click();
+                      }}
                       disabled={isUploading || createPostMutation.isPending}
                       className="text-og-primary hover:bg-og-primary/10"
                     >
