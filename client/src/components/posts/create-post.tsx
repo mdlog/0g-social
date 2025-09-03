@@ -48,8 +48,13 @@ export function CreatePost() {
 
   // Handle file selection
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("[FRONTEND DEBUG] handleFileSelect called");
     const file = event.target.files?.[0];
-    if (!file) return;
+    console.log("[FRONTEND DEBUG] Selected file:", file);
+    if (!file) {
+      console.log("[FRONTEND DEBUG] No file selected, returning");
+      return;
+    }
 
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
