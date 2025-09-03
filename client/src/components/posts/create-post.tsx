@@ -239,7 +239,7 @@ export function CreatePost() {
   };
 
   const isWalletConnected = walletStatus?.connected === true;
-  const isDisabled = !content.trim() || createPostMutation.isPending || !isWalletConnected || isUploading;
+  const isDisabled = !content.trim() || createPostMutation.isPending || !isWalletConnected;
   const characterCount = content.length;
   const maxCharacters = 280;
   const isOverLimit = characterCount > maxCharacters;

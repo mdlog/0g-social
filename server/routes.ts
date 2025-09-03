@@ -378,7 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Extract FormData fields
+      // Extract and validate FormData fields
       const postData = {
         content: req.body.content,
         signature: req.body.signature,
@@ -386,6 +386,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: req.body.timestamp ? parseInt(req.body.timestamp) : undefined,
         address: req.body.address
       };
+      
+      console.log("[UPLOAD ENDPOINT] Post data extracted:", postData);
+      
+      // Basic validation
+      if (!postData.content || postData.content.trim() === '') {
+        return res.status(400).json({
+          message: "Content is required",
+          details: "Post content cannot be empty"
+        });
+      }
       
       // Verify Web3 signature if provided
       if (postData.signature && postData.message && postData.address) {
