@@ -69,6 +69,11 @@ export function useWebSocket() {
         queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
         break;
         
+      case 'notifications_updated':
+        console.log('🔔 Notifications updated, refreshing notifications...');
+        queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+        break;
+        
       case 'profile_update':
         console.log('👤 Profile update received, refreshing user data...');
         queryClient.invalidateQueries({ queryKey: ['/api/users'] });

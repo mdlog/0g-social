@@ -3241,6 +3241,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("[MARK ALL READ] ✅ Found user:", user.id, "- marking all notifications as read");
       await storage.markAllNotificationsAsRead(user.id);
       console.log("[MARK ALL READ] ✅ Successfully marked all notifications as read");
+      
+      // Broadcast notification update to all connected clients
+      const broadcastData = {
+        type: 'notifications_updated',
+        userId: user.id,
+        action: 'mark_all_read',
+        timestamp: new Date().toISOString()
+      };
+      
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(broadcastData));
+        }
+      });
+      
       res.json({ success: true });
     } catch (error: any) {
       console.error("[MARK ALL READ] ❌ Error:", error);

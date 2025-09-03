@@ -31,22 +31,7 @@ export function SimpleNotificationDropdown() {
     },
   });
 
-  // Listen for real-time notifications
-  useEffect(() => {
-    if (wsConnected) {
-      const handleNewNotification = (event: MessageEvent) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'new_notification') {
-          // Refetch notifications when new one arrives
-          queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
-        }
-      };
-
-      // Add WebSocket listener for notifications
-      window.addEventListener('message', handleNewNotification);
-      return () => window.removeEventListener('message', handleNewNotification);
-    }
-  }, [wsConnected, queryClient]);
+  // WebSocket akan menangani real-time notifications secara otomatis melalui useWebSocket hook
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
