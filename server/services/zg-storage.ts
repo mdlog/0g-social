@@ -56,7 +56,22 @@ class ZGStorageService {
     this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai/';
     this.privateKey = process.env.ZG_PRIVATE_KEY || '';
 
-    this.initializeClients();
+    this.initializeClients(); // Initialize async but don't wait
+  }
+
+  /**
+   * Ensure clients are initialized before operations
+   */
+  private async ensureInitialized(): Promise<void> {
+    let retries = 0;
+    while ((!this.indexer || !this.signer) && retries < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retries++;
+    }
+    
+    if (!this.indexer || !this.signer) {
+      throw new Error('0G Storage clients failed to initialize after 5 seconds');
+    }
   }
 
   /**
@@ -378,7 +393,12 @@ Your post is saved locally. Please check your connection or try again later.`;
    */
   private async simulateStorage(content: string | Buffer, metadata: ContentMetadata): Promise<ZGStorageResponse> {
     // This should not be used - user wants real storage only
-    throw new Error('Simulation mode disabled - user requires real Galileo testnet storage only');
+    console.error('[0G Storage] Simulation mode called - this should not happen with real configuration');
+    return {
+      success: false,
+      error: 'Simulation mode disabled - user requires real Galileo testnet storage only',
+      retryable: false
+    };
   }
 
   /**
@@ -527,11 +547,10 @@ Your post is saved locally. Please check your connection or try again later.`;
       console.log(`[0G Storage DEBUG] Signer status: ${this.signer ? 'INITIALIZED' : 'NOT INITIALIZED'}`);
       console.log(`[0G Storage DEBUG] Private key available: ${this.privateKey ? 'YES' : 'NO'}`);
       
-      // If no private key or clients not initialized, use simulation mode
-      if (!this.indexer || !this.signer) {
-        console.error(`[0G Storage] Cannot proceed - missing initialization. Indexer: ${!!this.indexer}, Signer: ${!!this.signer}`);
-        return this.simulateStorage(fileBuffer, metadata);
-      }
+      // Ensure clients are initialized (wait for async initialization to complete)
+      await this.ensureInitialized();
+      
+      console.log(`[0G Storage DEBUG] After ensureInitialized - Indexer: ${!!this.indexer}, Signer: ${!!this.signer}`);
 
       // Create temporary file for 0G Storage upload
       const tempDir = path.join(process.cwd(), 'temp');
