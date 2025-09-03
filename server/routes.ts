@@ -2080,6 +2080,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`[0G Storage] Processing media upload: ${req.file.originalname}, ${req.file.size} bytes`);
+      console.log(`[UPLOAD DEBUG] About to call zgStorageService.storeMediaFile...`);
+      console.log(`[UPLOAD DEBUG] File buffer size: ${req.file.buffer.length} bytes`);
+      console.log(`[UPLOAD DEBUG] User ID: ${user.id}`);
 
       // Use 0G Storage service to store media file directly
       const zgStorageResult = await zgStorageService.storeMediaFile(req.file.buffer, {
