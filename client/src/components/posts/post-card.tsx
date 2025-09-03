@@ -221,21 +221,29 @@ export function PostCard({ post }: PostCardProps) {
               {post.content}
             </p>
 
-            {/* Media display for images and videos */}
-            {post.imageUrl && (
-              <div className="mb-3 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+            {/* Media display for images and videos - Prioritize 0G Storage */}
+            {(post.mediaStorageHash || post.imageUrl) && (
+              <div className="mb-3 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 relative">
                 {post.mediaType?.startsWith('video/') ? (
                   <video 
-                    src={post.imageUrl} 
+                    src={post.mediaStorageHash ? `/api/objects/zg-media/${post.mediaStorageHash}` : post.imageUrl} 
                     controls 
                     className="w-full max-h-80 object-cover" 
+                    data-testid={`video-${post.id}`}
                   />
                 ) : (
                   <img 
-                    src={post.imageUrl} 
-                    alt="Post media" 
+                    src={post.mediaStorageHash ? `/api/objects/zg-media/${post.mediaStorageHash}` : post.imageUrl} 
+                    alt={post.mediaStorageHash ? "Media from 0G Storage" : "Post media"} 
                     className="w-full h-48 object-cover" 
+                    data-testid={`image-${post.id}`}
                   />
+                )}
+                {/* Show media source indicator */}
+                {post.mediaStorageHash && (
+                  <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full opacity-75 z-10">
+                    0G Storage
+                  </div>
                 )}
               </div>
             )}
