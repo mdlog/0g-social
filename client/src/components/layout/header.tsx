@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Moon, Sun, Search, Wifi, WifiOff } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useWebSocket } from "@/hooks/use-websocket";
@@ -12,11 +12,42 @@ import logoUrl from "@/assets/desocialai-logo.png";
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { connected: wsConnected } = useWebSocket();
 
   const { data: currentUser } = useQuery({
     queryKey: ["/api/users/me"],
   });
+
+  // Search functionality with debounce
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ["/api/posts/search", searchQuery],
+    queryFn: async () => {
+      if (searchQuery.trim().length < 2) return [];
+      const response = await fetch(`/api/posts/search/${encodeURIComponent(searchQuery.trim())}`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: searchQuery.trim().length >= 2,
+    staleTime: 5000, // Cache for 5 seconds
+  });
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (target && !target.closest('.search-container')) {
+        setShowSearchResults(false);
+      }
+    };
+
+    if (showSearchResults) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showSearchResults]);
 
 
 
@@ -49,17 +80,72 @@ export function Header() {
           </div>
 
           {/* Search Bar */}
-          <div className="hidden md:block flex-1 max-w-lg mx-8">
+          <div className="hidden md:block flex-1 max-w-lg mx-8 relative search-container">
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 group-focus-within:text-primary transition-colors" />
               <Input
                 type="text"
                 placeholder="Search posts, users, hashtags..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearchResults(e.target.value.trim().length >= 2);
+                }}
+                onFocus={() => {
+                  if (searchQuery.trim().length >= 2) {
+                    setShowSearchResults(true);
+                  }
+                }}
                 className="modern-input w-full pl-12 pr-4 py-3 h-12 text-sm placeholder:text-muted-foreground/60"
               />
             </div>
+
+            {/* Search Results Dropdown */}
+            {showSearchResults && searchQuery.trim().length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto">
+                {searchLoading ? (
+                  <div className="p-4 text-center text-muted-foreground">
+                    <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
+                    <span className="text-sm mt-2 block">Searching...</span>
+                  </div>
+                ) : searchResults && searchResults.length > 0 ? (
+                  <div className="p-2">
+                    <div className="px-3 py-2 text-xs text-muted-foreground font-semibold uppercase tracking-wide border-b border-border">
+                      Search Results ({searchResults.length})
+                    </div>
+                    {searchResults.map((post: any) => (
+                      <div 
+                        key={post.id} 
+                        className="p-3 hover:bg-accent rounded-lg cursor-pointer transition-colors"
+                        onClick={() => {
+                          setShowSearchResults(false);
+                          setSearchQuery("");
+                        }}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+                            {post.author?.displayName?.charAt(0) || "U"}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-foreground">
+                              {post.author?.displayName || "Unknown User"}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {post.content.substring(0, 100)}{post.content.length > 100 ? "..." : ""}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : searchQuery.trim().length >= 2 && (
+                  <div className="p-4 text-center text-muted-foreground">
+                    <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <div className="text-sm">No posts found for "{searchQuery}"</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Navigation */}
