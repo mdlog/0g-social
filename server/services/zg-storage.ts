@@ -53,7 +53,7 @@ class ZGStorageService {
   constructor() {
     // 0G Galileo Testnet V3 configuration - Chain ID 16601 dengan private key real
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:6789';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai/';
     this.privateKey = process.env.ZG_PRIVATE_KEY || '';
 
     this.initializeClients();
@@ -542,15 +542,20 @@ Your post is saved locally. Please check your connection or try again later.`;
           throw new Error(`Failed to create merkle tree: ${treeErr}`);
         }
 
-        // Create a simple simulation of 0G Storage upload since we can't access real network
-        // In real production, this would use the official 0G Storage SDK upload method
-        console.log(`[0G Storage] Creating blockchain-style upload simulation with real hash`);
+        // Upload to 0G Storage network using the official workflow from documentation
+        console.log(`[0G Storage] Uploading file to 0G Storage network using indexer: ${this.indexerRpc}`);
         
-        // Generate a real blockchain-style transaction hash based on file content
-        const crypto = await import('crypto');
-        const fileBuffer = await readFile(tempFilePath);
-        const fileHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
-        const transactionHash = `0x${fileHash.substring(0, 64)}`;
+        const [tx, uploadErr] = await this.indexer.upload(
+          zgFile,
+          this.rpcUrl,
+          this.signer
+        );
+
+        if (uploadErr !== null) {
+          throw new Error(`Upload error: ${uploadErr}`);
+        }
+
+        const transactionHash = tx;
 
         const rootHash = tree.rootHash();
         

@@ -2128,7 +2128,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`[0G Storage] Accessing media file: ${hash}`);
       
-      // Access file from local storage (simulation mode)
+      // Try to access file from 0G Storage indexer first
+      try {
+        const indexerUrl = `https://indexer-storage-testnet-turbo.0g.ai/download?root=${encodeURIComponent(hash)}`;
+        
+        const response = await fetch(indexerUrl);
+        
+        if (response.ok) {
+          // Get content type from storage response
+          const contentType = response.headers.get('content-type') || 'application/octet-stream';
+          
+          // Set appropriate headers
+          res.setHeader('Content-Type', contentType);
+          res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+          res.setHeader('X-0G-Storage-Hash', hash);
+          
+          // Stream the file from 0G Storage to client
+          const fileBuffer = await response.arrayBuffer();
+          res.send(Buffer.from(fileBuffer));
+          
+          console.log(`[0G Storage] ✅ Successfully served from indexer: ${hash}`);
+          return;
+        }
+      } catch (indexerError) {
+        console.warn(`[0G Storage] Indexer access failed for ${hash}: ${indexerError}`);
+      }
+
+      // Fallback to local storage
       const path = await import('path');
       const fs = await import('fs');
       const storageDir = path.join(process.cwd(), 'storage', 'media');
@@ -2146,11 +2172,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (!filePath) {
-        console.error(`[0G Storage] File not found: ${hash}`);
+        console.error(`[0G Storage] File not found in both indexer and local storage: ${hash}`);
         return res.status(404).json({
-          message: "File not found in local storage",
+          message: "File not found in 0G Storage",
           hash,
-          error: "File may not have been uploaded yet"
+          error: "File may not have been uploaded yet or is not accessible"
         });
       }
 
