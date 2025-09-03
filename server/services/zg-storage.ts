@@ -177,15 +177,16 @@ class ZGStorageService {
           // Special handling for "Data already exists" - this is actually success
           const errorString = uploadErr.toString();
           if (errorString.includes('Data already exists')) {
-            console.log('[0G Storage] Data already exists on 0G Storage - treating as successful upload');
+            console.log('[0G Storage] ✅ Data already exists on 0G Storage network - content is stored!');
             const rootHash = tree.rootHash();
+            console.log('[0G Storage] ✅ Real Merkle Root Hash from existing data:', rootHash);
             return {
               success: true,
               hash: rootHash || undefined,
-              transactionHash: undefined  // Don't show fake transaction hash
+              transactionHash: 'existing_on_network' // Indicate it's already on network
             };
           }
-          throw new Error(`Upload failed: ${uploadErr}`);
+          throw new Error(`0G Storage upload failed: ${uploadErr}`);
         }
 
         const rootHash = tree.rootHash();
@@ -211,8 +212,8 @@ class ZGStorageService {
       }
 
     } catch (error: any) {
-      console.error('[0G Storage] Failed to store content on real 0G Storage:', error);
-      console.error('[0G Storage] Full error object:', JSON.stringify(error, null, 2));
+      console.error('[0G Storage] ❌ Failed to store content on REAL 0G Storage network:', error);
+      console.error('[0G Storage] ❌ This is NOT simulation - real network error:', JSON.stringify(error, null, 2));
       
       const errorMessage = error.message || error.toString() || '';
       const errorResponse = error.response?.data || '';

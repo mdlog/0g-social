@@ -85,7 +85,7 @@ class BlockchainVerificationService {
       
       const result: VerificationResult = {
         isVerified: verificationScore > 70,
-        transactionHash: daHash || this.generateMockTxHash(),
+        transactionHash: daHash || '', // No fallback to dummy hash
         timestamp: new Date(),
         verificationScore,
         metadata: {
@@ -142,7 +142,7 @@ class BlockchainVerificationService {
 
       const result: VerificationResult = {
         isVerified: isValidSignature,
-        transactionHash: daHash || this.generateMockTxHash(),
+        transactionHash: daHash || '', // No fallback to dummy hash
         timestamp: new Date(),
         verificationScore,
         metadata: {
