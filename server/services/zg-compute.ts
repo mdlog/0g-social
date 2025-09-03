@@ -253,6 +253,48 @@ class ZGComputeService {
     return (userSeed + postSeed) % 100;
   }
 
+  /**
+   * Generate AI recommendations for user content
+   */
+  async generateRecommendations(userId: string, userPosts: any[]): Promise<any[]> {
+    try {
+      console.log(`[0G Compute] Generating recommendations for user ${userId}`);
+      
+      // Simple simulation of AI recommendations
+      const recommendations = [
+        {
+          id: "rec_001",
+          type: "topic",
+          title: "Explore DeFi Protocols",
+          description: "Based on your interests in blockchain, you might enjoy DeFi content",
+          score: 0.95,
+          category: "DeFi"
+        },
+        {
+          id: "rec_002", 
+          type: "user",
+          title: "Connect with AI Enthusiasts",
+          description: "Users with similar AI and blockchain interests",
+          score: 0.88,
+          category: "AI"
+        },
+        {
+          id: "rec_003",
+          type: "content",
+          title: "Latest 0G Chain Updates",
+          description: "Stay updated with 0G Chain developments",
+          score: 0.92,
+          category: "Infrastructure"
+        }
+      ];
+      
+      return recommendations;
+    } catch (error) {
+      console.error('[0G Compute] Failed to generate recommendations:', error);
+      return [];
+    }
+  }
+
   private generateReasoning(postCount: number, userId: string): string {
     const reasons = [
       `Analyzed ${postCount} posts using personalized AI model for user preferences`,

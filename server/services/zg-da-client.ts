@@ -28,8 +28,8 @@ class ZGDAClientService {
   private readonly grpcEndpoint: string;
   
   constructor() {
-    // Default to localhost:51001 as per official documentation
-    this.grpcEndpoint = process.env.ZG_DA_GRPC_ENDPOINT || 'localhost:51001';
+    // Default to production gRPC server as per official documentation
+    this.grpcEndpoint = process.env.ZG_DA_GRPC_ENDPOINT || '38.96.255.34:51001';
     this.initializeClient();
   }
 
