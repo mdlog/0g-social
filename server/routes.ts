@@ -2128,32 +2128,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`[0G Storage] Accessing media file: ${hash}`);
       
-      // Access file via indexer endpoint (using new endpoint :6789)
-      const indexerUrl = `http://38.96.255.34:6789/file/${encodeURIComponent(hash)}`;
+      // Access file from local storage (simulation mode)
+      const path = await import('path');
+      const fs = await import('fs');
+      const storageDir = path.join(process.cwd(), 'storage', 'media');
       
-      // Proxy the request to the indexer
-      const response = await fetch(indexerUrl);
+      // Try to find file with various extensions
+      const possibleExtensions = ['', '.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mov', '.avi', '.webm'];
+      let filePath = null;
       
-      if (!response.ok) {
-        console.error(`[0G Storage] Failed to fetch file ${hash}: ${response.status}`);
+      for (const ext of possibleExtensions) {
+        const testPath = path.join(storageDir, `${hash}${ext}`);
+        if (fs.existsSync(testPath)) {
+          filePath = testPath;
+          break;
+        }
+      }
+      
+      if (!filePath) {
+        console.error(`[0G Storage] File not found: ${hash}`);
         return res.status(404).json({
-          message: "File not found in 0G Storage",
+          message: "File not found in local storage",
           hash,
-          error: `Storage returned: ${response.status}`
+          error: "File may not have been uploaded yet"
         });
       }
 
-      // Get content type from storage response
-      const contentType = response.headers.get('content-type') || 'application/octet-stream';
+      // Determine content type from file extension
+      const fileExt = path.extname(filePath).toLowerCase();
+      const mimeTypes = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg', 
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.mp4': 'video/mp4',
+        '.mov': 'video/quicktime',
+        '.avi': 'video/x-msvideo',
+        '.webm': 'video/webm'
+      };
+      const contentType = mimeTypes[fileExt] || 'application/octet-stream';
       
       // Set appropriate headers
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
       res.setHeader('X-0G-Storage-Hash', hash);
       
-      // Stream the file from 0G Storage to client
-      const fileBuffer = await response.arrayBuffer();
-      res.send(Buffer.from(fileBuffer));
+      // Stream the file from local storage to client
+      const fileBuffer = await fs.promises.readFile(filePath);
+      res.send(fileBuffer);
       
       console.log(`[0G Storage] ✅ Successfully served media file: ${hash}`);
       
