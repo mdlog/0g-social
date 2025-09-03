@@ -362,7 +362,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(posts);
   });
 
-  app.post("/api/posts", upload.single('file'), async (req, res) => {
+  app.post("/api/posts", (req, res, next) => {
+    console.log("[DEBUG] POST /api/posts middleware - before multer");
+    console.log("[DEBUG] Content-Type:", req.headers['content-type']);
+    next();
+  }, upload.single('file'), async (req, res) => {
     try {
       console.log("[UPLOAD ENDPOINT] POST /api/posts called");
       console.log("[UPLOAD ENDPOINT] Request body keys:", Object.keys(req.body));
