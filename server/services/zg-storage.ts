@@ -52,7 +52,7 @@ class ZGStorageService {
   constructor() {
     // 0G Galileo Testnet V3 configuration - Chain ID 16601 dengan private key real
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:5678';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:6789';
     this.privateKey = process.env.ZG_PRIVATE_KEY || '';
 
     this.initializeClients();
