@@ -394,11 +394,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("[UPLOAD ENDPOINT] Post data extracted:", postData);
       
-      // Basic validation
-      if (!postData.content || postData.content.trim() === '') {
+      // Basic validation - Allow empty content if file is provided
+      if ((!postData.content || postData.content.trim() === '') && !req.file) {
         return res.status(400).json({
-          message: "Content is required",
-          details: "Post content cannot be empty"
+          message: "Content or media is required",
+          details: "Post must contain either text content or media file"
         });
       }
       
@@ -464,15 +464,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Pre-check 0G Storage connectivity before attempting upload
-      console.log('[Post Creation] Pre-checking 0G Storage connectivity...');
-      
-      // Store content on 0G Storage with wallet signature verification
-      const storageResult = await zgStorageService.storeContent(postData.content, {
-        type: 'post',
-        userId: user.id,
-        walletAddress: user.walletAddress // Add wallet context for better error messages
-      });
+      // Store content on 0G Storage only if content exists
+      let storageResult = null;
+      if (postData.content && postData.content.trim()) {
+        console.log('[Post Creation] Storing content on 0G Storage...');
+        storageResult = await zgStorageService.storeContent(postData.content, {
+          type: 'post',
+          userId: user.id,
+          walletAddress: user.walletAddress
+        });
+      } else {
+        console.log('[Post Creation] Skipping content storage (empty content with media)');
+        storageResult = { success: true, hash: null, transactionHash: null };
+      }
 
       // Handle media upload if file provided
       let mediaStorageHash = undefined;
