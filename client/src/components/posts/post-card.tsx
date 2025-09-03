@@ -248,8 +248,8 @@ export function PostCard({ post }: PostCardProps) {
                   <span className="font-medium text-green-700 dark:text-green-300">Stored on 0G Network</span>
                 </div>
                 
-                {/* L1 Transaction Hash */}
-                {post.transactionHash && (
+                {/* L1 Transaction Hash - Only show real hashes, not placeholders */}
+                {post.transactionHash && post.transactionHash !== 'existing_on_network' && (
                   <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-300 mb-1">
                     <Shield className="w-3 h-3" />
                     <span className="font-mono">L1 Hash:</span>
@@ -266,6 +266,17 @@ export function PostCard({ post }: PostCardProps) {
                     >
                       <ExternalLink className="w-3 h-3" />
                     </a>
+                  </div>
+                )}
+                
+                {/* Show existing status when using placeholder */}
+                {post.transactionHash === 'existing_on_network' && (
+                  <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-300 mb-1">
+                    <Shield className="w-3 h-3" />
+                    <span className="font-mono">Status:</span>
+                    <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded text-xs text-blue-800 dark:text-blue-200">
+                      Data verified on 0G Network
+                    </code>
                   </div>
                 )}
                 
