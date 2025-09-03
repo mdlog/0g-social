@@ -409,7 +409,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         try {
           // Verify the signature matches the expected address
-          const recoveredAddress = ethers.verifyMessage(postData.message, postData.signature);
+          // Using utils.recoverAddress since personal_sign includes prefix
+          const messageHash = ethers.hashMessage(postData.message);
+          const recoveredAddress = ethers.recoverAddress(messageHash, postData.signature);
+          console.log("[SIGNATURE DEBUG] Message hash:", messageHash);
           console.log("[SIGNATURE DEBUG] Recovered address:", recoveredAddress);
           
           if (recoveredAddress.toLowerCase() !== postData.address.toLowerCase()) {
