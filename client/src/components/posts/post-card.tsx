@@ -203,7 +203,7 @@ export function PostCard({ post }: PostCardProps) {
               <h4 className="font-semibold text-foreground text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
               <span className="text-muted-foreground text-sm truncate">@{post.author?.username || "unknown"}</span>
               {post.author?.isVerified && (
-                <div className="modern-badge text-primary">
+                <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
                   <Shield className="w-3 h-3" />
                   <span>Verified</span>
                 </div>
