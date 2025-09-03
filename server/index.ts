@@ -6,6 +6,16 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// DEBUG: Capture ALL requests before any processing
+app.use((req, res, next) => {
+  console.log(`[SERVER DEBUG] ${req.method} ${req.url} - Content-Type: ${req.headers['content-type']}`);
+  if (req.method === 'POST' && req.url === '/api/posts') {
+    console.log('[SERVER DEBUG] POST /api/posts DETECTED - Headers:', JSON.stringify(req.headers, null, 2));
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
