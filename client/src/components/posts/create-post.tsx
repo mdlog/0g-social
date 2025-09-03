@@ -237,19 +237,41 @@ export function CreatePost() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
     
-    console.log("📤 Creating post with data:", {
-      content: content.trim(),
-      file: selectedFile ? { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type } : undefined
-    });
+    console.log("[DIRECT TEST] Starting direct POST test...");
     
-    createPostMutation.mutate({ 
-      content: content.trim(),
-      file: selectedFile || undefined
-    });
+    try {
+      // DIRECT TEST: Simple POST without MetaMask
+      const formData = new FormData();
+      formData.append('content', content.trim());
+      formData.append('signature', 'test_signature');
+      formData.append('message', 'test_message');
+      formData.append('address', 'test_address');
+      
+      console.log("[DIRECT TEST] FormData created, keys:", Array.from(formData.keys()));
+      console.log("[DIRECT TEST] Sending to /api/posts...");
+      
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      console.log("[DIRECT TEST] Response:", response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("[DIRECT TEST] Error:", errorText);
+      } else {
+        const result = await response.json();
+        console.log("[DIRECT TEST] Success:", result);
+      }
+      
+    } catch (error) {
+      console.log("[DIRECT TEST] Fetch error:", error);
+    }
   };
 
   const isWalletConnected = walletStatus?.connected === true;
