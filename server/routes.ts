@@ -402,11 +402,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (postData.signature && postData.message && postData.address) {
         const ethers = await import('ethers');
         
+        console.log("[SIGNATURE DEBUG] Verifying signature:");
+        console.log("[SIGNATURE DEBUG] Message:", postData.message);
+        console.log("[SIGNATURE DEBUG] Signature:", postData.signature);
+        console.log("[SIGNATURE DEBUG] Expected address:", postData.address);
+        
         try {
           // Verify the signature matches the expected address
           const recoveredAddress = ethers.verifyMessage(postData.message, postData.signature);
+          console.log("[SIGNATURE DEBUG] Recovered address:", recoveredAddress);
           
           if (recoveredAddress.toLowerCase() !== postData.address.toLowerCase()) {
+            console.log("[SIGNATURE DEBUG] ❌ Address mismatch!");
             return res.status(401).json({
               message: "Invalid signature",
               details: "Signature does not match the provided address"
