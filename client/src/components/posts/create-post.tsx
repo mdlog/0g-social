@@ -145,17 +145,26 @@ export function CreatePost() {
         }
 
         // Step 3: Send post + file to backend
+        console.log('[FRONTEND DEBUG] Sending FormData to backend...');
+        console.log('[FRONTEND DEBUG] FormData keys:', Array.from(formData.keys()));
+        
         const response = await fetch("/api/posts", {
           method: "POST",
           body: formData,
         });
 
+        console.log('[FRONTEND DEBUG] Response status:', response.status);
+        console.log('[FRONTEND DEBUG] Response ok:', response.ok);
+
         if (!response.ok) {
           const errorData = await response.json();
+          console.log('[FRONTEND DEBUG] Error response:', errorData);
           throw new Error(errorData.message || 'Failed to create post');
         }
 
-        return await response.json();
+        const result = await response.json();
+        console.log('[FRONTEND DEBUG] Success response:', result);
+        return result;
       } catch (error: any) {
         if (error.code === 4001) {
           throw new Error("Signature cancelled by user");
