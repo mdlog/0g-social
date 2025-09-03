@@ -362,8 +362,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(posts);
   });
 
-  app.post("/api/posts", async (req, res) => {
+  app.post("/api/posts", upload.single('file'), async (req, res) => {
     try {
+      console.log("[UPLOAD ENDPOINT] POST /api/posts called");
+      console.log("[UPLOAD ENDPOINT] Request body keys:", Object.keys(req.body));
+      console.log("[UPLOAD ENDPOINT] File:", req.file ? `${req.file.originalname} (${req.file.size} bytes)` : 'No file');
+
       // Check if wallet is connected
       const walletData = req.session.walletConnection;
       if (!walletData || !walletData.connected || !walletData.address) {
@@ -374,7 +378,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const postData = insertPostSchema.parse(req.body);
+      // Extract FormData fields
+      const postData = {
+        content: req.body.content,
+        signature: req.body.signature,
+        message: req.body.message,
+        timestamp: req.body.timestamp ? parseInt(req.body.timestamp) : undefined,
+        address: req.body.address
+      };
       
       // Verify Web3 signature if provided
       if (postData.signature && postData.message && postData.address) {
@@ -437,22 +448,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         walletAddress: user.walletAddress // Add wallet context for better error messages
       });
 
-      // Handle media upload if provided
+      // Handle media upload if file provided
       let mediaStorageHash = undefined;
       let mediaTransactionHash = undefined;
+      let mediaUploadURL = undefined;
       
-      if (postData.mediaURL) {
+      if (req.file) {
         try {
-          const mediaResult = await zgStorageService.confirmMediaUpload(postData.mediaURL, {
-            type: 'image',
+          console.log(`[UPLOAD ENDPOINT] Uploading file to 0G Storage: ${req.file.originalname}`);
+          const mediaResult = await zgStorageService.storeMediaFile(req.file.buffer, {
+            type: req.file.mimetype.startsWith('video/') ? 'video' : 'image',
             userId: user.id,
-            originalName: postData.mediaName || 'uploaded_media',
-            mimeType: postData.mediaType || 'image/jpeg'
+            originalName: req.file.originalname,
+            mimeType: req.file.mimetype
           });
           
           if (mediaResult.success) {
             mediaStorageHash = mediaResult.hash;
             mediaTransactionHash = mediaResult.transactionHash;
+            // Generate temporary media URL for database storage
+            mediaUploadURL = `/api/objects/.private/uploads/${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            console.log(`[UPLOAD ENDPOINT] ✅ Media uploaded to 0G Storage successfully`);
+          } else {
+            console.warn(`[UPLOAD ENDPOINT] Media upload to 0G Storage failed: ${mediaResult.error}`);
           }
         } catch (mediaError) {
           console.warn('[Post Creation] Media upload failed but continuing with post:', mediaError);
@@ -463,8 +481,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newPost = {
         content: postData.content,
         authorId: user.id, // Use proper user UUID, not wallet address
-        imageUrl: postData.mediaURL || null,
-        mediaType: postData.mediaType || null,
+        imageUrl: mediaUploadURL || null,
+        mediaType: req.file?.mimetype || null,
         mediaStorageHash,
         likesCount: 0,
         commentsCount: 0,

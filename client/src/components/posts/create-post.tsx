@@ -46,8 +46,8 @@ export function CreatePost() {
     refetchInterval: 5000, // Check every 5 seconds
   });
 
-  // Handle file selection
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file selection (only preview, don't upload yet)
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log("[FRONTEND DEBUG] handleFileSelect called");
     const file = event.target.files?.[0];
     console.log("[FRONTEND DEBUG] Selected file:", file);
@@ -76,64 +76,20 @@ export function CreatePost() {
       return;
     }
 
-    try {
-      setIsUploading(true);
-      setSelectedFile(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFilePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    // Store file and create preview (no upload yet)
+    setSelectedFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFilePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
 
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // Upload file directly
-      console.log("[FRONTEND DEBUG] About to call /api/posts/upload-media");
-      console.log("[FRONTEND DEBUG] FormData file:", file.name, file.size, file.type);
-      
-      const response = await fetch("/api/posts/upload-media", {
-        method: "POST",
-        body: formData,
-      });
-      
-      console.log("[FRONTEND DEBUG] Response status:", response.status);
-      console.log("[FRONTEND DEBUG] Response ok:", response.ok);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to upload file');
-      }
-
-      const uploadData = await response.json();
-      setUploadedMediaURL(uploadData.uploadURL);
-      
-      toast({
-        title: "File uploaded",
-        description: "Your media file has been uploaded successfully.",
-      });
-
-    } catch (error: any) {
-      console.error("Media upload error:", error);
-      setSelectedFile(null);
-      setFilePreview(null);
-      toast({
-        title: "Upload failed",
-        description: error.message?.includes('Failed to fetch') 
-          ? 'Network error: Please check your connection and try again'
-          : `Failed to upload media: ${error.message || 'Unknown error'}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
+    toast({
+      title: "File selected",
+      description: "File will be uploaded when you post.",
+    });
   };
 
   // Remove selected file
@@ -147,7 +103,7 @@ export function CreatePost() {
   };
 
   const createPostMutation = useMutation({
-    mutationFn: async (data: { content: string; mediaURL?: string; mediaType?: string; mediaName?: string }) => {
+    mutationFn: async (data: { content: string; file?: File }) => {
       // Step 1: Request MetaMask signature
       if (!window.ethereum) {
         throw new Error("MetaMask not detected. Please install MetaMask to continue.");
@@ -159,7 +115,8 @@ export function CreatePost() {
         
         // Create message to sign
         const timestamp = Date.now();
-        const message = `0G Social Post Signature\n\nContent: ${data.content}\nTimestamp: ${timestamp}\n\nBy signing this message, you authorize posting this content to the 0G Storage network.`;
+        const fileInfo = data.file ? `\nFile: ${data.file.name} (${data.file.size} bytes)` : '';
+        const message = `0G Social Post Signature\n\nContent: ${data.content}${fileInfo}\nTimestamp: ${timestamp}\n\nBy signing this message, you authorize posting this content to the 0G Storage network.`;
         
         // Request signature from user
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
@@ -170,17 +127,30 @@ export function CreatePost() {
           params: [message, account],
         });
 
-        // Step 2: Send post with signature to backend
-        return await apiRequest("POST", "/api/posts", {
-          content: data.content,
-          mediaURL: data.mediaURL,
-          mediaType: data.mediaType,
-          mediaName: data.mediaName,
-          signature,
-          message,
-          timestamp,
-          address: account
+        // Step 2: Prepare form data for backend (includes file if present)
+        const formData = new FormData();
+        formData.append('content', data.content);
+        formData.append('signature', signature);
+        formData.append('message', message);
+        formData.append('timestamp', timestamp.toString());
+        formData.append('address', account);
+        
+        if (data.file) {
+          formData.append('file', data.file);
+        }
+
+        // Step 3: Send post + file to backend
+        const response = await fetch("/api/posts", {
+          method: "POST",
+          body: formData,
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create post');
+        }
+
+        return await response.json();
       } catch (error: any) {
         if (error.code === 4001) {
           throw new Error("Signature cancelled by user");
@@ -259,16 +229,12 @@ export function CreatePost() {
     
     console.log("📤 Creating post with data:", {
       content: content.trim(),
-      mediaURL: uploadedMediaURL,
-      mediaType: selectedFile?.type,
-      mediaName: selectedFile?.name
+      file: selectedFile ? { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type } : undefined
     });
     
     createPostMutation.mutate({ 
       content: content.trim(),
-      mediaURL: uploadedMediaURL || undefined,
-      mediaType: selectedFile?.type,
-      mediaName: selectedFile?.name
+      file: selectedFile || undefined
     });
   };
 
