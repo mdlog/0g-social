@@ -87,10 +87,16 @@ export function CreatePost() {
       formData.append('file', file);
 
       // Upload file directly
+      console.log("[FRONTEND DEBUG] About to call /api/posts/upload-media");
+      console.log("[FRONTEND DEBUG] FormData file:", file.name, file.size, file.type);
+      
       const response = await fetch("/api/posts/upload-media", {
         method: "POST",
         body: formData,
       });
+      
+      console.log("[FRONTEND DEBUG] Response status:", response.status);
+      console.log("[FRONTEND DEBUG] Response ok:", response.ok);
       
       if (!response.ok) {
         const errorData = await response.json();
