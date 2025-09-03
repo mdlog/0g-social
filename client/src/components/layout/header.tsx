@@ -23,19 +23,28 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 glass-effect border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl gradient-brand flex items-center justify-center shadow-lg ring-1 ring-primary/20">
-              <img 
-                src={logoUrl} 
-                alt="DeSocialAI Logo" 
-                className="w-7 h-7 object-contain"
-              />
+          <div className="flex items-center space-x-4">
+            <div className="relative group">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center shadow-xl ring-1 ring-white/20 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                <img 
+                  src={logoUrl} 
+                  alt="DeSocialAI Logo" 
+                  className="w-8 h-8 object-contain drop-shadow-lg"
+                />
+              </div>
+              {/* Subtle glow effect on hover */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg -z-10"></div>
             </div>
-            <h1 className="text-xl font-bold gradient-text">
-              DeSocialAI
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
+                DeSocialAI
+              </h1>
+              <span className="text-xs text-muted-foreground font-medium tracking-wider">
+                Decentralized Social Network
+              </span>
+            </div>
           </div>
 
           {/* Search Bar */}
