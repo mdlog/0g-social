@@ -2051,7 +2051,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Media upload endpoints for posts
+  // Media upload endpoints for posts - Using 0G Storage
   app.post("/api/posts/upload-media", upload.single('file'), async (req, res) => {
     try {
       const walletData = req.session.walletConnection;
@@ -2079,17 +2079,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get upload URL from object storage service
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      
-      res.json({ 
-        uploadURL,
-        message: "Upload URL generated successfully"
+      console.log(`[0G Storage] Processing media upload: ${req.file.originalname}, ${req.file.size} bytes`);
+
+      // Use 0G Storage service to store media file directly
+      const zgStorageResult = await zgStorageService.storeMediaFile(req.file.buffer, {
+        type: 'media',
+        originalName: req.file.originalname || 'unknown',
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        timestamp: Date.now(),
+        userId: user.id,
+        description: `Media file uploaded by ${user.username}`
       });
+
+      if (!zgStorageResult.success) {
+        console.error('[0G Storage] Media upload failed:', zgStorageResult.error);
+        return res.status(500).json({
+          message: "Failed to upload media to 0G Storage",
+          error: zgStorageResult.error || "Unknown storage error"
+        });
+      }
+
+      console.log(`[0G Storage] ✅ Media uploaded successfully: ${zgStorageResult.hash}`);
+      console.log(`[0G Storage] 🔗 Transaction Hash: ${zgStorageResult.transactionHash}`);
+
+      // Return 0G Storage hash and transaction info
+      res.json({ 
+        success: true,
+        uploadURL: `/api/objects/zg-media/${zgStorageResult.hash}`, // Reference for accessing file
+        hash: zgStorageResult.hash,
+        transactionHash: zgStorageResult.transactionHash,
+        message: "File uploaded successfully to 0G Storage network"
+      });
+
     } catch (error: any) {
-      console.error('[Media Upload] Failed to generate upload URL:', error);
+      console.error('[0G Storage] Media upload error:', error);
       res.status(500).json({ 
-        message: "Failed to generate media upload URL",
+        message: "Failed to upload media to 0G Storage",
+        error: error.message 
+      });
+    }
+  });
+
+  // 0G Storage media access endpoint
+  app.get("/api/objects/zg-media/:hash", async (req, res) => {
+    try {
+      const { hash } = req.params;
+      
+      console.log(`[0G Storage] Accessing media file: ${hash}`);
+      
+      // Access file via indexer endpoint (using new endpoint :6789)
+      const indexerUrl = `http://38.96.255.34:6789/file/${encodeURIComponent(hash)}`;
+      
+      // Proxy the request to the indexer
+      const response = await fetch(indexerUrl);
+      
+      if (!response.ok) {
+        console.error(`[0G Storage] Failed to fetch file ${hash}: ${response.status}`);
+        return res.status(404).json({
+          message: "File not found in 0G Storage",
+          hash,
+          error: `Storage returned: ${response.status}`
+        });
+      }
+
+      // Get content type from storage response
+      const contentType = response.headers.get('content-type') || 'application/octet-stream';
+      
+      // Set appropriate headers
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+      res.setHeader('X-0G-Storage-Hash', hash);
+      
+      // Stream the file from 0G Storage to client
+      const fileBuffer = await response.arrayBuffer();
+      res.send(Buffer.from(fileBuffer));
+      
+      console.log(`[0G Storage] ✅ Successfully served media file: ${hash}`);
+      
+    } catch (error: any) {
+      console.error('[0G Storage] Media access error:', error);
+      res.status(500).json({ 
+        message: "Failed to access media from 0G Storage",
         error: error.message 
       });
     }

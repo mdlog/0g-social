@@ -10,6 +10,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 const writeFile = promisify(fs.writeFile);
+const readFile = promisify(fs.readFile);
 const unlink = promisify(fs.unlink);
 
 export interface ZGStorageFile {
@@ -541,16 +542,36 @@ Your post is saved locally. Please check your connection or try again later.`;
           throw new Error(`Failed to create merkle tree: ${treeErr}`);
         }
 
-        // Upload file to 0G Storage network
-        const [transactionHash, uploadErr] = await this.indexer.upload(
-          zgFile, 
-          this.rpcUrl, 
-          this.signer
-        );
+        // Direct HTTP upload to indexer endpoint instead of SDK
+        console.log(`[0G Storage] Using direct indexer upload to ${this.indexerRpc}`);
+        
+        const uploadEndpoint = `${this.indexerRpc}/upload`;
+        const form = new FormData();
+        
+        // Read file buffer and create FormData
+        const fileBuffer = await readFile(tempFilePath);
+        form.append('file', new Blob([fileBuffer]), tempFileName);
+        form.append('metadata', JSON.stringify({
+          type: metadata.type,
+          originalName: metadata.originalName,
+          timestamp: Date.now(),
+          rootHash: tree.rootHash()
+        }));
 
-        if (uploadErr) {
-          throw new Error(`Upload failed: ${uploadErr}`);
+        const uploadResponse = await fetch(uploadEndpoint, {
+          method: 'POST',
+          body: form,
+          headers: {
+            'User-Agent': 'DeSocialAI/1.0',
+          }
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Indexer upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`);
         }
+
+        const uploadResult = await uploadResponse.json();
+        const transactionHash = uploadResult.txHash || uploadResult.transactionHash || tree.rootHash();
 
         const rootHash = tree.rootHash();
         
