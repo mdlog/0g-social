@@ -2,18 +2,18 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { Chain } from 'viem';
 
-// Definisi 0G Chain Newton Testnet
-export const zgChainNewtonTestnet: Chain = {
-  id: 16600,
-  name: '0G Newton Testnet',
+// Definisi 0G Chain Galileo Testnet
+export const zgChainGalileoTestnet: Chain = {
+  id: 16601,
+  name: '0G Galileo Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'A0GI Token',
-    symbol: 'A0GI',
+    name: '0G Token',
+    symbol: '0G',
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc-testnet.0g.ai'],
+      http: ['https://evmrpc-testnet.0g.ai'],
     },
   },
   blockExplorers: {
@@ -29,6 +29,6 @@ export const zgChainNewtonTestnet: Chain = {
 export const wagmiConfig = getDefaultConfig({
   appName: 'DeSocialAI',
   projectId: 'desocialai-zg-chain', // ID project untuk WalletConnect
-  chains: [zgChainNewtonTestnet], // Hanya gunakan 0G Chain Newton testnet
+  chains: [zgChainGalileoTestnet], // Hanya gunakan 0G Chain Galileo testnet
   ssr: false, // Disable server-side rendering untuk Vite
 });

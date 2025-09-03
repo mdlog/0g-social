@@ -50,10 +50,10 @@ class ZGStorageService {
   private indexer: Indexer | null = null;
 
   constructor() {
-    // 0G Galileo Testnet V3 configuration - Chain ID 16601 (switched back from Newton)
+    // 0G Galileo Testnet V3 configuration - Chain ID 16601 dengan private key real
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
     this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
-    this.privateKey = process.env.ZG_PRIVATE_KEY || process.env.PRIVATE_KEY || '';
+    this.privateKey = process.env.ZG_PRIVATE_KEY || '';
 
     this.initializeClients();
   }
@@ -64,9 +64,10 @@ class ZGStorageService {
   private async initializeClients() {
     try {
       if (!this.privateKey) {
-        console.warn('[0G Storage] No private key provided - storage operations will be simulated');
-        return;
+        throw new Error('[0G Storage] ZG_PRIVATE_KEY environment variable required for real 0G Storage operations');
       }
+
+      console.log('[0G Storage] ✅ Private key found - initializing REAL 0G Storage connection');
 
       // Initialize provider and signer
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
@@ -139,7 +140,8 @@ class ZGStorageService {
         throw new Error('Real 0G Storage required: Missing private key or indexer connection. Please ensure ZG_PRIVATE_KEY is set and indexer service is available.');
       }
 
-      console.log('[0G Storage] Using REAL 0G Galileo testnet storage - no simulation fallback');
+      console.log('[0G Storage] ✅ Using REAL 0G Storage with wallet:', this.signer?.address);
+      console.log('[0G Storage] ✅ Uploading to 0G Galileo Testnet with real transaction');
 
       // Create temporary file for 0G Storage upload
       const tempDir = path.join(process.cwd(), 'temp');
@@ -188,9 +190,10 @@ class ZGStorageService {
 
         const rootHash = tree.rootHash();
         
-        console.log(`[0G Storage] Successfully uploaded ${metadata.type} content to Galileo`);
-        console.log(`[0G Storage] Galileo Root Hash: ${rootHash}`);
-        console.log(`[0G Storage] Galileo Transaction Hash: ${transactionHash}`);
+        console.log(`[0G Storage] ✅ SUCCESS: Real upload to 0G Storage network completed!`);
+        console.log(`[0G Storage] ✅ Real Merkle Root Hash: ${rootHash}`);
+        console.log(`[0G Storage] ✅ Real Transaction Hash: ${transactionHash}`);
+        console.log(`[0G Storage] ✅ Content verifiable on blockchain explorer!`);
 
         return {
           success: true,
