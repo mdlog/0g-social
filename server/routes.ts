@@ -3515,12 +3515,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
   
   // Admin - Get all posts with hash verification
-  app.get("/api/admin/posts", checkAdminAccess, async (req, res) => {
+  app.get("/api/admin/posts/:limit/:offset", checkAdminAccess, async (req, res) => {
     try {
       console.log("[ADMIN] Getting all posts with hash verification");
       
-      const limit = parseInt(req.query.limit as string) || 50;
-      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = parseInt(req.params.limit) || 50;
+      const offset = parseInt(req.params.offset) || 0;
       
       // Get all posts with author information
       const posts = await storage.getPosts(limit, offset);
