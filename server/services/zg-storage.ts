@@ -225,8 +225,11 @@ class ZGStorageService {
               
               // Add timestamp to make content unique and force new blockchain transaction
               const uniqueContent = content + `\n<!-- Timestamp: ${Date.now()} -->`;
-              const uniqueFile = Buffer.from(uniqueContent, 'utf-8');
-              const uniqueZgFile = ZgFile.fromBytes(uniqueFile);
+              
+              // Write unique content to temporary file (ZgFile only supports fromFilePath)
+              const uniqueTempPath = tempFilePath + '_unique';
+              await writeFile(uniqueTempPath, uniqueContent, 'utf-8');
+              const uniqueZgFile = await ZgFile.fromFilePath(uniqueTempPath);
               
               // Force upload with unique content to get real blockchain hash
               const [realTxHash, realUploadErr] = await this.indexer.upload(uniqueZgFile, this.rpcUrl, this.signer);
@@ -238,6 +241,13 @@ class ZGStorageService {
               
               console.log('[0G Storage] ✅ SUCCESS: Got real blockchain transaction hash:', realTxHash);
               console.log('[0G Storage] ✅ Hash is verifiable on 0G Chain explorer!');
+              
+              // Cleanup unique temp file
+              try {
+                await unlink(uniqueTempPath);
+              } catch (err) {
+                console.warn('[0G Storage] Failed to delete unique temp file:', err);
+              }
               
               return {
                 success: true,
