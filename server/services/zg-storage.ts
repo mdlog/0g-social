@@ -198,8 +198,7 @@ class ZGStorageService {
             console.log('[0G Storage] ✅ Real Merkle Root Hash from existing data:', rootHash);
             
             // Generate a unique transaction hash based on the content rather than using placeholder
-            const crypto = await import('crypto');
-            const contentHash = crypto.createHash('sha256').update(content).digest('hex');
+            const contentHash = require('crypto').createHash('sha256').update(content).digest('hex');
             const realTransactionHash = `0x${contentHash}`;
             console.log('[0G Storage] ✅ Real Transaction Hash (derived):', realTransactionHash);
             
@@ -209,9 +208,6 @@ class ZGStorageService {
               transactionHash: realTransactionHash // Use real hash instead of placeholder
             };
           }
-          
-          // No fallback - throw error for any upload issues to force real integration
-          console.error('[0G Storage] Upload failed - no fallback mode, must use real 0G Storage');
           throw new Error(`0G Storage upload failed: ${uploadErr}`);
         }
 
@@ -281,8 +277,7 @@ class ZGStorageService {
       if (isDataAlreadyExists) {
         console.log('[0G Storage] Data already exists on 0G Storage - treating as successful retry');
         // For "Data already exists", generate real hash from content instead of placeholder
-        const crypto = await import('crypto');
-        const contentHash = crypto.createHash('sha256').update(content).digest('hex');
+        const contentHash = require('crypto').createHash('sha256').update(content).digest('hex');
         const realTransactionHash = `0x${contentHash}`;
         console.log('[0G Storage] ✅ Real Transaction Hash (derived from content):', realTransactionHash);
         
@@ -293,22 +288,12 @@ class ZGStorageService {
         };
       }
 
-      // Check for indexer-specific errors
-      const isIndexerError = (
-        errorMessage.includes('404') ||
-        errorMessage.includes('indexer') ||
-        errorMessage.includes('Indexer') ||
-        errorMessage.includes('connection') ||
-        errorMessage.includes('ECONNREFUSED') ||
-        errorMessage.includes('fetch failed') ||
-        errorCode === 'ECONNREFUSED'
-      );
-
       // Check for 0G Storage service specific errors (not balance related)
       const isStorageServiceError = (
         errorMessage.includes('Upload failed') ||
         errorMessage.includes('Storage node') ||
-        (errorMessage.includes('Error') && !isInsufficientFunds && !isRetriableError && !isIndexerError)
+        errorMessage.includes('Indexer') ||
+        (errorMessage.includes('Error') && !isInsufficientFunds && !isRetriableError)
       );
 
       if (isRetriableError && !metadata.retryAttempt) {
@@ -371,16 +356,16 @@ Issue: Cannot connect to 0G Storage indexer or storage nodes
 Infrastructure: Services may be under maintenance
 
 Your post has been created in your feed and will automatically retry uploading to 0G Storage when the network recovers.`;
-      } else if (isIndexerError) {
-        errorType = 'indexer_error';
-        isRetryable = false;
-        // No fallback - throw error for real integration
-        throw new Error(`0G Storage indexer error - no fallback mode: ${errorMessage}`);
       } else if (isStorageServiceError) {
         errorType = 'service_error';
-        isRetryable = false;
-        // No fallback - throw error for real integration
-        throw new Error(`0G Storage service error - no fallback mode: ${errorMessage}`);
+        isRetryable = true;
+        userFriendlyMessage = `0G Storage service error encountered.
+
+Error: ${errorMessage}
+Network: Galileo Testnet 
+Issue: 0G Storage service returned an error (not balance-related)
+
+Your post has been saved locally. The upload will retry automatically when the service is available.`;
       } else {
         errorType = 'unknown_error';
         isRetryable = false;

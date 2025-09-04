@@ -158,31 +158,13 @@ export function CreatePost() {
         console.log('[FRONTEND DEBUG] Response ok:', response.ok);
 
         if (!response.ok) {
-          let errorData;
-          try {
-            errorData = await response.json();
-            console.log('[FRONTEND DEBUG] Error response:', errorData);
-          } catch (jsonError) {
-            // If response isn't JSON, try to get text content
-            console.log('[FRONTEND DEBUG] Failed to parse error response as JSON:', jsonError);
-            const errorText = await response.text();
-            console.log('[FRONTEND DEBUG] Error response as text:', errorText);
-            throw new Error(`Server error (${response.status}): ${errorText.substring(0, 100)}...`);
-          }
+          const errorData = await response.json();
+          console.log('[FRONTEND DEBUG] Error response:', errorData);
           throw new Error(errorData.message || 'Failed to create post');
         }
 
-        let result;
-        try {
-          result = await response.json();
-          console.log('[FRONTEND DEBUG] Success response:', result);
-        } catch (jsonError) {
-          // If response isn't JSON, try to get text content
-          console.log('[FRONTEND DEBUG] Failed to parse success response as JSON:', jsonError);
-          const responseText = await response.text();
-          console.log('[FRONTEND DEBUG] Success response as text:', responseText);
-          throw new Error(`Unexpected response format: ${responseText.substring(0, 100)}...`);
-        }
+        const result = await response.json();
+        console.log('[FRONTEND DEBUG] Success response:', result);
         return result;
       } catch (error: any) {
         if (error.code === 4001) {
@@ -290,8 +272,8 @@ export function CreatePost() {
   // If wallet is not connected, show connect wallet prompt
   if (!isWalletConnected) {
     return (
-      <Card className="mb-4 sm:mb-6 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
-        <CardContent className="p-4 sm:p-6">
+      <Card className="mb-6 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+        <CardContent className="p-6">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
               <Wallet className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
@@ -324,17 +306,17 @@ export function CreatePost() {
   }
 
   return (
-    <Card className="mb-4 sm:mb-6">
-      <CardContent className="p-4 sm:p-6">
+    <Card className="mb-6">
+      <CardContent className="p-6">
         <form onSubmit={handleSubmit}>
-          <div className="flex space-x-3 sm:space-x-4">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 avatar-gradient-1 rounded-full flex-shrink-0"></div>
+          <div className="flex space-x-4">
+            <div className="w-10 h-10 avatar-gradient-1 rounded-full flex-shrink-0"></div>
             <div className="flex-1">
               <Textarea
                 placeholder="What's happening on 0G Chain?"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[80px] sm:min-h-[100px] border-0 text-base sm:text-lg resize-none placeholder:text-og-slate-500 focus-visible:ring-0"
+                className="min-h-[100px] border-0 text-lg resize-none placeholder:text-og-slate-500 focus-visible:ring-0"
                 disabled={createPostMutation.isPending}
               />
               
@@ -370,8 +352,8 @@ export function CreatePost() {
                 </div>
               )}
 
-              {/* Character count and 0G Storage info - Mobile Optimized */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mt-3 pt-3 border-t border-og-slate-200 dark:border-og-slate-700">
+              {/* Character count and 0G Storage info */}
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-og-slate-200 dark:border-og-slate-700">
                 <div className="flex items-center space-x-4">
                   {/* File upload button */}
                   <div className="flex items-center">

@@ -80,7 +80,7 @@ export function LeftSidebar() {
   ];
 
   return (
-    <aside className="hidden lg:block lg:col-span-3">
+    <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
         {/* User Profile Card - Only show when wallet connected */}
         {currentUser ? (

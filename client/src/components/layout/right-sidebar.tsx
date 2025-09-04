@@ -74,7 +74,7 @@ export function RightSidebar() {
   ];
 
   return (
-    <aside className="hidden xl:block lg:col-span-3">
+    <aside className="lg:col-span-3">
       <div className="sticky top-24 space-y-6">
         {/* Personal AI Feed */}
         <PersonalAIFeed />
