@@ -56,10 +56,18 @@ function AdminPage() {
   const [limit] = useState(50);
   const [offset] = useState(0);
 
-  // Fetch admin posts data
+  // Fetch user data first to ensure session is established
+  const { data: currentUser } = useQuery({
+    queryKey: ["/api/users/me"],
+    retry: false,
+  });
+
+  // Fetch admin posts data only after user is loaded
   const { data: adminData, isLoading, error, refetch } = useQuery<AdminPostsResponse>({
     queryKey: [`/api/admin/posts/${limit}/${offset}`],
-    retry: false,
+    enabled: !!currentUser, // Only run after user is loaded
+    retry: 3, // Retry 3 times for session issues
+    retryDelay: 1000, // Wait 1 second between retries
     refetchOnWindowFocus: false
   });
 
