@@ -29,7 +29,7 @@ class ZGDAClientService {
   
   constructor() {
     // Default to production gRPC server as per official documentation
-    this.grpcEndpoint = process.env.ZG_DA_GRPC_ENDPOINT || '38.96.255.34:51001';
+    this.grpcEndpoint = process.env.ZG_DA_GRPC_ENDPOINT || '34.111.179.208:51001';
     this.initializeClient();
   }
 

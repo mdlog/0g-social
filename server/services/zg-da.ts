@@ -48,7 +48,7 @@ class ZGDataAvailabilityService {
 
   constructor() {
     // Official 0G DA configuration based on docs
-    this.daClientEndpoint = process.env.ZG_DA_CLIENT_ENDPOINT || '38.96.255.34:51001'; // gRPC endpoint
+    this.daClientEndpoint = process.env.ZG_DA_CLIENT_ENDPOINT || '34.111.179.208:51001'; // gRPC endpoint
     this.rpcEndpoint = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
     this.entranceContract = process.env.ZG_DA_ENTRANCE_CONTRACT || '0x857C0A28A8634614BB2C96039Cf4a20AFF709Aa9';
     

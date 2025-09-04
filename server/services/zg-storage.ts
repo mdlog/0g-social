@@ -60,8 +60,8 @@ class ZGStorageService {
     // Set additional 0G Storage environment variables that SDK might need
     // Use production endpoints when in production environment
     const storageEndpoint = process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production' 
-      ? 'http://38.96.255.34:5678' 
-      : 'http://38.96.255.34:5678'; // Same for both now since we updated both
+      ? 'http://34.111.179.208:5678' 
+      : 'http://34.111.179.208:5678'; // Same for both now since we updated both
     
     process.env.ZGS_NODE_URL = process.env.ZGS_NODE_URL || storageEndpoint;
     process.env.ZG_STORAGE_URL = process.env.ZG_STORAGE_URL || storageEndpoint;
