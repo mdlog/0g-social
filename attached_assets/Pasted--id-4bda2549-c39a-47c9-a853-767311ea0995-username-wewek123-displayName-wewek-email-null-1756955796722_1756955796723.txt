@@ -1,0 +1,223 @@
+{id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/metrics net::ERR_TIMED_OUT
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+o @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.then
+(anonymous) @ VM3659:1Understand this error
+VM3659:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 {context: 'AnalyticsSDKApiError'}
+onError @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.catch
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+o @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.then
+(anonymous) @ VM3659:1
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/amp net::ERR_TIMED_OUT
+_t @ VM3659:1
+Mt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+Pt @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+$t @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+o @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.then
+(anonymous) @ VM3659:1Understand this error
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/metrics net::ERR_CERT_COMMON_NAME_INVALID
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+n @ VM3659:1Understand this error
+VM3659:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 {context: 'AnalyticsSDKApiError'}
+onError @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.catch
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+n @ VM3659:1
+VM3659:1  POST https://cca-lite.coinbase.com/amp net::ERR_CONNECTION_RESET
+_t @ VM3659:1
+Mt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+Pt @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+$t @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+n @ VM3659:1Understand this error
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:30 ✅ Feed fetched: 10 posts
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:30 ✅ Feed fetched: 10 posts
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+queryClient.ts:34  GET https://9cd253c5-abbd-4e8f-86b9-853139c44eac-00-2drz9l2hol3sv.janeway.replit.dev/api/zg/compute/status 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:34
+fetchFn @ chunk-A67CSFD6.js?v=47b0b1e6:879
+run @ chunk-A67CSFD6.js?v=47b0b1e6:507
+start @ chunk-A67CSFD6.js?v=47b0b1e6:550
+fetch @ chunk-A67CSFD6.js?v=47b0b1e6:918
+executeFetch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2280
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:2314
+setInterval
+updateRefetchInterval_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2312
+updateTimers_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2319
+onQueryUpdate @ chunk-A67CSFD6.js?v=47b0b1e6:2275
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:1040
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:1039
+batch @ chunk-A67CSFD6.js?v=47b0b1e6:598
+dispatch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:1038
+fetch @ chunk-A67CSFD6.js?v=47b0b1e6:951
+await in fetch
+executeFetch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2280
+onSubscribe @ chunk-A67CSFD6.js?v=47b0b1e6:1976
+subscribe @ chunk-A67CSFD6.js?v=47b0b1e6:24
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:3147
+subscribeToStore @ chunk-J4NESBNT.js?v=47b0b1e6:11984
+commitHookEffectListMount @ chunk-J4NESBNT.js?v=47b0b1e6:16915
+commitPassiveMountOnFiber @ chunk-J4NESBNT.js?v=47b0b1e6:18156
+commitPassiveMountEffects_complete @ chunk-J4NESBNT.js?v=47b0b1e6:18129
+commitPassiveMountEffects_begin @ chunk-J4NESBNT.js?v=47b0b1e6:18119
+commitPassiveMountEffects @ chunk-J4NESBNT.js?v=47b0b1e6:18109
+flushPassiveEffectsImpl @ chunk-J4NESBNT.js?v=47b0b1e6:19490
+flushPassiveEffects @ chunk-J4NESBNT.js?v=47b0b1e6:19447
+performSyncWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18868
+flushSyncCallbacks @ chunk-J4NESBNT.js?v=47b0b1e6:9119
+commitRootImpl @ chunk-J4NESBNT.js?v=47b0b1e6:19432
+commitRoot @ chunk-J4NESBNT.js?v=47b0b1e6:19277
+finishConcurrentRender @ chunk-J4NESBNT.js?v=47b0b1e6:18805
+performConcurrentWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18718
+workLoop @ chunk-J4NESBNT.js?v=47b0b1e6:197
+flushWork @ chunk-J4NESBNT.js?v=47b0b1e6:176
+performWorkUntilDeadline @ chunk-J4NESBNT.js?v=47b0b1e6:384Understand this error
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18

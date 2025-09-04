@@ -402,9 +402,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // TEMPORARY: Skip signature verification for debugging
-      console.log("[DEBUG] Skipping signature verification temporarily");
-      if (false && postData.signature && postData.message && postData.address) {
+      // Require signature verification for all posts
+      console.log("[DEBUG] Verifying signature for post creation");
+      if (postData.signature && postData.message && postData.address) {
         const ethers = await import('ethers');
         
         console.log("[SIGNATURE DEBUG] Verifying signature:");
@@ -453,6 +453,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             details: signatureError.message
           });
         }
+      } else {
+        return res.status(401).json({
+          message: "Signature required",
+          details: "All posts must be signed with MetaMask. Please use the 'Sign & Post' button."
+        });
       }
       
       // Get user by wallet address to get their proper user ID
@@ -485,7 +490,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (req.file) {
         try {
-          console.log(`[UPLOAD ENDPOINT] Uploading file to 0G Storage: ${req.file.originalname}`);
+          console.log(`[MEDIA UPLOAD] File detected: ${req.file.originalname} (${req.file.size} bytes, ${req.file.mimetype})`);
+          console.log(`[MEDIA UPLOAD] Buffer size: ${req.file.buffer.length} bytes`);
+          console.log(`[MEDIA UPLOAD] Starting 0G Storage upload...`);
           const mediaResult = await zgStorageService.storeMediaFile(req.file.buffer, {
             type: req.file.mimetype.startsWith('video/') ? 'video' : 'image',
             userId: user.id,
@@ -497,13 +504,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             mediaStorageHash = mediaResult.hash;
             mediaTransactionHash = mediaResult.transactionHash;
             // Don't set mediaUploadURL - we use mediaStorageHash for 0G Storage files
-            console.log(`[UPLOAD ENDPOINT] ✅ Media uploaded to 0G Storage successfully with hash: ${mediaResult.hash}`);
+            console.log(`[MEDIA UPLOAD] ✅ SUCCESS! Hash: ${mediaResult.hash}`);
+            console.log(`[MEDIA UPLOAD] ✅ Transaction: ${mediaResult.transactionHash}`);
           } else {
-            console.warn(`[UPLOAD ENDPOINT] Media upload to 0G Storage failed: ${mediaResult.error}`);
+            console.error(`[MEDIA UPLOAD] ❌ FAILED: ${mediaResult.error}`);
+            console.error(`[MEDIA UPLOAD] ❌ Error details:`, mediaResult);
           }
         } catch (mediaError) {
-          console.warn('[Post Creation] Media upload failed but continuing with post:', mediaError);
+          console.error('[MEDIA UPLOAD] ❌ EXCEPTION during upload:', mediaError);
+          console.error('[MEDIA UPLOAD] ❌ Error stack:', mediaError.stack);
         }
+      } else {
+        console.log('[MEDIA UPLOAD] No file provided in request');
       }
 
       // Create the post in our system regardless of 0G Storage status (graceful degradation)

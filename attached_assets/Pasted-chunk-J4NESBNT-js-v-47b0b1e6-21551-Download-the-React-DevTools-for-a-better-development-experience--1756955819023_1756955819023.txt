@@ -1,0 +1,652 @@
+chunk-J4NESBNT.js?v=47b0b1e6:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+rainbowkit-wallet.tsx:75 🔗 RainbowKit wallet connected: {address: '0xEBe70F18642124931908b37cDB40b6Ae9b45D05b', chainId: 16601, network: '0G Galileo Testnet'}
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+queryClient.ts:34  GET https://9cd253c5-abbd-4e8f-86b9-853139c44eac-00-2drz9l2hol3sv.janeway.replit.dev/api/zg/compute/status 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:34
+fetchFn @ chunk-A67CSFD6.js?v=47b0b1e6:879
+run @ chunk-A67CSFD6.js?v=47b0b1e6:507
+start @ chunk-A67CSFD6.js?v=47b0b1e6:550
+fetch @ chunk-A67CSFD6.js?v=47b0b1e6:918
+executeFetch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2280
+onSubscribe @ chunk-A67CSFD6.js?v=47b0b1e6:1976
+subscribe @ chunk-A67CSFD6.js?v=47b0b1e6:24
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:3147
+subscribeToStore @ chunk-J4NESBNT.js?v=47b0b1e6:11984
+commitHookEffectListMount @ chunk-J4NESBNT.js?v=47b0b1e6:16915
+commitPassiveMountOnFiber @ chunk-J4NESBNT.js?v=47b0b1e6:18156
+commitPassiveMountEffects_complete @ chunk-J4NESBNT.js?v=47b0b1e6:18129
+commitPassiveMountEffects_begin @ chunk-J4NESBNT.js?v=47b0b1e6:18119
+commitPassiveMountEffects @ chunk-J4NESBNT.js?v=47b0b1e6:18109
+flushPassiveEffectsImpl @ chunk-J4NESBNT.js?v=47b0b1e6:19490
+flushPassiveEffects @ chunk-J4NESBNT.js?v=47b0b1e6:19447
+performSyncWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18868
+flushSyncCallbacks @ chunk-J4NESBNT.js?v=47b0b1e6:9119
+commitRootImpl @ chunk-J4NESBNT.js?v=47b0b1e6:19432
+commitRoot @ chunk-J4NESBNT.js?v=47b0b1e6:19277
+finishConcurrentRender @ chunk-J4NESBNT.js?v=47b0b1e6:18805
+performConcurrentWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18718
+workLoop @ chunk-J4NESBNT.js?v=47b0b1e6:197
+flushWork @ chunk-J4NESBNT.js?v=47b0b1e6:176
+performWorkUntilDeadline @ chunk-J4NESBNT.js?v=47b0b1e6:384Understand this error
+use-websocket.ts:99 WebSocket connected for real-time updates
+feed.tsx:30 ✅ Feed fetched: 10 posts
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+use-websocket.ts:99 WebSocket connected for real-time updates
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+use-websocket.ts:99 WebSocket connected for real-time updates
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+use-websocket.ts:99 WebSocket connected for real-time updates
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+chunk-S6EXHY4W.js?v=47b0b1e6:23 Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+issueWarning @ chunk-S6EXHY4W.js?v=47b0b1e6:23
+(anonymous) @ chunk-S6EXHY4W.js?v=47b0b1e6:28Understand this warning
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+rainbowkit-config.ts:29  GET https://api.web3modal.org/appkit/v1/config?projectId=desocialai-zg-chain&st=appkit&sv=html-core-1.7.8 403 (Forbidden)
+fetchData @ chunk-2F3VRIDQ.js?v=47b0b1e6:2957
+get @ chunk-2F3VRIDQ.js?v=47b0b1e6:2973
+fetchProjectConfig @ chunk-2F3VRIDQ.js?v=47b0b1e6:6107
+fetchRemoteFeatures @ core-GHQ3AOHD.js?v=47b0b1e6:9729
+initialize @ core-GHQ3AOHD.js?v=47b0b1e6:9932
+await in initialize
+AppKitBaseClient @ core-GHQ3AOHD.js?v=47b0b1e6:9915
+AppKit @ core-GHQ3AOHD.js?v=47b0b1e6:11135
+createAppKit @ core-GHQ3AOHD.js?v=47b0b1e6:11176
+initialize @ index.es-KJIHV3DX.js?v=47b0b1e6:8979
+await in initialize
+init @ index.es-KJIHV3DX.js?v=47b0b1e6:8831
+initProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20512
+await in initProvider
+getProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20529
+setup @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20392
+setup @ chunk-XG6JDE3G.js?v=47b0b1e6:3010
+(anonymous) @ chunk-XG6JDE3G.js?v=47b0b1e6:2977
+createStoreImpl @ chunk-XG6JDE3G.js?v=47b0b1e6:2783
+createStore2 @ chunk-XG6JDE3G.js?v=47b0b1e6:2786
+createConfig @ chunk-XG6JDE3G.js?v=47b0b1e6:2973
+getDefaultConfig @ @rainbow-me_rainbowkit.js?v=47b0b1e6:27807
+(anonymous) @ rainbowkit-config.ts:29Understand this error
+rainbowkit-config.ts:29 [Reown Config] Failed to fetch remote project configuration. Using local/default values. Error: HTTP status code: 403
+    at fetchData (chunk-2F3VRIDQ.js?v=47b0b1e6:2959:17)
+    at async FetchUtil.get (chunk-2F3VRIDQ.js?v=47b0b1e6:2973:22)
+    at async Object.fetchProjectConfig (chunk-2F3VRIDQ.js?v=47b0b1e6:6107:22)
+    at async Object.fetchRemoteFeatures (core-GHQ3AOHD.js?v=47b0b1e6:9729:26)
+    at async AppKit.initialize (core-GHQ3AOHD.js?v=47b0b1e6:9932:27)
+fetchRemoteFeatures @ core-GHQ3AOHD.js?v=47b0b1e6:9732
+await in fetchRemoteFeatures
+initialize @ core-GHQ3AOHD.js?v=47b0b1e6:9932
+await in initialize
+AppKitBaseClient @ core-GHQ3AOHD.js?v=47b0b1e6:9915
+AppKit @ core-GHQ3AOHD.js?v=47b0b1e6:11135
+createAppKit @ core-GHQ3AOHD.js?v=47b0b1e6:11176
+initialize @ index.es-KJIHV3DX.js?v=47b0b1e6:8979
+await in initialize
+init @ index.es-KJIHV3DX.js?v=47b0b1e6:8831
+initProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20512
+await in initProvider
+getProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20529
+setup @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20392
+setup @ chunk-XG6JDE3G.js?v=47b0b1e6:3010
+(anonymous) @ chunk-XG6JDE3G.js?v=47b0b1e6:2977
+createStoreImpl @ chunk-XG6JDE3G.js?v=47b0b1e6:2783
+createStore2 @ chunk-XG6JDE3G.js?v=47b0b1e6:2786
+createConfig @ chunk-XG6JDE3G.js?v=47b0b1e6:2973
+getDefaultConfig @ @rainbow-me_rainbowkit.js?v=47b0b1e6:27807
+(anonymous) @ rainbowkit-config.ts:29Understand this warning
+rainbowkit-config.ts:29  POST https://pulse.walletconnect.org/e?projectId=desocialai-zg-chain&st=appkit&sv=html-core-1.7.8 400 (Bad Request)
+fetchData @ chunk-2F3VRIDQ.js?v=47b0b1e6:2957
+post @ chunk-2F3VRIDQ.js?v=47b0b1e6:2983
+_sendAnalyticsEvent @ chunk-2F3VRIDQ.js?v=47b0b1e6:4126
+sendEvent @ chunk-2F3VRIDQ.js?v=47b0b1e6:4154
+sendInitializeEvent @ core-GHQ3AOHD.js?v=47b0b1e6:9958
+initialize @ core-GHQ3AOHD.js?v=47b0b1e6:9930
+await in initialize
+AppKitBaseClient @ core-GHQ3AOHD.js?v=47b0b1e6:9915
+AppKit @ core-GHQ3AOHD.js?v=47b0b1e6:11135
+createAppKit @ core-GHQ3AOHD.js?v=47b0b1e6:11176
+initialize @ index.es-KJIHV3DX.js?v=47b0b1e6:8979
+await in initialize
+init @ index.es-KJIHV3DX.js?v=47b0b1e6:8831
+initProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20512
+await in initProvider
+getProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20529
+setup @ @rainbow-me_rainbowkit.js?v=47b0b1e6:20392
+setup @ chunk-XG6JDE3G.js?v=47b0b1e6:3010
+(anonymous) @ chunk-XG6JDE3G.js?v=47b0b1e6:2977
+createStoreImpl @ chunk-XG6JDE3G.js?v=47b0b1e6:2783
+createStore2 @ chunk-XG6JDE3G.js?v=47b0b1e6:2786
+createConfig @ chunk-XG6JDE3G.js?v=47b0b1e6:2973
+getDefaultConfig @ @rainbow-me_rainbowkit.js?v=47b0b1e6:27807
+(anonymous) @ rainbowkit-config.ts:29Understand this error
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/amp net::ERR_CONNECTION_RESET
+_t @ VM3659:1
+Mt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+Pt @ VM3659:1
+(anonymous) @ VM3659:1
+gn @ VM3659:1
+(anonymous) @ VM3659:1
+await in (anonymous)
+yn @ VM3659:1
+initCCA @ dist-O3YCKQJB.js?v=47b0b1e6:1528
+(anonymous) @ dist-O3YCKQJB.js?v=47b0b1e6:1513
+loadTelemetryScript @ dist-O3YCKQJB.js?v=47b0b1e6:1504
+createCoinbaseWalletSDK @ dist-O3YCKQJB.js?v=47b0b1e6:22546
+getProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:14418
+await in getProvider
+reconnect @ chunk-XG6JDE3G.js?v=47b0b1e6:1360
+await in reconnect
+onMount @ chunk-XG6JDE3G.js?v=47b0b1e6:3353
+Hydrate @ chunk-XG6JDE3G.js?v=47b0b1e6:3471
+renderWithHooks @ chunk-J4NESBNT.js?v=47b0b1e6:11548
+mountIndeterminateComponent @ chunk-J4NESBNT.js?v=47b0b1e6:14926
+beginWork @ chunk-J4NESBNT.js?v=47b0b1e6:15914
+beginWork$1 @ chunk-J4NESBNT.js?v=47b0b1e6:19753
+performUnitOfWork @ chunk-J4NESBNT.js?v=47b0b1e6:19198
+workLoopSync @ chunk-J4NESBNT.js?v=47b0b1e6:19137
+renderRootSync @ chunk-J4NESBNT.js?v=47b0b1e6:19116
+performConcurrentWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18678
+workLoop @ chunk-J4NESBNT.js?v=47b0b1e6:197
+flushWork @ chunk-J4NESBNT.js?v=47b0b1e6:176
+performWorkUntilDeadline @ chunk-J4NESBNT.js?v=47b0b1e6:384Understand this error
+VM3659:1  POST https://cca-lite.coinbase.com/metrics net::ERR_CONNECTION_RESET
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+R @ VM3659:1
+e @ VM3659:1
+(anonymous) @ VM3659:1
+yn @ VM3659:1
+initCCA @ dist-O3YCKQJB.js?v=47b0b1e6:1528
+(anonymous) @ dist-O3YCKQJB.js?v=47b0b1e6:1513
+loadTelemetryScript @ dist-O3YCKQJB.js?v=47b0b1e6:1504
+createCoinbaseWalletSDK @ dist-O3YCKQJB.js?v=47b0b1e6:22546
+getProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:14418
+await in getProvider
+reconnect @ chunk-XG6JDE3G.js?v=47b0b1e6:1360
+await in reconnect
+onMount @ chunk-XG6JDE3G.js?v=47b0b1e6:3353
+Hydrate @ chunk-XG6JDE3G.js?v=47b0b1e6:3471
+renderWithHooks @ chunk-J4NESBNT.js?v=47b0b1e6:11548
+mountIndeterminateComponent @ chunk-J4NESBNT.js?v=47b0b1e6:14926
+beginWork @ chunk-J4NESBNT.js?v=47b0b1e6:15914
+beginWork$1 @ chunk-J4NESBNT.js?v=47b0b1e6:19753
+performUnitOfWork @ chunk-J4NESBNT.js?v=47b0b1e6:19198
+workLoopSync @ chunk-J4NESBNT.js?v=47b0b1e6:19137
+renderRootSync @ chunk-J4NESBNT.js?v=47b0b1e6:19116
+performConcurrentWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18678
+workLoop @ chunk-J4NESBNT.js?v=47b0b1e6:197
+flushWork @ chunk-J4NESBNT.js?v=47b0b1e6:176
+performWorkUntilDeadline @ chunk-J4NESBNT.js?v=47b0b1e6:384Understand this error
+VM3659:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 {context: 'AnalyticsSDKApiError'}
+onError @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.catch
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+R @ VM3659:1
+e @ VM3659:1
+(anonymous) @ VM3659:1
+yn @ VM3659:1
+initCCA @ dist-O3YCKQJB.js?v=47b0b1e6:1528
+(anonymous) @ dist-O3YCKQJB.js?v=47b0b1e6:1513
+loadTelemetryScript @ dist-O3YCKQJB.js?v=47b0b1e6:1504
+createCoinbaseWalletSDK @ dist-O3YCKQJB.js?v=47b0b1e6:22546
+getProvider @ @rainbow-me_rainbowkit.js?v=47b0b1e6:14418
+await in getProvider
+reconnect @ chunk-XG6JDE3G.js?v=47b0b1e6:1360
+await in reconnect
+onMount @ chunk-XG6JDE3G.js?v=47b0b1e6:3353
+Hydrate @ chunk-XG6JDE3G.js?v=47b0b1e6:3471
+renderWithHooks @ chunk-J4NESBNT.js?v=47b0b1e6:11548
+mountIndeterminateComponent @ chunk-J4NESBNT.js?v=47b0b1e6:14926
+beginWork @ chunk-J4NESBNT.js?v=47b0b1e6:15914
+beginWork$1 @ chunk-J4NESBNT.js?v=47b0b1e6:19753
+performUnitOfWork @ chunk-J4NESBNT.js?v=47b0b1e6:19198
+workLoopSync @ chunk-J4NESBNT.js?v=47b0b1e6:19137
+renderRootSync @ chunk-J4NESBNT.js?v=47b0b1e6:19116
+performConcurrentWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18678
+workLoop @ chunk-J4NESBNT.js?v=47b0b1e6:197
+flushWork @ chunk-J4NESBNT.js?v=47b0b1e6:176
+performWorkUntilDeadline @ chunk-J4NESBNT.js?v=47b0b1e6:384
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+create-post.tsx:394 [FRONTEND DEBUG] Upload button clicked
+create-post.tsx:395 [FRONTEND DEBUG] File input ref: <input data-replit-metadata=​"client/​src/​components/​posts/​create-post.tsx:​381:​20" data-component-name=​"input" type=​"file" accept=​"image/​*,video/​*" class=​"hidden">​
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+create-post.tsx:51 [FRONTEND DEBUG] handleFileSelect called
+create-post.tsx:53 [FRONTEND DEBUG] Selected file: File {name: 'Screenshot 2025-06-23 184459.png', lastModified: 1750675499582, lastModifiedDate: Mon Jun 23 2025 18:44:59 GMT+0800 (Central Indonesia Time), webkitRelativePath: '', size: 40677, …}
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+create-post.tsx:265 [FRONTEND] Starting post creation with MetaMask signature...
+create-post.tsx:272 [FRONTEND] Post data prepared: {content: 'testing', hasFile: true, fileName: 'Screenshot 2025-06-23 184459.png'}
+create-post.tsx:126 [FRONTEND DEBUG] Signing message with account: 0xebe70f18642124931908b37cdb40b6ae9b45d05b
+create-post.tsx:127 [FRONTEND DEBUG] Message to sign: 0G Social Post Signature
+
+Content: testing
+File: Screenshot 2025-06-23 184459.png (40677 bytes)
+Timestamp: 1756955637748
+
+By signing this message, you authorize posting this content to the 0G Storage network.
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+create-post.tsx:134 [FRONTEND DEBUG] Signature received: 0x97952e026120551fec0c8f0791753f08e59aa150e9e997324b6ef2a532b21b0d0217da742de0b871724da3a7543499f2900687105abfdec80fc070e461e2a54f1c
+create-post.tsx:149 [FRONTEND DEBUG] Sending FormData to backend...
+create-post.tsx:150 [FRONTEND DEBUG] FormData keys: (6) ['content', 'signature', 'message', 'timestamp', 'address', 'file']
+create-post.tsx:154 [FRONTEND DEBUG] File details:
+create-post.tsx:155 - Name: Screenshot 2025-06-23 184459.png
+create-post.tsx:156 - Size: 40677 bytes
+create-post.tsx:157 - Type: image/png
+create-post.tsx:158 - Last modified: Mon Jun 23 2025 18:44:59 GMT+0800 (Central Indonesia Time)
+create-post.tsx:161 [FRONTEND DEBUG] About to call apiRequest with FormData...
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+use-websocket.ts:18 📨 WebSocket message received: new_post
+use-websocket.ts:22 📨 New post received, refreshing feed immediately...
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+use-websocket.ts:18 📨 WebSocket message received: new_post
+use-websocket.ts:22 📨 New post received, refreshing feed immediately...
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+use-websocket.ts:18 📨 WebSocket message received: new_post
+use-websocket.ts:22 📨 New post received, refreshing feed immediately...
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+use-websocket.ts:18 📨 WebSocket message received: new_post
+use-websocket.ts:22 📨 New post received, refreshing feed immediately...
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+create-post.tsx:167 [FRONTEND DEBUG] Response received successfully!
+create-post.tsx:168 [FRONTEND DEBUG] Response status: 201
+create-post.tsx:169 [FRONTEND DEBUG] Response ok: true
+create-post.tsx:185 [FRONTEND DEBUG] Success response: {id: '4f9eeedc-9329-435b-8ef7-9cf8589f7417', authorId: '4bda2549-c39a-47c9-a853-767311ea0995', content: 'testing', imageUrl: null, mediaType: 'image/png', …}
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+4feed.tsx:30 ✅ Feed fetched: 10 posts
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:30 ✅ Feed fetched: 10 posts
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+5feed.tsx:30 ✅ Feed fetched: 10 posts
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+post-card.tsx:52 [DEBUG Frontend] Comments data: []
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/metrics net::ERR_TIMED_OUT
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+o @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.then
+(anonymous) @ VM3659:1Understand this error
+VM3659:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 {context: 'AnalyticsSDKApiError'}
+onError @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.catch
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+o @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.then
+(anonymous) @ VM3659:1
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/amp net::ERR_TIMED_OUT
+_t @ VM3659:1
+Mt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+Pt @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+$t @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+requestIdleCallback
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+o @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.then
+(anonymous) @ VM3659:1Understand this error
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+VM3659:1  POST https://cca-lite.coinbase.com/metrics net::ERR_CERT_COMMON_NAME_INVALID
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+n @ VM3659:1Understand this error
+VM3659:1 Analytics SDK: TypeError: Failed to fetch
+    at _t (<anonymous>:1:64025)
+    at <anonymous>:1:68106 {context: 'AnalyticsSDKApiError'}
+onError @ VM3659:1
+(anonymous) @ VM3659:1
+Promise.catch
+_t @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+Qt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+ht @ VM3659:1
+Ht @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+n @ VM3659:1
+VM3659:1  POST https://cca-lite.coinbase.com/amp net::ERR_CONNECTION_RESET
+_t @ VM3659:1
+Mt @ VM3659:1
+(anonymous) @ VM3659:1
+setTimeout
+Pt @ VM3659:1
+(anonymous) @ VM3659:1
+requestIdleCallback
+yt @ VM3659:1
+$t @ VM3659:1
+analyticsTracker @ VM3659:1
+u @ VM3659:1
+N @ VM3659:1
+q @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+s @ VM3659:1
+(anonymous) @ VM3659:1
+(anonymous) @ VM3659:1
+n @ VM3659:1Understand this error
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:30 ✅ Feed fetched: 10 posts
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:30 ✅ Feed fetched: 10 posts
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+queryClient.ts:34  GET https://9cd253c5-abbd-4e8f-86b9-853139c44eac-00-2drz9l2hol3sv.janeway.replit.dev/api/zg/compute/status 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:34
+fetchFn @ chunk-A67CSFD6.js?v=47b0b1e6:879
+run @ chunk-A67CSFD6.js?v=47b0b1e6:507
+start @ chunk-A67CSFD6.js?v=47b0b1e6:550
+fetch @ chunk-A67CSFD6.js?v=47b0b1e6:918
+executeFetch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2280
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:2314
+setInterval
+updateRefetchInterval_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2312
+updateTimers_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2319
+onQueryUpdate @ chunk-A67CSFD6.js?v=47b0b1e6:2275
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:1040
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:1039
+batch @ chunk-A67CSFD6.js?v=47b0b1e6:598
+dispatch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:1038
+fetch @ chunk-A67CSFD6.js?v=47b0b1e6:951
+await in fetch
+executeFetch_fn @ chunk-A67CSFD6.js?v=47b0b1e6:2280
+onSubscribe @ chunk-A67CSFD6.js?v=47b0b1e6:1976
+subscribe @ chunk-A67CSFD6.js?v=47b0b1e6:24
+(anonymous) @ chunk-A67CSFD6.js?v=47b0b1e6:3147
+subscribeToStore @ chunk-J4NESBNT.js?v=47b0b1e6:11984
+commitHookEffectListMount @ chunk-J4NESBNT.js?v=47b0b1e6:16915
+commitPassiveMountOnFiber @ chunk-J4NESBNT.js?v=47b0b1e6:18156
+commitPassiveMountEffects_complete @ chunk-J4NESBNT.js?v=47b0b1e6:18129
+commitPassiveMountEffects_begin @ chunk-J4NESBNT.js?v=47b0b1e6:18119
+commitPassiveMountEffects @ chunk-J4NESBNT.js?v=47b0b1e6:18109
+flushPassiveEffectsImpl @ chunk-J4NESBNT.js?v=47b0b1e6:19490
+flushPassiveEffects @ chunk-J4NESBNT.js?v=47b0b1e6:19447
+performSyncWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18868
+flushSyncCallbacks @ chunk-J4NESBNT.js?v=47b0b1e6:9119
+commitRootImpl @ chunk-J4NESBNT.js?v=47b0b1e6:19432
+commitRoot @ chunk-J4NESBNT.js?v=47b0b1e6:19277
+finishConcurrentRender @ chunk-J4NESBNT.js?v=47b0b1e6:18805
+performConcurrentWorkOnRoot @ chunk-J4NESBNT.js?v=47b0b1e6:18718
+workLoop @ chunk-J4NESBNT.js?v=47b0b1e6:197
+flushWork @ chunk-J4NESBNT.js?v=47b0b1e6:176
+performWorkUntilDeadline @ chunk-J4NESBNT.js?v=47b0b1e6:384Understand this error
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:20 🔄 Fetching feed: limit=10, offset=0
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+feed.tsx:30 ✅ Feed fetched: 10 posts
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
+left-sidebar.tsx:62 [SIDEBAR] Fetched user data: {id: '4bda2549-c39a-47c9-a853-767311ea0995', username: 'wewek123', displayName: 'wewek', email: null, bio: 'Decentralized user on 0G Chain • Wallet: 0xEBe7...D05b', …}
+left-sidebar.tsx:63 [SIDEBAR] Avatar value: /api/objects/.private/uploads/13e729bc-3e06-4bf4-afb2-39c779fb1b18
