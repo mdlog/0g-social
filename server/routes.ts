@@ -485,7 +485,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (req.file) {
         try {
-          console.log(`[UPLOAD ENDPOINT] Uploading file to 0G Storage: ${req.file.originalname}`);
+          console.log(`[UPLOAD ENDPOINT] ✅ FILE DETECTED - Starting upload to 0G Storage`);
+          console.log(`[UPLOAD ENDPOINT] File details: ${req.file.originalname}, ${req.file.size} bytes, ${req.file.mimetype}`);
+          console.log(`[UPLOAD ENDPOINT] About to call zgStorageService.storeMediaFile...`);
           const mediaResult = await zgStorageService.storeMediaFile(req.file.buffer, {
             type: req.file.mimetype.startsWith('video/') ? 'video' : 'image',
             userId: user.id,
@@ -502,8 +504,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.warn(`[UPLOAD ENDPOINT] Media upload to 0G Storage failed: ${mediaResult.error}`);
           }
         } catch (mediaError) {
+          console.error('[UPLOAD ENDPOINT] ❌ MEDIA UPLOAD FAILED:', mediaError);
           console.warn('[Post Creation] Media upload failed but continuing with post:', mediaError);
         }
+      } else {
+        console.log(`[UPLOAD ENDPOINT] ❌ NO FILE DETECTED - req.file is null/undefined`);
       }
 
       // Create the post in our system regardless of 0G Storage status (graceful degradation)
