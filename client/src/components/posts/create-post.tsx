@@ -174,11 +174,11 @@ export function CreatePost() {
         
         console.log('[FRONTEND DEBUG] About to call apiRequest with FormData...');
         
-        // Create timeout wrapper for the API request
+        // Create timeout wrapper for the API request (increased to match backend)
         const timeoutPromise = new Promise<never>((_, reject) => {
           setTimeout(() => {
-            reject(new Error('Upload timeout after 45 seconds - 0G network may be experiencing high load. Your post may still be created.'));
-          }, 45000); // 45 second timeout
+            reject(new Error('Upload timeout after 65 seconds - 0G network sync delay. Your post may still be created.'));
+          }, 65000); // 65 second timeout (5 seconds more than backend)
         });
         
         const apiRequestPromise = apiRequest('POST', '/api/posts', formData);
@@ -266,8 +266,8 @@ export function CreatePost() {
         errorMessage = error.message;
       } else if (error.code === 4001) {
         errorMessage = "Signature cancelled by user";
-      } else if (error.message?.includes("timeout after 45 seconds")) {
-        errorMessage = "Upload took longer than expected. Your post may have been created successfully. Please refresh to check.";
+      } else if (error.message?.includes("timeout after 65 seconds")) {
+        errorMessage = "Upload took longer than expected due to 0G network sync delay. Your post may have been created successfully. Please refresh to check.";
         shouldRefresh = true;
       } else if (error.message?.includes("Galileo")) {
         errorMessage = "0G Galileo testnet is temporarily unavailable. Your post will still be created.";
