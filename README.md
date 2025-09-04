@@ -4,7 +4,6 @@ Platform media sosial terdesentralisasi dengan AI yang dibangun di atas infrastr
 
 ## 🚀 Live Production
 - **URL**: https://desocialai.xyz/
-- **Server**: Google Cloud Platform (IP: 34.111.179.208)
 - **Status**: ✅ Aktif dan dipantau 24/7
 
 ## 🌟 Fitur Utama
