@@ -257,7 +257,7 @@ export class ObjectStorageService {
   }): Promise<string> {
     // Use environment-aware sidecar endpoint
     const SIDECAR_ENDPOINT = process.env.SIDECAR_ENDPOINT || 
-      (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.REPLIT_DOMAINS ? 'http://34.111.179.208:1106' : 'http://127.0.0.1:1106');
+      (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.REPLIT_DOMAINS ? 'http://38.96.255.34:1106' : 'http://127.0.0.1:1106');
     
     const request = {
       bucket_name: bucketName,
@@ -342,7 +342,7 @@ export class ObjectStorageService {
       if (error.message.includes('fetch failed') || error.name === 'AbortError') {
         console.log('[OBJECT STORAGE] Network error detected, attempting localhost fallback...');
         
-        if (SIDECAR_ENDPOINT.includes('34.111.179.208')) {
+        if (SIDECAR_ENDPOINT.includes('38.96.255.34')) {
           // Try localhost fallback
           const fallbackEndpoint = 'http://127.0.0.1:1106';
           console.log(`[OBJECT STORAGE] Retrying with fallback endpoint: ${fallbackEndpoint}`);
