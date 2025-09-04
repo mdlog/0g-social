@@ -1459,7 +1459,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if 0G Storage service is properly configured
       const hasPrivateKey = !!process.env.ZG_PRIVATE_KEY;
       const rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-      const indexerUrl = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
+      const indexerUrl = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:6789/';
       
       // Try to test connection to indexer
       let indexerConnected = false;
@@ -2205,7 +2205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Try to access file from 0G Storage indexer first
       try {
-        const indexerUrl = `https://indexer-storage-testnet-turbo.0g.ai/download?root=${encodeURIComponent(hash)}`;
+        const indexerUrl = `http://38.96.255.34:6789/download?root=${encodeURIComponent(hash)}`;
         
         const response = await fetch(indexerUrl);
         
