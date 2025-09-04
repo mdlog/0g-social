@@ -152,6 +152,7 @@ export function CreatePost() {
         const response = await fetch("/api/posts", {
           method: "POST",
           body: formData,
+          credentials: 'include', // Include session cookies
         });
 
         console.log('[FRONTEND DEBUG] Response status:', response.status);
