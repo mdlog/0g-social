@@ -591,16 +591,34 @@ Your post is saved locally. Please check your connection or try again later.`;
         throw new Error('0G Storage infrastructure not initialized');
       }
 
-      console.log(`[0G Storage] Creating temporary file for media upload...`);
+      console.log(`[0G Storage] 🚫 ANTI-MOCKUP: Enforcing unique media upload for blockchain hash`);
       
-      // 1) Write buffer to temporary file (ZgFile only supports fromFilePath)
+      // ANTI-MOCKUP SYSTEM: Force unique content to avoid "Data already exists"
+      // Create unique metadata that gets embedded in the file
+      const uniqueTimestamp = Date.now();
+      const uniqueMetadata = JSON.stringify({
+        originalName: metadata.originalName,
+        timestamp: uniqueTimestamp,
+        uploadId: crypto.randomBytes(16).toString('hex'),
+        antiMockupSignature: 'REAL_BLOCKCHAIN_HASH_REQUIRED'
+      });
+      
+      console.log(`[0G Storage] 🔄 Creating unique media content with timestamp: ${uniqueTimestamp}`);
+      
+      // Append unique metadata to media file to ensure different hash
+      const separator = Buffer.from('\n/* ANTI-MOCKUP-METADATA: ' + uniqueMetadata + ' */\n', 'utf-8');
+      const uniqueBuffer = Buffer.concat([fileBuffer, separator]);
+      
+      console.log(`[0G Storage] Original size: ${fileBuffer.length}, Unique size: ${uniqueBuffer.length}`);
+      
+      // 1) Write unique buffer to temporary file (ZgFile only supports fromFilePath)
       const tempDir = path.join(os.tmpdir(), 'zg-storage-media');
       if (!fs.existsSync(tempDir)) {
         fs.mkdirSync(tempDir, { recursive: true });
       }
       
-      const tempFilePath = path.join(tempDir, `media_${Date.now()}_${metadata.originalName}`);
-      fs.writeFileSync(tempFilePath, fileBuffer);
+      const tempFilePath = path.join(tempDir, `media_${uniqueTimestamp}_${metadata.originalName}`);
+      fs.writeFileSync(tempFilePath, uniqueBuffer);
       
       console.log(`[0G Storage] Temporary file created: ${tempFilePath}`);
       console.log(`[0G Storage] Creating ZgFile from path...`);
@@ -654,7 +672,7 @@ Your post is saved locally. Please check your connection or try again later.`;
       const storedFileName = `${rootHash}${path.extname(metadata.originalName || '')}`;
       const storedFilePath = path.join(storageDir, storedFileName);
       
-      // Copy file to storage
+      // Store ORIGINAL file content (not the unique version with metadata)
       await writeFile(storedFilePath, fileBuffer);
 
       return {
