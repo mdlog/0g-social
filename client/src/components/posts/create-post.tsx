@@ -113,15 +113,29 @@ export function CreatePost() {
         // Connect to MetaMask
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         
+        // Get current wallet from session to ensure consistency
+        let sessionAccount = walletStatus?.address;
+        console.log('[FRONTEND DEBUG] Session wallet address:', sessionAccount);
+        
+        // Get current MetaMask accounts
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const currentAccount = accounts[0];
+        console.log('[FRONTEND DEBUG] Current MetaMask account:', currentAccount);
+        
+        // Check if session account matches current MetaMask account
+        if (sessionAccount && currentAccount && sessionAccount.toLowerCase() !== currentAccount.toLowerCase()) {
+          throw new Error(`Account mismatch! Please switch MetaMask to account: ${sessionAccount}`);
+        }
+        
+        // Use the active account (prioritize session account for consistency)
+        const account = sessionAccount || currentAccount;
+        console.log('[FRONTEND DEBUG] Using account for signature:', account);
+        
         // Create message to sign
         const timestamp = Date.now();
         const fileInfo = data.file ? `\nFile: ${data.file.name} (${data.file.size} bytes)` : '';
         const contentDisplay = data.content || '[Media post without text]';
         const message = `0G Social Post Signature\n\nContent: ${contentDisplay}${fileInfo}\nTimestamp: ${timestamp}\n\nBy signing this message, you authorize posting this content to the 0G Storage network.`;
-        
-        // Request signature from user
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        const account = accounts[0];
         
         console.log('[FRONTEND DEBUG] Signing message with account:', account);
         console.log('[FRONTEND DEBUG] Message to sign:', message);
