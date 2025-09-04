@@ -365,6 +365,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/posts", (req, res, next) => {
     console.log("[DEBUG] POST /api/posts middleware - before multer");
     console.log("[DEBUG] Content-Type:", req.headers['content-type']);
+    console.log("[DEBUG] User-Agent:", req.headers['user-agent']);
+    console.log("[DEBUG] Request URL:", req.url);
+    console.log("[DEBUG] Request method:", req.method);
     next();
   }, upload.single('file'), async (req, res) => {
     try {

@@ -158,13 +158,31 @@ export function CreatePost() {
         console.log('[FRONTEND DEBUG] Response ok:', response.ok);
 
         if (!response.ok) {
-          const errorData = await response.json();
-          console.log('[FRONTEND DEBUG] Error response:', errorData);
+          let errorData;
+          try {
+            errorData = await response.json();
+            console.log('[FRONTEND DEBUG] Error response:', errorData);
+          } catch (jsonError) {
+            // If response isn't JSON, try to get text content
+            console.log('[FRONTEND DEBUG] Failed to parse error response as JSON:', jsonError);
+            const errorText = await response.text();
+            console.log('[FRONTEND DEBUG] Error response as text:', errorText);
+            throw new Error(`Server error (${response.status}): ${errorText.substring(0, 100)}...`);
+          }
           throw new Error(errorData.message || 'Failed to create post');
         }
 
-        const result = await response.json();
-        console.log('[FRONTEND DEBUG] Success response:', result);
+        let result;
+        try {
+          result = await response.json();
+          console.log('[FRONTEND DEBUG] Success response:', result);
+        } catch (jsonError) {
+          // If response isn't JSON, try to get text content
+          console.log('[FRONTEND DEBUG] Failed to parse success response as JSON:', jsonError);
+          const responseText = await response.text();
+          console.log('[FRONTEND DEBUG] Success response as text:', responseText);
+          throw new Error(`Unexpected response format: ${responseText.substring(0, 100)}...`);
+        }
         return result;
       } catch (error: any) {
         if (error.code === 4001) {
