@@ -44,14 +44,9 @@ export class ObjectStorageService {
       console.log('[OBJECT STORAGE] Environment:', process.env.NODE_ENV);
       console.log('[OBJECT STORAGE] Replit Environment:', process.env.REPLIT_ENVIRONMENT);
       
-      // Check if we're in production deployment and use production method first
-      if (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production') {
-        try {
-          console.log('[OBJECT STORAGE] Using production upload method...');
-          return await this.generateProductionUploadURL(`upload-${randomUUID()}`);
-        } catch (error: any) {
-          console.log('[OBJECT STORAGE] Production method failed, using fallback...', error.message);
-        }
+      // Check if we're in production deployment and use consistent sidecar method
+      if (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.REPLIT_DOMAINS) {
+        console.log('[OBJECT STORAGE] Production environment detected, using consistent sidecar method...');
       }
       
       // Use signing method for development or as fallback
