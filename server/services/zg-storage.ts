@@ -47,6 +47,7 @@ export interface ContentMetadata {
 class ZGStorageService {
   private readonly rpcUrl: string;
   private readonly indexerRpc: string;
+  private readonly indexerRpcBackup: string;
   private readonly privateKey: string;
   private provider: ethers.JsonRpcProvider | null = null;
   private signer: ethers.Wallet | null = null;
@@ -55,7 +56,8 @@ class ZGStorageService {
   constructor() {
     // 0G Galileo Testnet V3 configuration - Chain ID 16601 dengan private key real
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
-    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:6789/';
+    this.indexerRpc = process.env.ZG_INDEXER_RPC || 'https://indexer-storage-testnet-turbo.0g.ai';
+    this.indexerRpcBackup = process.env.ZG_INDEXER_RPC_BACKUP || 'http://38.96.255.34:6789/';
     
     // Set additional 0G Storage environment variables that SDK might need
     // Use production endpoints when in production environment
@@ -113,8 +115,9 @@ class ZGStorageService {
         throw new Error(`RPC connection failed: ${rpcError}`);
       }
       
-      // Initialize indexer with new syntax from starter kit
-      console.log('[0G Storage] Initializing indexer with URL:', this.indexerRpc);
+      // Initialize indexer with primary endpoint (official 0G turbo indexer)
+      console.log('[0G Storage] Initializing indexer with primary URL:', this.indexerRpc);
+      console.log('[0G Storage] Backup indexer URL:', this.indexerRpcBackup);
       this.indexer = new Indexer(this.indexerRpc);
       
       // Test indexer connectivity with proper endpoint
@@ -141,9 +144,26 @@ class ZGStorageService {
           }
         }
       } catch (indexerError) {
-        console.error('[0G Storage] ❌ Indexer connectivity test failed:', indexerError);
-        console.warn('[0G Storage] ⚠️ Storage uploads may fail due to indexer connectivity issues');
-        console.log('[0G Storage] 🔧 Will attempt uploads anyway - some indexer services don\'t expose health endpoints');
+        console.error('[0G Storage] ❌ Primary indexer connectivity test failed:', indexerError);
+        console.log('[0G Storage] 🔧 Trying backup indexer:', this.indexerRpcBackup);
+        
+        // Try backup indexer
+        try {
+          this.indexer = new Indexer(this.indexerRpcBackup);
+          const backupResult = await fetch(`${this.indexerRpcBackup}status`, { 
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (backupResult.ok) {
+            console.log('[0G Storage] ✅ Backup indexer connection successful');
+          } else {
+            console.warn('[0G Storage] ⚠️ Backup indexer also failed, will attempt uploads anyway');
+          }
+        } catch (backupError) {
+          console.error('[0G Storage] ❌ Backup indexer also failed:', backupError);
+          console.warn('[0G Storage] ⚠️ Both indexers failed - uploads may not work');
+        }
       }
       
       console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
