@@ -1947,7 +1947,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/web3/connect", async (req, res) => {
     try {
-      const { address, chainId, network } = req.body;
+      const { address, chainId, network, isMobile } = req.body;
       
       if (!address) {
         return res.status(400).json({ message: "Wallet address is required" });
@@ -1959,7 +1959,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const walletConnection = getWalletConnection(req);
       
       // Clear old session data when connecting new wallet
-      console.log(`[WALLET CONNECT] Previous wallet: ${walletConnection.address} → New wallet: ${address}`);
+      console.log(`[WALLET CONNECT] Previous wallet: ${walletConnection.address} → New wallet: ${address} (Mobile: ${isMobile || false})`);
       
       walletConnection.connected = true;
       walletConnection.address = address;
