@@ -11,7 +11,12 @@ const app = express();
 app.use((req, res, next) => {
   console.log(`[SERVER DEBUG] ${req.method} ${req.url} - Content-Type: ${req.headers['content-type']}`);
   if (req.method === 'POST' && req.url === '/api/posts') {
-    console.log('[SERVER DEBUG] POST /api/posts DETECTED - Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('🚨 [CRITICAL] POST /api/posts DETECTED - Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('🚨 [CRITICAL] Body type:', typeof req.body);
+    console.log('🚨 [CRITICAL] Raw URL:', req.originalUrl);
+  }
+  if (req.method === 'POST') {
+    console.log('📫 [ALL POST REQUESTS]', req.url, '- Content-Type:', req.headers['content-type']);
   }
   next();
 });
