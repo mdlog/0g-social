@@ -7,6 +7,7 @@ import { Indexer, ZgFile } from '@0glabs/0g-ts-sdk';
 import { ethers } from 'ethers';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import crypto from 'crypto';
 import { promisify } from 'util';
 
@@ -590,10 +591,22 @@ Your post is saved locally. Please check your connection or try again later.`;
         throw new Error('0G Storage infrastructure not initialized');
       }
 
-      console.log(`[0G Storage] Creating ZgFile from buffer...`);
+      console.log(`[0G Storage] Creating temporary file for media upload...`);
       
-      // 1) Create ZgFile directly from buffer using fromBytes method
-      const zgFile = ZgFile.fromBytes(fileBuffer);
+      // 1) Write buffer to temporary file (ZgFile only supports fromFilePath)
+      const tempDir = path.join(os.tmpdir(), 'zg-storage-media');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+      
+      const tempFilePath = path.join(tempDir, `media_${Date.now()}_${metadata.originalName}`);
+      fs.writeFileSync(tempFilePath, fileBuffer);
+      
+      console.log(`[0G Storage] Temporary file created: ${tempFilePath}`);
+      console.log(`[0G Storage] Creating ZgFile from path...`);
+      
+      // 2) Create ZgFile from temporary file path (only method that works)
+      const zgFile = await ZgFile.fromFilePath(tempFilePath);
       
       console.log(`[0G Storage] Generating merkle tree...`);
       
@@ -620,6 +633,14 @@ Your post is saved locally. Please check your connection or try again later.`;
       // Always close the file when done
       await zgFile.close();
       
+      // Clean up temporary file
+      try {
+        fs.unlinkSync(tempFilePath);
+        console.log(`[0G Storage] Temporary file cleaned up: ${tempFilePath}`);
+      } catch (cleanupErr) {
+        console.warn(`[0G Storage] Failed to cleanup temp file: ${cleanupErr}`);
+      }
+      
       console.log(`[0G Storage] Successfully uploaded ${metadata.type} file`);
       console.log(`[0G Storage] Root Hash: ${rootHash}`);
       console.log(`[0G Storage] Transaction Hash: ${tx}`);
@@ -630,7 +651,7 @@ Your post is saved locally. Please check your connection or try again later.`;
         fs.mkdirSync(storageDir, { recursive: true });
       }
 
-      const storedFileName = `${root}${path.extname(metadata.originalName || '')}`;
+      const storedFileName = `${rootHash}${path.extname(metadata.originalName || '')}`;
       const storedFilePath = path.join(storageDir, storedFileName);
       
       // Copy file to storage
