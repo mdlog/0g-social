@@ -34,7 +34,7 @@ export function LeftSidebar() {
     queryKey: ["/api/users/me"],
     retry: false, // Don't retry on 401 errors
     staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache at all
+    gcTime: 0, // Don't cache at all
     refetchInterval: 2000, // Check every 2 seconds for avatar changes
     refetchOnWindowFocus: true,
     refetchOnMount: true,
@@ -98,28 +98,12 @@ export function LeftSidebar() {
               <div className="text-center">
 
                 <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-primary ring-opacity-20">
-                  {currentUser.avatar ? (
-                    <img 
-                      src={`${currentUser.avatar}?cache=${currentUser.id}`}
-                      alt={currentUser.displayName}
-                      className="w-full h-full object-cover rounded-full"
-                      loading="eager"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                      onLoad={(e) => {
-                        e.currentTarget.style.display = 'block';
-                      }}
-                    />
-                  ) : null}
-                  <AvatarFallback 
-                    className="gradient-brand text-white font-semibold text-lg"
-                    style={{ 
-                      display: currentUser.avatar ? 'none' : 'flex',
-                      opacity: currentUser.avatar ? '0' : '1',
-                      transition: 'opacity 0.2s ease-in-out'
-                    }}
-                  >
+                  <AvatarImage 
+                    src={currentUser.avatar ? `${currentUser.avatar}?cache=${currentUser.id}` : ""} 
+                    alt={currentUser.displayName} 
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="gradient-brand text-white font-semibold text-lg">
                     {currentUser.displayName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
