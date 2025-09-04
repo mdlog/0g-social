@@ -1,0 +1,59 @@
+Returning user data with avatar field: {"id":"ddd43a7f-5583-4012-ac55-e2d24c8accc1","avatar":"/api/objects/.private/uploads/9bc6c4d8-21ac-4ed4-abbb-d747fa560b78"}
+[0G Storage] ❌ Failed to store content on REAL 0G Storage network: Error: Upload timeout after 30 seconds - 0G network may be experiencing high load
+    at Timeout._onTimeout (/home/runner/workspace/server/services/zg-storage.ts:205:20)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7)
+[0G Storage] ❌ This is NOT simulation - real network error: {}
+[0G Storage] Network/service error detected - implementing retry with exponential backoff
+[0G Storage] Retry attempt 1/3 after 2000ms delay...
+7:05:46 AM [express] GET /api/users/me 200 in 69ms :: {"id":"ddd43a7f-5583-4012-ac55-e2d24c8accc1","…
+[SERVER DEBUG] GET /api/zg/storage/stats - Content-Type: undefined
+[SERVER DEBUG] GET /api/zg/da/stats - Content-Type: undefined
+[SERVER DEBUG] GET /api/web3/wallet - Content-Type: undefined
+7:05:47 AM [express] GET /api/zg/storage/stats 304 in 23ms :: {"totalStorage":"2.5 PB","availableSpa…
+7:05:47 AM [express] GET /api/zg/da/stats 304 in 23ms :: {"totalTransactions":0,"pendingTransactions…
+[DEBUG] Session wallet data: {"connected":true,"address":"0xeebDf3F08b5748d46b1113A0B3f2Cacaa333532F","balance":"0.000 0G","network":"0G Galileo Testnet","chainId":16601}
+[DEBUG] Session ID: ixDae_2z2pc_KHDMibswyufwcR-GaANY
+7:05:47 AM [express] GET /api/web3/wallet 304 in 23ms :: {"address":"0xeebDf3F08b5748d46b1113A0B3f2C…
+[SERVER DEBUG] GET /api/web3/status - Content-Type: undefined
+✓ Real-time block height update: 5963581
+7:05:48 AM [express] GET /api/web3/status 304 in 234ms :: {"infrastructureConnected":true,"connected…
+[0G Storage DEBUG] After ensureInitialized - Indexer: true, Signer: true
+[0G Storage] ✅ Using REAL 0G Storage with wallet: 0x4C6165286739696849Fb3e77A16b0639D762c5B6
+[0G Storage] ✅ Uploading to 0G Galileo Testnet with real transaction
+[0G Storage] Uploading post content to 0G Storage network...
+[0G Storage] Starting upload with timeout protection...
+[SERVER DEBUG] GET /api/users/me - Content-Type: undefined
+[AVATAR DEBUG] Found existing user for wallet 0xeebDf3F08b5748d46b1113A0B3f2Cacaa333532F: ddd43a7f-5583-4012-ac55-e2d24c8accc1
+[AVATAR DEBUG] Current avatar value: "/api/objects/.private/uploads/9bc6c4d8-21ac-4ed4-abbb-d747fa560b78" (type: string)
+[AVATAR DEBUG] Avatar is NOT empty
+Returning user data with avatar field: {"id":"ddd43a7f-5583-4012-ac55-e2d24c8accc1","avatar":"/api/objects/.private/uploads/9bc6c4d8-21ac-4ed4-abbb-d747fa560b78"}
+7:05:48 AM [express] GET /api/users/me 200 in 78ms :: {"id":"ddd43a7f-5583-4012-ac55-e2d24c8accc1","…
+First selected node status : {
+  connectedPeers: 1,
+  logSyncHeight: 5963580,
+  logSyncBlock: '0xbe8c3d25aa1b2c31cedc1f428c1ff93c41b8ad48567e4e0e186a922bc6c57ab6',
+  nextTxSeq: 7086043,
+  networkIdentity: {
+    chainId: 16601,
+    flowAddress: '0xbd75117f80b4e22698d0cd7612d92bdb8eaff628',
+    p2pProtocolVersion: { major: 0, minor: 4, build: 0 }
+  }
+}
+Selected nodes: [
+  StorageNode {
+    url: 'http://35.236.80.213:5678',
+    timeout: 30000,
+    retry: 3
+  },
+  StorageNode {
+    url: 'http://47.251.78.104:5678',
+    timeout: 30000,
+    retry: 3
+  },
+  StorageNode {
+    url: 'http://47.76.30.235:5678',
+    timeout: 30000,
+    retry: 3
+  }
+]
