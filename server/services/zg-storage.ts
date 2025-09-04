@@ -56,6 +56,11 @@ class ZGStorageService {
     // 0G Galileo Testnet V3 configuration - Chain ID 16601 dengan private key real
     this.rpcUrl = process.env.ZG_RPC_URL || 'https://evmrpc-testnet.0g.ai';
     this.indexerRpc = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:6789/';
+    
+    // Set additional 0G Storage environment variables that SDK might need
+    process.env.ZGS_NODE_URL = process.env.ZGS_NODE_URL || 'http://38.96.255.34:5678';
+    process.env.ZG_STORAGE_URL = process.env.ZG_STORAGE_URL || 'http://38.96.255.34:5678';
+    process.env.ZGS_RPC_URL = process.env.ZGS_RPC_URL || 'http://38.96.255.34:5678';
     this.privateKey = process.env.ZG_PRIVATE_KEY || '';
 
     this.initializeClients(); // Initialize async but don't wait
