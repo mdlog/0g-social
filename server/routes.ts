@@ -2110,12 +2110,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Object storage endpoints for avatar upload
   app.post("/api/objects/upload", async (req, res) => {
+    console.log("[AVATAR UPLOAD] POST /api/objects/upload called");
+    console.log("[AVATAR UPLOAD] Request headers:", req.headers);
+    console.log("[AVATAR UPLOAD] Session data:", req.session?.walletConnection);
+    
     try {
+      console.log("[AVATAR UPLOAD] Creating ObjectStorageService...");
       const objectStorageService = new ObjectStorageService();
+      
+      console.log("[AVATAR UPLOAD] Calling getObjectEntityUploadURL...");
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      
+      console.log("[AVATAR UPLOAD] ✅ Upload URL generated successfully:", uploadURL.substring(0, 100) + "...");
       res.json({ uploadURL });
-    } catch (error) {
-      console.error("Upload URL error:", error);
+    } catch (error: any) {
+      console.error("[AVATAR UPLOAD] ❌ Upload URL error:", error);
+      console.error("[AVATAR UPLOAD] Error message:", error.message);
+      console.error("[AVATAR UPLOAD] Error stack:", error.stack);
       res.status(500).json({ error: "Failed to generate upload URL" });
     }
   });
