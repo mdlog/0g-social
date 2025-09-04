@@ -58,15 +58,22 @@ function AdminPage() {
 
   // Fetch admin posts data
   const { data: adminData, isLoading, error, refetch } = useQuery<AdminPostsResponse>({
-    queryKey: ["/api/admin/posts", limit, offset],
+    queryKey: [`/api/admin/posts/${limit}/${offset}`],
     retry: false,
     refetchOnWindowFocus: false
   });
 
   // Handle unauthorized access
   useEffect(() => {
+    console.log("[ADMIN PAGE] Query state:", { 
+      isLoading, 
+      error: error ? JSON.stringify(error, null, 2) : null, 
+      hasData: !!adminData 
+    });
+    
     if (error) {
       const errorData = error as any;
+      console.log("[ADMIN PAGE] Error details:", errorData);
       if (errorData?.status === 401 || errorData?.status === 403) {
         console.log("Admin access error:", errorData);
         toast({
@@ -77,7 +84,7 @@ function AdminPage() {
         // Don't redirect, show the error message instead
       }
     }
-  }, [error, setLocation, toast]);
+  }, [error, isLoading, adminData, setLocation, toast]);
 
   if (isLoading) {
     return (

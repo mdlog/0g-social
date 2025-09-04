@@ -3487,30 +3487,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Admin access check middleware
   function checkAdminAccess(req: any, res: any, next: any) {
-    console.log("[ADMIN DEBUG] Session ID:", req.sessionID);
-    console.log("[ADMIN DEBUG] Session exists:", !!req.session);
-    console.log("[ADMIN DEBUG] Session walletConnection exists:", !!req.session?.walletConnection);
-    console.log("[ADMIN DEBUG] Full session:", JSON.stringify(req.session, null, 2));
-    
     const walletConnection = getWalletConnection(req);
     const adminWallet = "0x4C6165286739696849Fb3e77A16b0639D762c5B6";
     
-    console.log("[ADMIN ACCESS CHECK] Connected wallet:", walletConnection.address);
-    console.log("[ADMIN ACCESS CHECK] Admin wallet expected:", adminWallet);
-    console.log("[ADMIN ACCESS CHECK] Wallet connected:", walletConnection.connected);
-    console.log("[ADMIN ACCESS CHECK] Full walletConnection:", JSON.stringify(walletConnection, null, 2));
+    console.log("[ADMIN ACCESS] Checking wallet:", walletConnection.address, "vs expected:", adminWallet);
     
     if (!walletConnection.connected || !walletConnection.address) {
-      console.log("[ADMIN ACCESS CHECK] ❌ No wallet connected");
+      console.log("[ADMIN ACCESS] ❌ No wallet connected");
       return res.status(401).json({
         message: "Wallet connection required for admin access"
       });
     }
     
     if (walletConnection.address.toLowerCase() !== adminWallet.toLowerCase()) {
-      console.log("[ADMIN ACCESS CHECK] ❌ Unauthorized wallet");
-      console.log("[ADMIN ACCESS CHECK] Expected:", adminWallet.toLowerCase());
-      console.log("[ADMIN ACCESS CHECK] Received:", walletConnection.address.toLowerCase());
+      console.log("[ADMIN ACCESS] ❌ Unauthorized wallet:", walletConnection.address);
       return res.status(403).json({
         message: "Admin access denied - unauthorized wallet address",
         details: {
@@ -3520,7 +3510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
     
-    console.log("[ADMIN ACCESS CHECK] ✅ Admin access granted");
+    console.log("[ADMIN ACCESS] ✅ Admin access granted to:", walletConnection.address);
     next();
   }
   
