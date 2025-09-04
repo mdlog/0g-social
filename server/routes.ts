@@ -414,14 +414,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         try {
           // Verify the signature matches the expected address
-          // Using utils.recoverAddress since personal_sign includes prefix
-          const messageHash = ethers.hashMessage(postData.message);
-          const recoveredAddress = ethers.recoverAddress(messageHash, postData.signature);
-          console.log("[SIGNATURE DEBUG] Message hash:", messageHash);
+          // MetaMask personal_sign already includes the Ethereum message prefix
+          const recoveredAddress = ethers.verifyMessage(postData.message, postData.signature);
           console.log("[SIGNATURE DEBUG] Recovered address:", recoveredAddress);
           
           if (recoveredAddress.toLowerCase() !== postData.address.toLowerCase()) {
             console.log("[SIGNATURE DEBUG] ❌ Address mismatch!");
+            console.log("[SIGNATURE DEBUG] Expected:", postData.address.toLowerCase());
+            console.log("[SIGNATURE DEBUG] Recovered:", recoveredAddress.toLowerCase());
             return res.status(401).json({
               message: "Invalid signature",
               details: "Signature does not match the provided address"
