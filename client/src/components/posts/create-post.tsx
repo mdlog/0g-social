@@ -158,11 +158,7 @@ export function CreatePost() {
           console.log('- Last modified:', new Date(data.file.lastModified));
         }
         
-        const response = await fetch("/api/posts", {
-          method: "POST",
-          body: formData,
-          credentials: 'include', // Include session cookies
-        });
+        const response = await apiRequest('POST', '/api/posts', formData);
 
         console.log('[FRONTEND DEBUG] Response status:', response.status);
         console.log('[FRONTEND DEBUG] Response ok:', response.ok);
