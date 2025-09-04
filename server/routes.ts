@@ -476,6 +476,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: user.id,
           walletAddress: user.walletAddress
         });
+        
+        console.log('[Post Creation DEBUG] 0G Storage result:', JSON.stringify(storageResult, null, 2));
+        console.log('[Post Creation DEBUG] Storage success:', storageResult.success);
+        console.log('[Post Creation DEBUG] Storage hash:', storageResult.hash);
+        console.log('[Post Creation DEBUG] Transaction hash:', storageResult.transactionHash);
       } else {
         console.log('[Post Creation] Skipping content storage (empty content with media)');
         storageResult = { success: true, hash: null, transactionHash: null };
@@ -527,13 +532,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         commentsCount: 0,
         sharesCount: 0,
         isAiRecommended: Math.random() > 0.7,
-        storageHash: storageResult.success ? storageResult.hash || undefined : undefined,
-        transactionHash: storageResult.success ? storageResult.transactionHash || undefined : undefined,
+        storageHash: storageResult?.success ? storageResult.hash : undefined,
+        transactionHash: storageResult?.success ? (storageResult.transactionHash || mediaTransactionHash) : undefined,
         createdAt: new Date()
       };
+      
+      console.log('[Post Creation DEBUG] Final newPost object:', JSON.stringify(newPost, null, 2));
+      console.log('[Post Creation DEBUG] Storage hash being saved:', newPost.storageHash);
+      console.log('[Post Creation DEBUG] Transaction hash being saved:', newPost.transactionHash);
+      console.log('[Post Creation DEBUG] Media storage hash being saved:', newPost.mediaStorageHash);
 
       // Create the post with proper user reference
       const post = await storage.createPost(newPost);
+      
+      console.log('[Post Creation DEBUG] Created post result:', JSON.stringify(post, null, 2));
 
       // Broadcast new post to all connected WebSocket clients for real-time updates
       console.log('[Real-time] 📨 Broadcasting new post to all clients...');
