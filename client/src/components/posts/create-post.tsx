@@ -149,6 +149,15 @@ export function CreatePost() {
         console.log('[FRONTEND DEBUG] Sending FormData to backend...');
         console.log('[FRONTEND DEBUG] FormData keys:', Array.from(formData.keys()));
         
+        // Debug the file specifically
+        if (data.file) {
+          console.log('[FRONTEND DEBUG] File details:');
+          console.log('- Name:', data.file.name);
+          console.log('- Size:', data.file.size, 'bytes');
+          console.log('- Type:', data.file.type);
+          console.log('- Last modified:', new Date(data.file.lastModified));
+        }
+        
         const response = await fetch("/api/posts", {
           method: "POST",
           body: formData,
