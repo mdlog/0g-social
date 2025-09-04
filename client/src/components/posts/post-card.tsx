@@ -185,10 +185,10 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="modern-card card-hover">
-      <CardContent className="p-6">
-        <article className="flex space-x-4">
-          <Avatar className="w-12 h-12 flex-shrink-0 ring-2 ring-primary/20">
+    <Card className="modern-card card-hover mb-4 sm:mb-6">
+      <CardContent className="p-4 sm:p-6">
+        <article className="flex space-x-3 sm:space-x-4">
+          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 ring-2 ring-primary/20">
             <AvatarImage 
               src={post.author?.avatar ? `${window.location.origin}${post.author.avatar}` : ""} 
               alt={post.author?.displayName || "User"} 
@@ -199,9 +199,9 @@ export function PostCard({ post }: PostCardProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-3 mb-3">
-              <h4 className="font-semibold text-foreground text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
-              <span className="text-muted-foreground text-sm truncate">@{post.author?.username || "unknown"}</span>
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+              <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
+              <span className="text-muted-foreground text-xs sm:text-sm truncate">@{post.author?.username || "unknown"}</span>
               {post.author?.isVerified && (
                 <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
                   <Shield className="w-3 h-3" />
@@ -217,7 +217,7 @@ export function PostCard({ post }: PostCardProps) {
               )}
             </div>
             
-            <p className="text-foreground mb-4 text-base leading-relaxed">
+            <p className="text-foreground mb-3 sm:mb-4 text-sm sm:text-base leading-relaxed">
               {post.content}
             </p>
 

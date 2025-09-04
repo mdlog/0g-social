@@ -54,33 +54,33 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 glass-effect border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo and Brand */}
-          <div className="flex items-center space-x-4">
+        <div className="flex justify-between items-center h-16 sm:h-20">
+          {/* Logo and Brand - Mobile Optimized */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="relative group">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center shadow-xl ring-1 ring-white/20 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl" style={{borderRadius: "18px"}}>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center shadow-xl ring-1 ring-white/20 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl" style={{borderRadius: "16px"}}>
                 <img 
                   src={logoUrl} 
                   alt="DeSocialAI Logo" 
                   className="w-full h-full object-contain p-1 drop-shadow-lg"
-                  style={{borderRadius: "16px"}}
+                  style={{borderRadius: "14px"}}
                 />
               </div>
               {/* Subtle glow effect on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg -z-10" style={{borderRadius: "18px"}}></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg -z-10" style={{borderRadius: "16px"}}></div>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
                 DeSocialAI
               </h1>
-              <span className="text-xs text-muted-foreground font-medium tracking-wider">
+              <span className="hidden sm:block text-xs text-muted-foreground font-medium tracking-wider">
                 Decentralized Social Network
               </span>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="hidden md:block flex-1 max-w-lg mx-8 relative search-container">
+          {/* Search Bar - Show on desktop only, mobile search via button */}
+          <div className="hidden lg:block flex-1 max-w-lg mx-4 xl:mx-8 relative search-container">
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 group-focus-within:text-primary transition-colors" />
               <Input
@@ -148,13 +148,13 @@ export function Header() {
             )}
           </div>
 
-          {/* Right Navigation */}
-          <div className="flex items-center space-x-3">
+          {/* Right Navigation - Mobile Optimized */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* RainbowKit Wallet Connection */}
             <RainbowKitWallet />
 
-            {/* Real-time Status Indicator */}
-            <div className="hidden sm:flex items-center space-x-2 px-3 py-2 rounded-full modern-badge">
+            {/* Real-time Status Indicator - Hidden on small screens */}
+            <div className="hidden lg:flex items-center space-x-2 px-3 py-2 rounded-full modern-badge">
               {wsConnected ? (
                 <Wifi className="h-3 w-3 text-emerald-500" />
               ) : (
@@ -170,12 +170,12 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="w-10 h-10 rounded-xl hover:bg-accent transition-all duration-200"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl hover:bg-accent transition-all duration-200"
             >
               {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
+                <Sun className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : (
-                <Moon className="h-4 w-4" />
+                <Moon className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
             </Button>
 

@@ -272,8 +272,8 @@ export function CreatePost() {
   // If wallet is not connected, show connect wallet prompt
   if (!isWalletConnected) {
     return (
-      <Card className="mb-6 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
-        <CardContent className="p-6">
+      <Card className="mb-4 sm:mb-6 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+        <CardContent className="p-4 sm:p-6">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
               <Wallet className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
@@ -306,17 +306,17 @@ export function CreatePost() {
   }
 
   return (
-    <Card className="mb-6">
-      <CardContent className="p-6">
+    <Card className="mb-4 sm:mb-6">
+      <CardContent className="p-4 sm:p-6">
         <form onSubmit={handleSubmit}>
-          <div className="flex space-x-4">
-            <div className="w-10 h-10 avatar-gradient-1 rounded-full flex-shrink-0"></div>
+          <div className="flex space-x-3 sm:space-x-4">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 avatar-gradient-1 rounded-full flex-shrink-0"></div>
             <div className="flex-1">
               <Textarea
                 placeholder="What's happening on 0G Chain?"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[100px] border-0 text-lg resize-none placeholder:text-og-slate-500 focus-visible:ring-0"
+                className="min-h-[80px] sm:min-h-[100px] border-0 text-base sm:text-lg resize-none placeholder:text-og-slate-500 focus-visible:ring-0"
                 disabled={createPostMutation.isPending}
               />
               
@@ -352,8 +352,8 @@ export function CreatePost() {
                 </div>
               )}
 
-              {/* Character count and 0G Storage info */}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-og-slate-200 dark:border-og-slate-700">
+              {/* Character count and 0G Storage info - Mobile Optimized */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mt-3 pt-3 border-t border-og-slate-200 dark:border-og-slate-700">
                 <div className="flex items-center space-x-4">
                   {/* File upload button */}
                   <div className="flex items-center">
