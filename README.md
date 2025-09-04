@@ -89,14 +89,12 @@ Platform media sosial terdesentralisasi dengan AI yang dibangun di atas infrastr
 - Production authentication dengan wallet verification
 
 **📊 Monitoring:**
-- Production logs via Replit Deployments
 - Real-time blockchain sync setiap 2 detik
 - Zero simulation modes - implementasi authentic murni
 
 ## 🌐 Links
 
 - **🚀 Live Platform**: https://desocialai.xyz/
-- **📊 Production Monitoring**: Replit Deployments > Logs
 - **📚 0G Chain Docs**: https://docs.0g.ai
 
 ---
