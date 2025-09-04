@@ -55,16 +55,9 @@ export async function connectWalletMobile(): Promise<any> {
   const ethereum = (window as any).ethereum;
   
   if (!ethereum) {
-    // On mobile, if MetaMask is not available, redirect to MetaMask mobile
+    // On mobile, if MetaMask is not available, provide helpful instructions
     if (isMobileBrowser()) {
-      const currentUrl = encodeURIComponent(window.location.href);
-      const metamaskUrl = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
-      
-      // Try to open MetaMask app, fallback to install page
-      window.location.href = metamaskUrl;
-      
-      // Show helpful message
-      throw new Error('Opening MetaMask mobile app. If MetaMask is not installed, you will be redirected to install it.');
+      throw new Error('MetaMask mobile app required. Please:\n1. Install MetaMask mobile app\n2. Open this website in MetaMask browser\n3. Or use WalletConnect for other wallets');
     }
     
     throw new Error('MetaMask not found. Please install MetaMask browser extension.');

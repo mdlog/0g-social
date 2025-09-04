@@ -70,18 +70,36 @@ export function MobileWalletButton() {
           
           return result;
         } else {
-          // Desktop fallback
-          const response = await fetch("/api/web3/connect", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          });
-          
-          if (!response.ok) {
-            throw new Error("Failed to connect wallet");
+          // Desktop fallback - try to use window.ethereum
+          if (typeof window !== 'undefined' && (window as any).ethereum) {
+            const ethereum = (window as any).ethereum;
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const chainId = await ethereum.request({ method: 'eth_chainId' });
+            
+            if (!accounts || accounts.length === 0) {
+              throw new Error('No accounts found');
+            }
+            
+            // Send connection data to backend
+            const response = await fetch("/api/web3/connect", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                address: accounts[0],
+                chainId: chainId,
+                isMobile: false
+              }),
+            });
+            
+            if (!response.ok) {
+              throw new Error("Failed to register wallet connection");
+            }
+            
+            return { address: accounts[0], chainId, connected: true };
+          } else {
+            throw new Error("No wallet found. Please install MetaMask or use a Web3 browser.");
           }
-          
-          return response.json();
         }
       } finally {
         setIsConnecting(false);
@@ -100,12 +118,22 @@ export function MobileWalletButton() {
     onError: (error: any) => {
       console.error("[Mobile Wallet] Connection error:", error);
       
-      let errorMessage = error.message;
+      let errorMessage = error.message || "Failed to connect wallet";
       
-      if (error.message?.includes("MetaMask")) {
-        errorMessage = "Please install MetaMask mobile app or use MetaMask browser extension.";
-      } else if (error.message?.includes("in-app browser")) {
-        errorMessage = "Please open this page in your main browser or MetaMask app to connect your wallet.";
+      if (isMobileBrowser()) {
+        if (errorMessage.includes("MetaMask mobile app required")) {
+          errorMessage = "MetaMask Required:\n• Install MetaMask mobile app\n• Open this site in MetaMask browser\n• Or try another Web3 wallet";
+        } else if (errorMessage.includes("in-app browser")) {
+          errorMessage = "Please open this page in your main browser or MetaMask app to connect your wallet.";
+        } else if (errorMessage.includes("User rejected")) {
+          errorMessage = "Connection cancelled by user";
+        } else {
+          errorMessage = "Mobile wallet connection failed. Please try:\n• MetaMask mobile app\n• WalletConnect\n• Other Web3 browsers";
+        }
+      } else {
+        if (errorMessage.includes("MetaMask not found")) {
+          errorMessage = "Please install MetaMask browser extension or use a Web3-enabled browser.";
+        }
       }
       
       toast({
