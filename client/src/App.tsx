@@ -11,6 +11,7 @@ import { CommunitiesPage } from "./pages/communities";
 import { BookmarksPage } from "./pages/bookmarks";
 import { SettingsPage } from "./pages/settings";
 import ChatPage from "./pages/chat";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/not-found";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/bookmarks" component={BookmarksPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/chat" component={ChatPage} />
+      <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
   );

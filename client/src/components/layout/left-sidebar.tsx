@@ -70,7 +70,8 @@ export function LeftSidebar() {
     refetchInterval: 10000,
   });
 
-  const navItems = [
+  // Base navigation items
+  const baseNavItems = [
     { icon: Home, label: "Home Feed", href: "/" },
     { icon: Bot, label: "AI Feed", href: "/ai-recommendations" },
     { icon: MessageSquare, label: "0G Chat", href: "/chat" },
@@ -78,6 +79,14 @@ export function LeftSidebar() {
     { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];
+
+  // Check if current user is admin
+  const isAdmin = currentUser?.walletAddress?.toLowerCase() === "0x4c6165286739696849fb3e77a16b0639d762c5b6";
+  
+  // Add admin link if user is authorized
+  const navItems = isAdmin 
+    ? [...baseNavItems, { icon: Shield, label: "Admin Panel", href: "/admin" }]
+    : baseNavItems;
 
   return (
     <aside className="lg:col-span-3">

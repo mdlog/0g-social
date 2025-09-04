@@ -3481,5 +3481,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===========================================
+  // ADMIN ENDPOINTS
+  // ===========================================
+  
+  // Admin access check middleware
+  function checkAdminAccess(req: any, res: any, next: any) {
+    console.log("[ADMIN DEBUG] Session ID:", req.sessionID);
+    console.log("[ADMIN DEBUG] Session exists:", !!req.session);
+    console.log("[ADMIN DEBUG] Session walletConnection exists:", !!req.session?.walletConnection);
+    console.log("[ADMIN DEBUG] Full session:", JSON.stringify(req.session, null, 2));
+    
+    const walletConnection = getWalletConnection(req);
+    const adminWallet = "0x4C6165286739696849Fb3e77A16b0639D762c5B6";
+    
+    console.log("[ADMIN ACCESS CHECK] Connected wallet:", walletConnection.address);
+    console.log("[ADMIN ACCESS CHECK] Admin wallet expected:", adminWallet);
+    console.log("[ADMIN ACCESS CHECK] Wallet connected:", walletConnection.connected);
+    console.log("[ADMIN ACCESS CHECK] Full walletConnection:", JSON.stringify(walletConnection, null, 2));
+    
+    if (!walletConnection.connected || !walletConnection.address) {
+      console.log("[ADMIN ACCESS CHECK] ❌ No wallet connected");
+      return res.status(401).json({
+        message: "Wallet connection required for admin access"
+      });
+    }
+    
+    if (walletConnection.address.toLowerCase() !== adminWallet.toLowerCase()) {
+      console.log("[ADMIN ACCESS CHECK] ❌ Unauthorized wallet");
+      console.log("[ADMIN ACCESS CHECK] Expected:", adminWallet.toLowerCase());
+      console.log("[ADMIN ACCESS CHECK] Received:", walletConnection.address.toLowerCase());
+      return res.status(403).json({
+        message: "Admin access denied - unauthorized wallet address",
+        details: {
+          connectedWallet: walletConnection.address,
+          expectedWallet: adminWallet
+        }
+      });
+    }
+    
+    console.log("[ADMIN ACCESS CHECK] ✅ Admin access granted");
+    next();
+  }
+  
+  // Admin - Get all posts with hash verification
+  app.get("/api/admin/posts", checkAdminAccess, async (req, res) => {
+    try {
+      console.log("[ADMIN] Getting all posts with hash verification");
+      
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      // Get all posts with author information
+      const posts = await storage.getPosts(limit, offset);
+      
+      // Enhance posts with blockchain verification and hash links
+      const enhancedPosts = posts.map(post => ({
+        ...post,
+        // Blockchain verification URLs
+        blockchainUrls: {
+          storageHash: post.storageHash ? `https://scan.0g.ai/tx/${post.transactionHash}` : null,
+          transactionHash: post.transactionHash ? `https://scan.0g.ai/tx/${post.transactionHash}` : null,
+          mediaHash: post.mediaStorageHash ? `https://scan.0g.ai/hash/${post.mediaStorageHash}` : null
+        },
+        // Verification status
+        verification: {
+          hasStorageHash: !!post.storageHash,
+          hasTransactionHash: !!post.transactionHash,
+          hasMediaHash: !!post.mediaStorageHash,
+          isBlockchainVerified: !!(post.storageHash && post.transactionHash)
+        }
+      }));
+      
+      const response = {
+        posts: enhancedPosts,
+        metadata: {
+          total: enhancedPosts.length,
+          limit,
+          offset,
+          timestamp: new Date().toISOString(),
+          blockchainVerifiedCount: enhancedPosts.filter(p => p.verification.isBlockchainVerified).length,
+          withMediaCount: enhancedPosts.filter(p => p.mediaStorageHash).length
+        }
+      };
+      
+      res.json(response);
+    } catch (error: any) {
+      console.error("[ADMIN] Error fetching posts:", error);
+      res.status(500).json({ message: "Failed to fetch admin posts data" });
+    }
+  });
+
   return httpServer;
 }
