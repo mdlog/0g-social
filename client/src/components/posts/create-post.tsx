@@ -158,10 +158,22 @@ export function CreatePost() {
           console.log('- Last modified:', new Date(data.file.lastModified));
         }
         
-        const response = await apiRequest('POST', '/api/posts', formData);
-
-        console.log('[FRONTEND DEBUG] Response status:', response.status);
-        console.log('[FRONTEND DEBUG] Response ok:', response.ok);
+        console.log('[FRONTEND DEBUG] About to call apiRequest with FormData...');
+        
+        let response: Response;
+        try {
+          response = await apiRequest('POST', '/api/posts', formData);
+          
+          console.log('[FRONTEND DEBUG] Response received successfully!');
+          console.log('[FRONTEND DEBUG] Response status:', response.status);
+          console.log('[FRONTEND DEBUG] Response ok:', response.ok);
+        } catch (apiError: any) {
+          console.error('[FRONTEND ERROR] apiRequest failed:', apiError);
+          console.error('[FRONTEND ERROR] Error type:', typeof apiError);
+          console.error('[FRONTEND ERROR] Error message:', apiError.message);
+          console.error('[FRONTEND ERROR] Error stack:', apiError.stack);
+          throw apiError; // Re-throw to be caught by outer catch
+        }
 
         if (!response.ok) {
           const errorData = await response.json();
