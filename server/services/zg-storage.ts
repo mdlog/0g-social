@@ -7,6 +7,7 @@ import { Indexer, ZgFile } from '@0glabs/0g-ts-sdk';
 import { ethers } from 'ethers';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { promisify } from 'util';
 
 const writeFile = promisify(fs.writeFile);
@@ -215,7 +216,7 @@ class ZGStorageService {
             console.log('[0G Storage] ✅ Real Merkle Root Hash from existing data:', rootHash);
             
             // Generate a unique transaction hash based on the content rather than using placeholder
-            const contentHash = require('crypto').createHash('sha256').update(content).digest('hex');
+            const contentHash = crypto.createHash('sha256').update(content).digest('hex');
             const realTransactionHash = `0x${contentHash}`;
             console.log('[0G Storage] ✅ Real Transaction Hash (derived):', realTransactionHash);
             
