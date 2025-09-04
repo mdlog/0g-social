@@ -592,8 +592,8 @@ Your post is saved locally. Please check your connection or try again later.`;
 
       console.log(`[0G Storage] Creating ZgFile from buffer...`);
       
-      // 1) Create ZgFile directly from buffer (no temp file needed)
-      const zgFile = await ZgFile.fromBuffer(fileBuffer, metadata.originalName, metadata.mimeType);
+      // 1) Create ZgFile directly from buffer using fromBytes method
+      const zgFile = ZgFile.fromBytes(fileBuffer);
       
       console.log(`[0G Storage] Generating merkle tree...`);
       
