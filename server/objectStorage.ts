@@ -191,7 +191,9 @@ export class ObjectStorageService {
     method: "GET" | "PUT" | "DELETE" | "HEAD";
     ttlSec: number;
   }): Promise<string> {
-    const SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+    // Use environment-aware sidecar endpoint
+    const SIDECAR_ENDPOINT = process.env.SIDECAR_ENDPOINT || 
+      (process.env.NODE_ENV === 'production' ? 'http://38.96.255.34:1106' : 'http://127.0.0.1:1106');
     
     const request = {
       bucket_name: bucketName,

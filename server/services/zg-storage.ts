@@ -58,9 +58,17 @@ class ZGStorageService {
     this.indexerRpc = process.env.ZG_INDEXER_RPC || 'http://38.96.255.34:6789/';
     
     // Set additional 0G Storage environment variables that SDK might need
-    process.env.ZGS_NODE_URL = process.env.ZGS_NODE_URL || 'http://38.96.255.34:5678';
-    process.env.ZG_STORAGE_URL = process.env.ZG_STORAGE_URL || 'http://38.96.255.34:5678';
-    process.env.ZGS_RPC_URL = process.env.ZGS_RPC_URL || 'http://38.96.255.34:5678';
+    // Use production endpoints when in production environment
+    const storageEndpoint = process.env.NODE_ENV === 'production' 
+      ? 'http://38.96.255.34:5678' 
+      : 'http://38.96.255.34:5678'; // Same for both now since we updated both
+    
+    process.env.ZGS_NODE_URL = process.env.ZGS_NODE_URL || storageEndpoint;
+    process.env.ZG_STORAGE_URL = process.env.ZG_STORAGE_URL || storageEndpoint;
+    process.env.ZGS_RPC_URL = process.env.ZGS_RPC_URL || storageEndpoint;
+    
+    console.log(`[0G Storage] Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[0G Storage] Using storage endpoint: ${storageEndpoint}`);
     this.privateKey = process.env.ZG_PRIVATE_KEY || '';
 
     this.initializeClients(); // Initialize async but don't wait
