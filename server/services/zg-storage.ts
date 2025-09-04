@@ -3,7 +3,7 @@
  * Handles decentralized content storage on 0G Storage network using the official SDK
  */
 
-import { Indexer, ZgFile, getFlowContract } from '@0glabs/0g-ts-sdk';
+import { Indexer, ZgFile } from '@0glabs/0g-ts-sdk';
 import { ethers } from 'ethers';
 import fs from 'fs';
 import path from 'path';
@@ -572,26 +572,34 @@ Your post is saved locally. Please check your connection or try again later.`;
       // 1) Create ZgFile directly from buffer (no temp file needed)
       const zgFile = await ZgFile.fromBuffer(fileBuffer, metadata.originalName, metadata.mimeType);
       
-      console.log(`[0G Storage] Getting flow contract...`);
+      console.log(`[0G Storage] Generating merkle tree...`);
       
-      // 2) Get flow contract for gas handling
-      const flow = await getFlowContract(this.provider, this.signer);
+      // 2) Generate Merkle tree for verification
+      const [tree, treeErr] = await zgFile.merkleTree();
+      if (treeErr !== null) {
+        throw new Error(`Error generating Merkle tree: ${treeErr}`);
+      }
       
-      console.log(`[0G Storage] Uploading file via indexer with flow contract...`);
+      // Get root hash for future reference
+      const rootHash = tree?.rootHash();
+      console.log(`[0G Storage] File Root Hash: ${rootHash}`);
       
-      // 3) Upload using proper indexer.uploadFile method with flow
-      const result = await this.indexer.uploadFile(flow, zgFile, { replicas: 1 });
+      console.log(`[0G Storage] Uploading to network...`);
       
-      console.log(`[0G Storage] Upload result:`, result);
+      // 3) Upload to network using direct indexer.upload method
+      const [tx, uploadErr] = await this.indexer.upload(zgFile, this.rpcUrl, this.signer);
+      if (uploadErr !== null) {
+        throw new Error(`Upload error: ${uploadErr}`);
+      }
       
-      const { txHash, root } = result;
+      console.log(`[0G Storage] Upload successful! Transaction: ${tx}`);
       
-      // Clean up ZgFile
+      // Always close the file when done
       await zgFile.close();
       
       console.log(`[0G Storage] Successfully uploaded ${metadata.type} file`);
-      console.log(`[0G Storage] Root Hash (CID): ${root}`);
-      console.log(`[0G Storage] Transaction Hash: ${txHash}`);
+      console.log(`[0G Storage] Root Hash: ${rootHash}`);
+      console.log(`[0G Storage] Transaction Hash: ${tx}`);
 
       // Store file locally for access via our endpoint
       const storageDir = path.join(process.cwd(), 'storage', 'media');
@@ -607,8 +615,8 @@ Your post is saved locally. Please check your connection or try again later.`;
 
       return {
         success: true,
-        hash: root,
-        transactionHash: txHash
+        hash: rootHash,
+        transactionHash: tx
       };
 
     } catch (error) {
