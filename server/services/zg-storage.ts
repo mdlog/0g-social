@@ -208,6 +208,18 @@ class ZGStorageService {
               transactionHash: realTransactionHash // Use real hash instead of placeholder
             };
           }
+          
+          // Special handling for indexer issues
+          if (errorString.includes('404') || errorString.includes('indexer') || errorString.includes('connection')) {
+            console.warn('[0G Storage] ⚠️ Indexer service temporarily unavailable - graceful degradation');
+            return {
+              success: false,
+              error: 'Indexer service temporarily unavailable. Post created successfully in feed.',
+              retryable: true,
+              errorType: 'indexer'
+            };
+          }
+          
           throw new Error(`0G Storage upload failed: ${uploadErr}`);
         }
 
@@ -288,12 +300,22 @@ class ZGStorageService {
         };
       }
 
+      // Check for indexer-specific errors
+      const isIndexerError = (
+        errorMessage.includes('404') ||
+        errorMessage.includes('indexer') ||
+        errorMessage.includes('Indexer') ||
+        errorMessage.includes('connection') ||
+        errorMessage.includes('ECONNREFUSED') ||
+        errorMessage.includes('fetch failed') ||
+        errorCode === 'ECONNREFUSED'
+      );
+
       // Check for 0G Storage service specific errors (not balance related)
       const isStorageServiceError = (
         errorMessage.includes('Upload failed') ||
         errorMessage.includes('Storage node') ||
-        errorMessage.includes('Indexer') ||
-        (errorMessage.includes('Error') && !isInsufficientFunds && !isRetriableError)
+        (errorMessage.includes('Error') && !isInsufficientFunds && !isRetriableError && !isIndexerError)
       );
 
       if (isRetriableError && !metadata.retryAttempt) {
@@ -356,6 +378,16 @@ Issue: Cannot connect to 0G Storage indexer or storage nodes
 Infrastructure: Services may be under maintenance
 
 Your post has been created in your feed and will automatically retry uploading to 0G Storage when the network recovers.`;
+      } else if (isIndexerError) {
+        errorType = 'indexer_error';
+        isRetryable = true;
+        userFriendlyMessage = `0G Storage indexer temporarily unavailable.
+
+Network: Galileo Testnet experiencing indexer connectivity issues
+Issue: Cannot connect to 0G Storage indexer service (404 error)
+Status: This is a known network infrastructure issue
+
+Your post has been created successfully in your feed and will automatically retry uploading to 0G Storage when the indexer service recovers.`;
       } else if (isStorageServiceError) {
         errorType = 'service_error';
         isRetryable = true;
