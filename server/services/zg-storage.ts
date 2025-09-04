@@ -3,7 +3,7 @@
  * Handles decentralized content storage on 0G Storage network using the official SDK
  */
 
-import { Indexer, ZgFile } from '@0glabs/0g-ts-sdk';
+import { Indexer, ZgFile, getFlowContract } from '@0glabs/0g-ts-sdk';
 import { ethers } from 'ethers';
 import fs from 'fs';
 import path from 'path';
@@ -547,7 +547,7 @@ Your post is saved locally. Please check your connection or try again later.`;
   }
 
   /**
-   * Store media files (images, videos) with special handling  
+   * Store media files (images, videos) using proper 0G Storage flow
    */
   async storeMediaFile(fileBuffer: Buffer, metadata: ContentMetadata & { originalName: string; mimeType: string }): Promise<ZGStorageResponse> {
     try {
@@ -563,77 +563,53 @@ Your post is saved locally. Please check your connection or try again later.`;
       
       console.log(`[0G Storage DEBUG] After ensureInitialized - Indexer: ${!!this.indexer}, Signer: ${!!this.signer}`);
 
-      // Create temporary file for 0G Storage upload
-      const tempDir = path.join(process.cwd(), 'temp');
-      if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, { recursive: true });
+      if (!this.provider || !this.signer || !this.indexer) {
+        throw new Error('0G Storage infrastructure not initialized');
       }
 
-      const fileExtension = path.extname(metadata.originalName) || '';
-      const tempFileName = `${metadata.type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}${fileExtension}`;
-      const tempFilePath = path.join(tempDir, tempFileName);
+      console.log(`[0G Storage] Creating ZgFile from buffer...`);
+      
+      // 1) Create ZgFile directly from buffer (no temp file needed)
+      const zgFile = await ZgFile.fromBuffer(fileBuffer, metadata.originalName, metadata.mimeType);
+      
+      console.log(`[0G Storage] Getting flow contract...`);
+      
+      // 2) Get flow contract for gas handling
+      const flow = await getFlowContract(this.provider, this.signer);
+      
+      console.log(`[0G Storage] Uploading file via indexer with flow contract...`);
+      
+      // 3) Upload using proper indexer.uploadFile method with flow
+      const result = await this.indexer.uploadFile(flow, zgFile, { replicas: 1 });
+      
+      console.log(`[0G Storage] Upload result:`, result);
+      
+      const { txHash, root } = result;
+      
+      // Clean up ZgFile
+      await zgFile.close();
+      
+      console.log(`[0G Storage] Successfully uploaded ${metadata.type} file`);
+      console.log(`[0G Storage] Root Hash (CID): ${root}`);
+      console.log(`[0G Storage] Transaction Hash: ${txHash}`);
 
-      try {
-        // Write buffer to temporary file
-        await writeFile(tempFilePath, fileBuffer);
-        
-        console.log(`[0G Storage] Uploading ${metadata.type} file to 0G Storage network...`);
-        
-        // Create ZgFile from file path
-        const zgFile = await ZgFile.fromFilePath(tempFilePath);
-        const [tree, treeErr] = await zgFile.merkleTree();
-
-        if (treeErr || !tree) {
-          throw new Error(`Failed to create merkle tree: ${treeErr}`);
-        }
-
-        // Upload to 0G Storage network using the official workflow from documentation
-        console.log(`[0G Storage] Uploading file to 0G Storage network using indexer: ${this.indexerRpc}`);
-        
-        const [tx, uploadErr] = await this.indexer.upload(
-          zgFile,
-          this.rpcUrl,
-          this.signer
-        );
-
-        if (uploadErr !== null) {
-          throw new Error(`Upload error: ${uploadErr}`);
-        }
-
-        const transactionHash = tx;
-
-        const rootHash = tree.rootHash();
-        
-        console.log(`[0G Storage] Successfully uploaded ${metadata.type} file`);
-        console.log(`[0G Storage] Root Hash: ${rootHash}`);
-        console.log(`[0G Storage] Transaction Hash: ${transactionHash}`);
-
-        // Store file locally for access via our endpoint since we're using simulation
-        const storageDir = path.join(process.cwd(), 'storage', 'media');
-        if (!fs.existsSync(storageDir)) {
-          fs.mkdirSync(storageDir, { recursive: true });
-        }
-
-        const storedFileName = `${rootHash}${path.extname(metadata.originalName || '')}`;
-        const storedFilePath = path.join(storageDir, storedFileName);
-        
-        // Copy file to storage (fileBuffer already loaded above)
-        await writeFile(storedFilePath, fileBuffer);
-
-        return {
-          success: true,
-          hash: rootHash || undefined,
-          transactionHash: transactionHash
-        };
-
-      } finally {
-        // Clean up temporary file
-        try {
-          await unlink(tempFilePath);
-        } catch (err) {
-          console.warn('[0G Storage] Failed to delete temp media file:', err);
-        }
+      // Store file locally for access via our endpoint
+      const storageDir = path.join(process.cwd(), 'storage', 'media');
+      if (!fs.existsSync(storageDir)) {
+        fs.mkdirSync(storageDir, { recursive: true });
       }
+
+      const storedFileName = `${root}${path.extname(metadata.originalName || '')}`;
+      const storedFilePath = path.join(storageDir, storedFileName);
+      
+      // Copy file to storage
+      await writeFile(storedFilePath, fileBuffer);
+
+      return {
+        success: true,
+        hash: root,
+        transactionHash: txHash
+      };
 
     } catch (error) {
       console.error('[0G Storage] Failed to store media file:', error);
