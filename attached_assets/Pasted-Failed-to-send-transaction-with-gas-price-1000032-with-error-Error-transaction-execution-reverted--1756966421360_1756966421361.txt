@@ -1,0 +1,52 @@
+Failed to send transaction with gas price 1000032, with error Error: transaction execution reverted (action="sendTransaction", data=null, reason=null, invocation=null, revert=null, transaction={ "data": "", "from": "0x4C6165286739696849Fb3e77A16b0639D762c5B6", "to": "0xbD75117F80b4E22698D0Cd7612d92BDb8eaff628" }, receipt={ "_type": "TransactionReceipt", "blobGasPrice": null, "blobGasUsed": null, "blockHash": "0x89705aac7bcd821fc7c214601f00c288939013b3257817a353c94808fde93749", "blockNumber": 5961927, "contractAddress": null, "cumulativeGasUsed": "12806567", "from": "0x4C6165286739696849Fb3e77A16b0639D762c5B6", "gasPrice": "1000032", "gasUsed": "311822", "hash": "0xf3e02907eb76843bf81f27845b30615ce3ef4c7d87a631bf72275f07dc17ef8f", "index": 36, "logs": [  ], "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "root": null, "status": 0, "to": "0xbD75117F80b4E22698D0Cd7612d92BDb8eaff628" }, code=CALL_EXCEPTION, version=6.13.1), retrying with higher gas price
+[0G Storage] ❌ Failed to store content on REAL 0G Storage network: Error: 0G Storage upload failed: Error: Failed to submit transaction
+    at ZGStorageService.storeContent (/home/runner/workspace/server/services/zg-storage.ts:252:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:474:25)
+[0G Storage] ❌ This is NOT simulation - real network error: {}
+[Post Creation DEBUG] 0G Storage result: {
+  "success": false,
+  "error": "0G Storage service error encountered.\n\nError: 0G Storage upload failed: Error: Failed to submit transaction\nNetwork: Galileo Testnet \nIssue: 0G Storage service returned an error (not balance-related)\n\nYour post has been saved locally. The upload will retry automatically when the service is available."
+}
+[Post Creation DEBUG] Storage success: false
+[Post Creation DEBUG] Storage hash: undefined
+[Post Creation DEBUG] Transaction hash: undefined
+[MEDIA UPLOAD] No file provided in request
+[Post Creation DEBUG] Final newPost object: {
+  "content": "[SERVER DEBUG] GET /api/web3/status - Content-Type: undefined",
+  "authorId": "e1b493c3-9ed5-4d64-aef1-0ad1b9143d38",
+  "imageUrl": null,
+  "mediaType": null,
+  "likesCount": 0,
+  "commentsCount": 0,
+  "sharesCount": 0,
+  "isAiRecommended": true,
+  "createdAt": "2025-09-04T06:13:06.793Z"
+}
+[Post Creation DEBUG] Storage hash being saved: undefined
+[Post Creation DEBUG] Transaction hash being saved: undefined
+[Post Creation DEBUG] Media storage hash being saved: undefined
+[Post Creation DEBUG] Created post result: {
+  "id": "64345b6e-17ef-41b3-975e-5447d4816705",
+  "authorId": "e1b493c3-9ed5-4d64-aef1-0ad1b9143d38",
+  "content": "[SERVER DEBUG] GET /api/web3/status - Content-Type: undefined",
+  "imageUrl": null,
+  "mediaType": null,
+  "mediaStorageHash": null,
+  "storageHash": null,
+  "transactionHash": null,
+  "hashtags": [],
+  "communityId": null,
+  "parentPostId": null,
+  "quotedPostId": null,
+  "isNftContent": false,
+  "nftContractAddress": null,
+  "nftTokenId": null,
+  "isPremiumContent": false,
+  "contentCategory": null,
+  "likesCount": 0,
+  "commentsCount": 0,
+  "sharesCount": 0,
+  "bookmarksCount": 0,
+  "isAiRecommended": true,
+  "createdAt": "2025-09-04T06:13:06.793Z"
