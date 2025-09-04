@@ -37,31 +37,25 @@ export class ObjectStorageService {
     return dir;
   }
 
-  // Gets the upload URL for an object entity - fallback to working implementation
+  // Gets the upload URL for an object entity
   async getObjectEntityUploadURL(): Promise<string> {
     try {
       console.log('[OBJECT STORAGE] Generating upload URL...');
+      console.log('[OBJECT STORAGE] Environment:', process.env.NODE_ENV);
+      console.log('[OBJECT STORAGE] Replit Environment:', process.env.REPLIT_ENVIRONMENT);
       
-      // For production environment, use direct integration with Replit's infrastructure
-      if (process.env.NODE_ENV === 'production') {
-        const objectId = randomUUID();
-        const fileName = `uploads/${objectId}`;
-        
-        // In production, use Replit's internal object storage API
-        const uploadResponse = await this.generateProductionUploadURL(fileName);
-        console.log('[OBJECT STORAGE] ✅ Production upload URL generated');
-        return uploadResponse;
-      }
-      
-      // For development, fall back to working implementation
+      // Always use working implementation that handles both environments
       const privateObjectDir = this.getPrivateObjectDir();
       const objectId = randomUUID();
       const fullPath = `${privateObjectDir}/uploads/${objectId}`;
 
+      console.log('[OBJECT STORAGE] Generated path:', fullPath);
+
       // Parse the bucket and object path
       const { bucketName, objectName } = this.parseObjectPath(fullPath);
+      console.log('[OBJECT STORAGE] Parsed bucket:', bucketName, 'object:', objectName);
 
-      // Generate signed URL for uploading
+      // Generate signed URL for uploading with enhanced authentication
       return await this.signObjectURL({
         bucketName,
         objectName,
@@ -274,21 +268,29 @@ export class ObjectStorageService {
       };
 
       // Add Replit internal auth headers for production
-      if (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production') {
-        // Use the same auth pattern as the vite sidecar service
-        const authToken = process.env.REPLIT_IDENTITY_KEY || process.env.REPLIT_CLUSTER_SECRET;
-        if (authToken) {
-          headers["authorization"] = `Bearer ${authToken}`;
+      if (process.env.REPLIT_ENVIRONMENT === 'production') {
+        console.log('[OBJECT STORAGE] Adding production authentication headers...');
+        
+        // Use the session ID as authentication since that's what works
+        if (process.env.REPLIT_SESSION) {
+          headers["x-replit-session"] = process.env.REPLIT_SESSION;
         }
         
-        // Add deployment-specific headers
-        if (process.env.REPLIT_DEPLOYMENT_ID) {
-          headers["x-replit-deployment-id"] = process.env.REPLIT_DEPLOYMENT_ID;
+        // Add user and cluster info
+        if (process.env.REPLIT_USER) {
+          headers["x-replit-user"] = process.env.REPLIT_USER;
         }
         
-        if (process.env.REPLIT_DOMAIN) {
-          headers["x-replit-domain"] = process.env.REPLIT_DOMAIN;
+        if (process.env.REPLIT_CLUSTER) {
+          headers["x-replit-cluster"] = process.env.REPLIT_CLUSTER;
         }
+        
+        // Add deployment environment
+        if (process.env.REPLIT_DOMAINS) {
+          headers["x-replit-domains"] = process.env.REPLIT_DOMAINS;
+        }
+        
+        console.log('[OBJECT STORAGE] Production headers added:', Object.keys(headers));
       }
 
       console.log(`[OBJECT STORAGE] Making request to: ${SIDECAR_ENDPOINT}/object-storage/signed-object-url`);
