@@ -101,6 +101,7 @@ class ZGStorageService {
       }
       
       // Initialize indexer with new syntax from starter kit
+      console.log('[0G Storage] Initializing indexer with URL:', this.indexerRpc);
       this.indexer = new Indexer(this.indexerRpc);
       
       // Test indexer connectivity with proper endpoint
