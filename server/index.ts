@@ -11,37 +11,13 @@ const app = express();
 app.use((req, res, next) => {
   console.log(`[SERVER DEBUG] ${req.method} ${req.url} - Content-Type: ${req.headers['content-type']}`);
   if (req.method === 'POST' && req.url === '/api/posts') {
-    console.log('🚨 [CRITICAL] POST /api/posts DETECTED - Headers:', JSON.stringify(req.headers, null, 2));
-    console.log('🚨 [CRITICAL] Body type:', typeof req.body);
-    console.log('🚨 [CRITICAL] Raw URL:', req.originalUrl);
-  }
-  if (req.method === 'POST') {
-    console.log('📫 [ALL POST REQUESTS]', req.url, '- Content-Type:', req.headers['content-type']);
+    console.log('[SERVER DEBUG] POST /api/posts DETECTED - Headers:', JSON.stringify(req.headers, null, 2));
   }
   next();
 });
 
-// Configure body parsing middleware to avoid conflicts with multer
-// For multipart/form-data routes, skip these middlewares
-app.use('/api', (req, res, next) => {
-  // Skip body parsing for POST /api/posts to allow multer to handle it
-  if (req.method === 'POST' && req.url === '/posts') {
-    console.log('[MIDDLEWARE] Skipping body parsing for POST /api/posts - multer will handle');
-    return next();
-  }
-  return express.json()(req, res, next);
-});
-
-app.use('/api', (req, res, next) => {
-  // Skip body parsing for POST /api/posts to allow multer to handle it
-  if (req.method === 'POST' && req.url === '/posts') {
-    return next();
-  }
-  return express.urlencoded({ extended: false })(req, res, next);
-});
-
-// For non-API routes, use normal body parsing
-app.use(express.static('client/dist'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // PostgreSQL connection pool for sessions
 const pgPool = new Pool({
