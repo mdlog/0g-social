@@ -198,7 +198,8 @@ class ZGStorageService {
             console.log('[0G Storage] ✅ Real Merkle Root Hash from existing data:', rootHash);
             
             // Generate a unique transaction hash based on the content rather than using placeholder
-            const contentHash = require('crypto').createHash('sha256').update(content).digest('hex');
+            const crypto = await import('crypto');
+            const contentHash = crypto.createHash('sha256').update(content).digest('hex');
             const realTransactionHash = `0x${contentHash}`;
             console.log('[0G Storage] ✅ Real Transaction Hash (derived):', realTransactionHash);
             
@@ -209,17 +210,8 @@ class ZGStorageService {
             };
           }
           
-          // Special handling for indexer issues
-          if (errorString.includes('404') || errorString.includes('indexer') || errorString.includes('connection')) {
-            console.warn('[0G Storage] ⚠️ Indexer service temporarily unavailable - graceful degradation');
-            return {
-              success: false,
-              error: 'Indexer service temporarily unavailable. Post created successfully in feed.',
-              retryable: true,
-              errorType: 'indexer'
-            };
-          }
-          
+          // No fallback - throw error for any upload issues to force real integration
+          console.error('[0G Storage] Upload failed - no fallback mode, must use real 0G Storage');
           throw new Error(`0G Storage upload failed: ${uploadErr}`);
         }
 
@@ -289,7 +281,8 @@ class ZGStorageService {
       if (isDataAlreadyExists) {
         console.log('[0G Storage] Data already exists on 0G Storage - treating as successful retry');
         // For "Data already exists", generate real hash from content instead of placeholder
-        const contentHash = require('crypto').createHash('sha256').update(content).digest('hex');
+        const crypto = await import('crypto');
+        const contentHash = crypto.createHash('sha256').update(content).digest('hex');
         const realTransactionHash = `0x${contentHash}`;
         console.log('[0G Storage] ✅ Real Transaction Hash (derived from content):', realTransactionHash);
         
@@ -380,24 +373,14 @@ Infrastructure: Services may be under maintenance
 Your post has been created in your feed and will automatically retry uploading to 0G Storage when the network recovers.`;
       } else if (isIndexerError) {
         errorType = 'indexer_error';
-        isRetryable = true;
-        userFriendlyMessage = `0G Storage indexer temporarily unavailable.
-
-Network: Galileo Testnet experiencing indexer connectivity issues
-Issue: Cannot connect to 0G Storage indexer service (404 error)
-Status: This is a known network infrastructure issue
-
-Your post has been created successfully in your feed and will automatically retry uploading to 0G Storage when the indexer service recovers.`;
+        isRetryable = false;
+        // No fallback - throw error for real integration
+        throw new Error(`0G Storage indexer error - no fallback mode: ${errorMessage}`);
       } else if (isStorageServiceError) {
         errorType = 'service_error';
-        isRetryable = true;
-        userFriendlyMessage = `0G Storage service error encountered.
-
-Error: ${errorMessage}
-Network: Galileo Testnet 
-Issue: 0G Storage service returned an error (not balance-related)
-
-Your post has been saved locally. The upload will retry automatically when the service is available.`;
+        isRetryable = false;
+        // No fallback - throw error for real integration
+        throw new Error(`0G Storage service error - no fallback mode: ${errorMessage}`);
       } else {
         errorType = 'unknown_error';
         isRetryable = false;

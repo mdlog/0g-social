@@ -509,7 +509,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Create the post in our system regardless of 0G Storage status (graceful degradation)
+      // Validate that 0G Storage upload was successful - no fallback mode
+      if (!storageResult.success) {
+        console.error('[Post Creation] 0G Storage upload failed - rejecting post creation (no fallback mode)');
+        throw new Error(`Post creation failed: 0G Storage upload required but failed: ${storageResult.error || 'Unknown error'}`);
+      }
+
+      // Only create post if 0G Storage upload is successful - no fallback mode
       const newPost = {
         content: postData.content,
         authorId: user.id, // Use proper user UUID, not wallet address
