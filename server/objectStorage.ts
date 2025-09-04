@@ -307,6 +307,8 @@ export class ObjectStorageService {
           method: "POST",
           headers,
           body: JSON.stringify(request),
+          // Add timeout and better error handling
+          signal: AbortSignal.timeout(10000), // 10 second timeout
         }
       );
 
@@ -334,6 +336,37 @@ export class ObjectStorageService {
       
       if (error.message.includes('Authentication failed')) {
         throw error; // Preserve specific auth error
+      }
+      
+      // If network connection failed and we're in production, try localhost as fallback
+      if (error.message.includes('fetch failed') || error.name === 'AbortError') {
+        console.log('[OBJECT STORAGE] Network error detected, attempting localhost fallback...');
+        
+        if (SIDECAR_ENDPOINT.includes('38.96.255.34')) {
+          // Try localhost fallback
+          const fallbackEndpoint = 'http://127.0.0.1:1106';
+          console.log(`[OBJECT STORAGE] Retrying with fallback endpoint: ${fallbackEndpoint}`);
+          
+          try {
+            const fallbackResponse = await fetch(
+              `${fallbackEndpoint}/object-storage/signed-object-url`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(request),
+                signal: AbortSignal.timeout(5000),
+              }
+            );
+            
+            if (fallbackResponse.ok) {
+              const responseData = await fallbackResponse.json();
+              console.log(`[OBJECT STORAGE] ✅ Fallback successful!`);
+              return responseData.signed_url;
+            }
+          } catch (fallbackError) {
+            console.log('[OBJECT STORAGE] Fallback also failed:', fallbackError);
+          }
+        }
       }
       
       throw new Error(`Failed to generate signed URL for object storage: ${error.message}`);
