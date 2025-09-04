@@ -159,7 +159,7 @@ export function CreatePost() {
           formData.append('file', data.file);
         }
 
-        // Step 3: Send post + file to backend
+        // Step 3: Send post + file to backend with 45-second timeout
         console.log('[FRONTEND DEBUG] Sending FormData to backend...');
         console.log('[FRONTEND DEBUG] FormData keys:', Array.from(formData.keys()));
         
@@ -174,9 +174,18 @@ export function CreatePost() {
         
         console.log('[FRONTEND DEBUG] About to call apiRequest with FormData...');
         
+        // Create timeout wrapper for the API request
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Upload timeout after 45 seconds - 0G network may be experiencing high load. Your post may still be created.'));
+          }, 45000); // 45 second timeout
+        });
+        
+        const apiRequestPromise = apiRequest('POST', '/api/posts', formData);
+        
         let response: Response;
         try {
-          response = await apiRequest('POST', '/api/posts', formData);
+          response = await Promise.race([apiRequestPromise, timeoutPromise]);
           
           console.log('[FRONTEND DEBUG] Response received successfully!');
           console.log('[FRONTEND DEBUG] Response status:', response.status);
@@ -247,6 +256,7 @@ export function CreatePost() {
     },
     onError: (error: any) => {
       let errorMessage = "Failed to create post";
+      let shouldRefresh = false;
       
       if (error.code === "WALLET_NOT_CONNECTED") {
         errorMessage = "Please connect your wallet to create posts";
@@ -256,6 +266,9 @@ export function CreatePost() {
         errorMessage = error.message;
       } else if (error.code === 4001) {
         errorMessage = "Signature cancelled by user";
+      } else if (error.message?.includes("timeout after 45 seconds")) {
+        errorMessage = "Upload took longer than expected. Your post may have been created successfully. Please refresh to check.";
+        shouldRefresh = true;
       } else if (error.message?.includes("Galileo")) {
         errorMessage = "0G Galileo testnet is temporarily unavailable. Your post will still be created.";
       } else {
@@ -263,10 +276,22 @@ export function CreatePost() {
       }
       
       toast({
-        title: "Failed to create post",
+        title: shouldRefresh ? "Upload timeout" : "Failed to create post",
         description: errorMessage,
-        variant: "destructive",
+        variant: shouldRefresh ? "default" : "destructive",
       });
+      
+      // Auto-refresh feed after timeout to show any posts that might have been created
+      if (shouldRefresh) {
+        setTimeout(() => {
+          queryClient.invalidateQueries({
+            predicate: (query) => {
+              const key = query.queryKey[0];
+              return typeof key === 'string' && (key === '/api/posts/feed' || key === '/api/users/me');
+            }
+          });
+        }, 2000); // Refresh after 2 seconds
+      }
     },
   });
 
@@ -462,7 +487,7 @@ export function CreatePost() {
                       {createPostMutation.isPending ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Sign & Store to 0G...
+                          Uploading to 0G... (Max 45s)
                         </>
                       ) : (
                         "Sign & Post"
