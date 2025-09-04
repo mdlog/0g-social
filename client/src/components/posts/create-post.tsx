@@ -258,10 +258,7 @@ export function CreatePost() {
     });
     
     // Use mutation to handle post creation with proper error handling
-    createPostMutation.mutate({
-      content: postData.content,
-      file: postData.file || undefined
-    });
+    createPostMutation.mutate(postData);
   };
 
   const isWalletConnected = walletStatus?.connected === true;

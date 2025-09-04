@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { RainbowKitWallet } from "@/components/wallet/rainbowkit-wallet";
-import { MobileWalletButton } from "@/components/wallet/mobile-wallet-button";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { SimpleNotificationDropdown } from "@/components/notifications/simple-notification-dropdown";
 import logoUrl from "@/assets/desocialai-logo.png";
 
@@ -16,7 +14,6 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { connected: wsConnected } = useWebSocket();
-  const isMobile = useIsMobile();
 
   const { data: currentUser } = useQuery({
     queryKey: ["/api/users/me"],
@@ -153,8 +150,8 @@ export function Header() {
 
           {/* Right Navigation - Mobile Optimized */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Wallet Connection - Mobile Optimized */}
-            {isMobile ? <MobileWalletButton /> : <RainbowKitWallet />}
+            {/* RainbowKit Wallet Connection */}
+            <RainbowKitWallet />
 
             {/* Real-time Status Indicator - Hidden on small screens */}
             <div className="hidden lg:flex items-center space-x-2 px-3 py-2 rounded-full modern-badge">
