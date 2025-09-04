@@ -513,9 +513,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.error(`[MEDIA UPLOAD] ❌ FAILED: ${mediaResult.error}`);
             console.error(`[MEDIA UPLOAD] ❌ Error details:`, mediaResult);
           }
-        } catch (mediaError) {
+        } catch (mediaError: any) {
           console.error('[MEDIA UPLOAD] ❌ EXCEPTION during upload:', mediaError);
-          console.error('[MEDIA UPLOAD] ❌ Error stack:', mediaError.stack);
+          console.error('[MEDIA UPLOAD] ❌ Error stack:', mediaError?.stack);
         }
       } else {
         console.log('[MEDIA UPLOAD] No file provided in request');
