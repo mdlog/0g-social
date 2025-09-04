@@ -273,9 +273,19 @@ export function CreatePost() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Allow post if there's content OR file (media)
-    if (!content.trim() && !selectedFile) return;
+    console.log('🚨🚨🚨 FORM SUBMIT TRIGGERED! 🚨🚨🚨');
+    console.log('Current content:', content);
+    console.log('Selected file:', selectedFile);
+    console.log('Content length:', content.trim().length);
+    console.log('Has file:', !!selectedFile);
     
+    // Allow post if there's content OR file (media)
+    if (!content.trim() && !selectedFile) {
+      console.log('❌ VALIDATION FAILED: No content and no file');
+      return;
+    }
+    
+    console.log('✅ VALIDATION PASSED');
     console.log("[FRONTEND] Starting post creation with MetaMask signature...");
     
     const postData = {
@@ -288,6 +298,8 @@ export function CreatePost() {
       hasFile: !!postData.file,
       fileName: postData.file?.name
     });
+    
+    console.log('🚀 CALLING MUTATION NOW...');
     
     // Use mutation to handle post creation with proper error handling
     createPostMutation.mutate({ 
