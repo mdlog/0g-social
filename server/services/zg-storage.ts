@@ -64,13 +64,13 @@ class ZGStorageService {
    */
   private async ensureInitialized(): Promise<void> {
     let retries = 0;
-    while ((!this.indexer || !this.signer) && retries < 50) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    while ((!this.indexer || !this.signer) && retries < 30) { // Reduced timeout for faster response
+      await new Promise(resolve => setTimeout(resolve, 200)); // Slightly longer intervals
       retries++;
     }
     
     if (!this.indexer || !this.signer) {
-      throw new Error('0G Storage clients failed to initialize after 5 seconds');
+      throw new Error('0G Storage clients failed to initialize after 6 seconds');
     }
   }
 
@@ -193,12 +193,18 @@ class ZGStorageService {
           throw new Error(`Failed to create merkle tree: ${treeErr}`);
         }
 
-        // Upload file to 0G Storage network
-        const [transactionHash, uploadErr] = await this.indexer.upload(
-          zgFile, 
-          this.rpcUrl, 
-          this.signer
-        );
+        // Upload file to 0G Storage network with timeout handling
+        console.log(`[0G Storage] Starting upload with timeout protection...`);
+        const uploadPromise = this.indexer.upload(zgFile, this.rpcUrl, this.signer);
+        
+        // Create timeout promise (30 seconds max for upload)
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Upload timeout after 30 seconds - 0G network may be experiencing high load'));
+          }, 30000);
+        });
+        
+        const [transactionHash, uploadErr] = await Promise.race([uploadPromise, timeoutPromise]);
 
         if (uploadErr) {
           // Special handling for "Data already exists" - this is actually success
