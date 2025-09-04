@@ -59,7 +59,7 @@ class ZGStorageService {
     
     // Set additional 0G Storage environment variables that SDK might need
     // Use production endpoints when in production environment
-    const storageEndpoint = process.env.NODE_ENV === 'production' 
+    const storageEndpoint = process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production' 
       ? 'http://38.96.255.34:5678' 
       : 'http://38.96.255.34:5678'; // Same for both now since we updated both
     
@@ -579,7 +579,7 @@ Your post is saved locally. Please check your connection or try again later.`;
     const fullPath = `${privateObjectDir}/media/${objectId}`;
 
     // Return URL that can be used for direct upload
-    return `${process.env.NODE_ENV === 'production' ? 'https://api.0gsocial.com' : 'http://localhost:5000'}/api/upload-direct/${objectId}`;
+    return `${process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production' ? 'https://desocialai.xyz' : 'http://localhost:5000'}/api/upload-direct/${objectId}`;
   }
 
   /**
@@ -725,8 +725,8 @@ Your post is saved locally. Please check your connection or try again later.`;
 
       return {
         success: true,
-        hash: rootHash,
-        transactionHash: tx
+        hash: rootHash || undefined,
+        transactionHash: tx || undefined
       };
 
     } catch (error) {

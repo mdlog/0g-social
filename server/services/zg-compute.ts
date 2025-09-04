@@ -40,7 +40,7 @@ class ZGComputeService {
   constructor() {
     this.computeEndpoint = process.env.ZG_COMPUTE_ENDPOINT || 'https://compute-testnet.0g.ai/api/v1';
     this.apiKey = process.env.ZG_COMPUTE_API_KEY || '';
-    this.isProduction = !!(this.apiKey && process.env.NODE_ENV === 'production');
+    this.isProduction = !!(this.apiKey && (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production'));
     
     console.log(`[0G Compute] Status: ${this.isProduction ? 'PRODUCTION' : 'DEVELOPMENT SIMULATION'}`);
     if (!this.isProduction) {

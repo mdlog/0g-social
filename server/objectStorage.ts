@@ -44,7 +44,17 @@ export class ObjectStorageService {
       console.log('[OBJECT STORAGE] Environment:', process.env.NODE_ENV);
       console.log('[OBJECT STORAGE] Replit Environment:', process.env.REPLIT_ENVIRONMENT);
       
-      // Always use working implementation that handles both environments
+      // Check if we're in production deployment and use production method first
+      if (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production') {
+        try {
+          console.log('[OBJECT STORAGE] Using production upload method...');
+          return await this.generateProductionUploadURL(`upload-${randomUUID()}`);
+        } catch (error: any) {
+          console.log('[OBJECT STORAGE] Production method failed, using fallback...', error.message);
+        }
+      }
+      
+      // Use signing method for development or as fallback
       const privateObjectDir = this.getPrivateObjectDir();
       const objectId = randomUUID();
       const fullPath = `${privateObjectDir}/uploads/${objectId}`;
@@ -252,7 +262,7 @@ export class ObjectStorageService {
   }): Promise<string> {
     // Use environment-aware sidecar endpoint
     const SIDECAR_ENDPOINT = process.env.SIDECAR_ENDPOINT || 
-      (process.env.NODE_ENV === 'production' ? 'http://38.96.255.34:1106' : 'http://127.0.0.1:1106');
+      (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.REPLIT_DOMAINS ? 'http://38.96.255.34:1106' : 'http://127.0.0.1:1106');
     
     const request = {
       bucket_name: bucketName,
@@ -268,7 +278,7 @@ export class ObjectStorageService {
       };
 
       // Add Replit internal auth headers for production
-      if (process.env.REPLIT_ENVIRONMENT === 'production') {
+      if (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.REPLIT_DOMAINS) {
         console.log('[OBJECT STORAGE] Adding production authentication headers...');
         
         // Use the session ID as authentication since that's what works
