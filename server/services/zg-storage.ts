@@ -101,13 +101,13 @@ class ZGStorageService {
       // Initialize indexer with new syntax from starter kit
       this.indexer = new Indexer(this.indexerRpc);
       
-      // Test indexer connectivity
+      // Test indexer connectivity with proper endpoint
       try {
         console.log('[0G Storage] Testing indexer connectivity...');
-        // Simple test to see if indexer responds
+        // Try the correct health endpoint
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
-        const testResult = await fetch(`${this.indexerRpc}`, { 
+        const testResult = await fetch(`${this.indexerRpc}status`, { 
           method: 'GET',
           signal: controller.signal,
           headers: { 'Content-Type': 'application/json' }
@@ -118,10 +118,16 @@ class ZGStorageService {
           console.log('[0G Storage] ✅ Indexer connection successful');
         } else {
           console.warn('[0G Storage] ⚠️ Indexer responded with status:', testResult.status);
+          // Try alternative endpoint
+          const altResult = await fetch(`${this.indexerRpc}health`, { method: 'GET' });
+          if (altResult.ok) {
+            console.log('[0G Storage] ✅ Indexer health endpoint working');
+          }
         }
       } catch (indexerError) {
         console.error('[0G Storage] ❌ Indexer connectivity test failed:', indexerError);
         console.warn('[0G Storage] ⚠️ Storage uploads may fail due to indexer connectivity issues');
+        console.log('[0G Storage] 🔧 Will attempt uploads anyway - some indexer services don\'t expose health endpoints');
       }
       
       console.log('[0G Storage] Galileo Testnet V3 - RPC:', this.rpcUrl);
@@ -151,7 +157,12 @@ class ZGStorageService {
    */
   async storeContent(content: string | Buffer, metadata: ContentMetadata): Promise<ZGStorageResponse> {
     try {
-      // Require real 0G Storage setup - no simulation mode
+      // Ensure clients are initialized (wait for async initialization to complete)
+      await this.ensureInitialized();
+      
+      console.log(`[0G Storage DEBUG] After ensureInitialized - Indexer: ${!!this.indexer}, Signer: ${!!this.signer}`);
+      
+      // Double-check that clients are actually initialized
       if (!this.indexer || !this.signer) {
         throw new Error('Real 0G Storage required: Missing private key or indexer connection. Please ensure ZG_PRIVATE_KEY is set and indexer service is available.');
       }
