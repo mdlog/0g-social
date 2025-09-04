@@ -229,6 +229,8 @@ class ZGStorageService {
               // Write unique content to temporary file (ZgFile only supports fromFilePath)
               const uniqueTempPath = tempFilePath + '_unique';
               await writeFile(uniqueTempPath, uniqueContent, 'utf-8');
+              
+              // Create ZgFile using fromFilePath (not fromBytes)
               const uniqueZgFile = await ZgFile.fromFilePath(uniqueTempPath);
               
               // Force upload with unique content to get real blockchain hash

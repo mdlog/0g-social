@@ -1,0 +1,64 @@
+Data prepared to upload root=0x1e9ce1c4f4f9e7293d5bda433dc262b9fa31b206771b38b3f36cef514cae16d8 size=64 numSegments=1 numChunks=1
+[0G Storage] ⚠️ Data already exists - attempting to retrieve blockchain hash from network
+[0G Storage] ✅ Real Merkle Root Hash from existing data: 0x1e9ce1c4f4f9e7293d5bda433dc262b9fa31b206771b38b3f36cef514cae16d8
+[0G Storage] 🔄 Forcing fresh upload to get real blockchain transaction hash...
+[0G Storage] ❌ Failed to retrieve real blockchain hash: TypeError: ZgFile.fromBytes is not a function
+    at ZGStorageService.storeContent (/home/runner/workspace/server/services/zg-storage.ts:229:43)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:474:25)
+[0G Storage] ❌ Failed to store content on REAL 0G Storage network: Error: Cannot retrieve real blockchain hash: TypeError: ZgFile.fromBytes is not a function
+    at ZGStorageService.storeContent (/home/runner/workspace/server/services/zg-storage.ts:249:21)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:474:25)
+[0G Storage] ❌ This is NOT simulation - real network error: {}
+[Post Creation DEBUG] 0G Storage result: {
+  "success": false,
+  "error": "0G Storage service error encountered.\n\nError: Cannot retrieve real blockchain hash: TypeError: ZgFile.fromBytes is not a function\nNetwork: Galileo Testnet \nIssue: 0G Storage service returned an error (not balance-related)\n\nYour post has been saved locally. The upload will retry automatically when the service is available."
+}
+[Post Creation DEBUG] Storage success: false
+[Post Creation DEBUG] Storage hash: undefined
+[Post Creation DEBUG] Transaction hash: undefined
+[MEDIA UPLOAD] File detected: download (8).png (15240 bytes, image/png)
+[MEDIA UPLOAD] Buffer size: 15240 bytes
+[MEDIA UPLOAD] Starting 0G Storage upload...
+[0G Storage] Storing image media file: download (8).png
+[0G Storage DEBUG] Indexer status: INITIALIZED
+[0G Storage DEBUG] Signer status: INITIALIZED
+[0G Storage DEBUG] Private key available: YES
+[0G Storage DEBUG] After ensureInitialized - Indexer: true, Signer: true
+[0G Storage] 🚫 ANTI-MOCKUP: Enforcing unique media upload for blockchain hash
+[0G Storage] 🔄 Creating unique media content with timestamp: 1756968007070
+[0G Storage] Original size: 15240, Unique size: 15431
+[0G Storage] Temporary file created: /tmp/zg-storage-media/media_1756968007070_download (8).png
+[0G Storage] Creating ZgFile from path...
+[0G Storage] Generating merkle tree...
+[0G Storage] File Root Hash: 0x56a8237306bda401ee618bad5b8f9d40e9a74a7b5c298da7647c64a5e450b7a1
+[0G Storage] Uploading to network...
+First selected node status : {
+  connectedPeers: 9,
+  logSyncHeight: 5962781,
+  logSyncBlock: '0xc7b2ea620a6024438d3f89e16c6bf79a83163631abd174a9dcf1ee4f1b433fee',
+  nextTxSeq: 7085858,
+  networkIdentity: {
+    chainId: 16601,
+    flowAddress: '0xbd75117f80b4e22698d0cd7612d92bdb8eaff628',
+    p2pProtocolVersion: { major: 0, minor: 4, build: 0 }
+  }
+}
+Selected nodes: [
+  StorageNode {
+    url: 'http://35.236.80.213:5678',
+    timeout: 30000,
+    retry: 3
+  },
+  StorageNode {
+    url: 'http://47.251.78.104:5678',
+    timeout: 30000,
+    retry: 3
+  },
+  StorageNode {
+    url: 'http://47.76.30.235:5678',
+    timeout: 30000,
+    retry: 3
+  }
+]
