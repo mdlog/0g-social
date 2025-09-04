@@ -203,26 +203,68 @@ export class ObjectStorageService {
     };
 
     try {
+      // Get authentication headers for production environment
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // Add Replit internal auth headers for production
+      if (process.env.REPLIT_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production') {
+        // Use the same auth pattern as the vite sidecar service
+        const authToken = process.env.REPLIT_IDENTITY_KEY || process.env.REPLIT_CLUSTER_SECRET;
+        if (authToken) {
+          headers["authorization"] = `Bearer ${authToken}`;
+        }
+        
+        // Add deployment-specific headers
+        if (process.env.REPLIT_DEPLOYMENT_ID) {
+          headers["x-replit-deployment-id"] = process.env.REPLIT_DEPLOYMENT_ID;
+        }
+        
+        if (process.env.REPLIT_DOMAIN) {
+          headers["x-replit-domain"] = process.env.REPLIT_DOMAIN;
+        }
+      }
+
+      console.log(`[OBJECT STORAGE] Making request to: ${SIDECAR_ENDPOINT}/object-storage/signed-object-url`);
+      console.log(`[OBJECT STORAGE] Request headers:`, Object.keys(headers));
+
       const response = await fetch(
         `${SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify(request),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to sign object URL: ${response.status}`);
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error(`[OBJECT STORAGE] Sidecar error ${response.status}: ${errorText}`);
+        
+        if (response.status === 401) {
+          console.error(`[OBJECT STORAGE] Authentication failed - missing or invalid credentials for production environment`);
+          throw new Error("Authentication failed for object storage service. Please check deployment configuration.");
+        }
+        
+        throw new Error(`Failed to sign object URL: ${response.status} - ${errorText}`);
       }
 
-      const { signed_url: signedURL } = await response.json();
+      const responseData = await response.json();
+      console.log(`[OBJECT STORAGE] ✅ Successfully generated signed URL`);
+      
+      const { signed_url: signedURL } = responseData;
       return signedURL;
-    } catch (error) {
-      console.error("Error signing object URL:", error);
-      throw new Error("Failed to generate signed URL for object storage");
+    } catch (error: any) {
+      console.error("[OBJECT STORAGE] Error signing object URL:", error);
+      console.error("[OBJECT STORAGE] Sidecar endpoint:", SIDECAR_ENDPOINT);
+      console.error("[OBJECT STORAGE] Environment:", process.env.NODE_ENV);
+      
+      if (error.message.includes('Authentication failed')) {
+        throw error; // Preserve specific auth error
+      }
+      
+      throw new Error(`Failed to generate signed URL for object storage: ${error.message}`);
     }
   }
 }
