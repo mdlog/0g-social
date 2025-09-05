@@ -32,6 +32,7 @@ export function CreatePost() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isSigningMetaMask, setIsSigningMetaMask] = useState(false);
+  const [uploadStartTime, setUploadStartTime] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -155,6 +156,7 @@ export function CreatePost() {
         
         // MetaMask signature completed - now progress bar can start
         setIsSigningMetaMask(false);
+        setUploadStartTime(Date.now()); // Start timing for progress bar
 
         // Step 2: Prepare form data for backend (includes file if present)
         const formData = new FormData();
@@ -306,30 +308,35 @@ export function CreatePost() {
     },
   });
 
-  // Progress simulation effect - starts after MetaMask signature confirmed
+  // Progress based on 45-second upload time - starts after MetaMask signature confirmed
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (createPostMutation.isPending && !isSigningMetaMask && uploadProgress < 100) {
+    const TOTAL_UPLOAD_TIME = 45000; // 45 seconds in milliseconds
+    
+    if (createPostMutation.isPending && !isSigningMetaMask && uploadStartTime) {
       interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) return 100;
-          // Simulate realistic progress: faster start, slower end
-          if (prev < 30) return prev + Math.random() * 8 + 2; // 2-10% increments
-          if (prev < 60) return prev + Math.random() * 4 + 1; // 1-5% increments
-          if (prev < 90) return prev + Math.random() * 2 + 0.5; // 0.5-2.5% increments
-          return prev + Math.random() * 0.5 + 0.1; // Small final increments
-        });
-      }, 300);
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - uploadStartTime;
+        const progressPercentage = Math.min((elapsedTime / TOTAL_UPLOAD_TIME) * 100, 100);
+        
+        setUploadProgress(progressPercentage);
+        
+        // Stop interval when we reach 100%
+        if (progressPercentage >= 100) {
+          clearInterval(interval);
+        }
+      }, 100); // Update every 100ms for smooth progress
     } else if (!createPostMutation.isPending) {
       // Reset progress when not uploading
       setUploadProgress(0);
       setIsSigningMetaMask(false);
+      setUploadStartTime(null);
     }
     
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [createPostMutation.isPending, isSigningMetaMask, uploadProgress]);
+  }, [createPostMutation.isPending, isSigningMetaMask, uploadStartTime]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
