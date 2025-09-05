@@ -71,14 +71,14 @@ export function ZGInfrastructureStatus() {
       {/* Storage Stats */}
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1">
-          <Database className="w-3 h-3" />
+          <Database className="w-3 h-3 text-blue-500" />
           Storage:
         </span>
         <span className="font-medium">{storageStats?.totalStorage || '...'}</span>
       </div>
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1">
-          <HardDrive className="w-3 h-3" />
+          <HardDrive className="w-3 h-3 text-blue-500" />
           Nodes:
         </span>
         <span className="font-medium">{storageStats?.networkNodes || '...'}</span>
@@ -87,14 +87,14 @@ export function ZGInfrastructureStatus() {
       {/* Compute Stats */}
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1">
-          <Cpu className="w-3 h-3" />
+          <Cpu className="w-3 h-3 text-orange-500" />
           Compute:
         </span>
         <span className="font-medium">{computeStats?.totalInstances || '...'} instances</span>
       </div>
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1">
-          <Activity className="w-3 h-3" />
+          <Activity className="w-3 h-3 text-orange-500" />
           Response:
         </span>
         <span className="font-medium">{computeStats?.averageResponseTime || '...'} ms</span>
@@ -103,7 +103,7 @@ export function ZGInfrastructureStatus() {
       {/* DA Stats */}
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1">
-          <Shield className="w-3 h-3" />
+          <Shield className="w-3 h-3 text-purple-500" />
           DA Transactions:
         </span>
         <span className="font-medium">{daStats?.totalTransactions || '...'}</span>
