@@ -312,11 +312,32 @@ export class DatabaseStorage implements IStorage {
   // Follow methods
   async followUser(followerId: string, followingId: string): Promise<Follow> {
     const [follow] = await db.insert(follows).values({ followerId, followingId }).returning();
+    
+    // Update following count for follower
+    await db.update(users)
+      .set({ followingCount: sql`${users.followingCount} + 1` })
+      .where(eq(users.id, followerId));
+    
+    // Update followers count for followed user
+    await db.update(users)
+      .set({ followersCount: sql`${users.followersCount} + 1` })
+      .where(eq(users.id, followingId));
+    
     return follow;
   }
 
   async unfollowUser(followerId: string, followingId: string): Promise<void> {
     await db.delete(follows).where(and(eq(follows.followerId, followerId), eq(follows.followingId, followingId)));
+    
+    // Update following count for follower
+    await db.update(users)
+      .set({ followingCount: sql`GREATEST(${users.followingCount} - 1, 0)` })
+      .where(eq(users.id, followerId));
+    
+    // Update followers count for followed user
+    await db.update(users)
+      .set({ followersCount: sql`GREATEST(${users.followersCount} - 1, 0)` })
+      .where(eq(users.id, followingId));
   }
 
   async getFollowing(userId: string): Promise<User[]> {

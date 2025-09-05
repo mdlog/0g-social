@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { BlockchainVerification } from "@/components/blockchain-verification";
+import { useAuth } from "@/hooks/use-auth";
+import { FollowButton } from "@/components/follow/follow-button";
 import type { PostWithAuthor } from "@shared/schema";
 import { useState } from "react";
 
@@ -27,6 +29,7 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
 
@@ -199,21 +202,32 @@ export function PostCard({ post }: PostCardProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-3 mb-3">
-              <h4 className="font-semibold text-foreground text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
-              <span className="text-muted-foreground text-sm truncate">@{post.author?.username || "unknown"}</span>
-              {post.author?.isVerified && (
-                <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
-                  <Shield className="w-3 h-3" />
-                  <span>Verified</span>
-                </div>
-              )}
-              <span className="text-muted-foreground text-sm">•</span>
-              <span className="text-muted-foreground text-sm">{formatTimeAgo(post.createdAt)}</span>
-              {post.isAiRecommended && (
-                <span className="modern-badge bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-                  AI Enhanced
-                </span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <h4 className="font-semibold text-foreground text-base truncate">{post.author?.displayName || "Unknown User"}</h4>
+                <span className="text-muted-foreground text-sm truncate">@{post.author?.username || "unknown"}</span>
+                {post.author?.isVerified && (
+                  <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
+                    <Shield className="w-3 h-3" />
+                    <span>Verified</span>
+                  </div>
+                )}
+                <span className="text-muted-foreground text-sm">•</span>
+                <span className="text-muted-foreground text-sm">{formatTimeAgo(post.createdAt)}</span>
+                {post.isAiRecommended && (
+                  <span className="modern-badge bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                    AI Enhanced
+                  </span>
+                )}
+              </div>
+              {/* Follow Button */}
+              {post.author && post.author.id && (
+                <FollowButton 
+                  userId={post.author.id}
+                  currentUserId={currentUser?.id}
+                  size="sm"
+                  className="ml-3 shrink-0"
+                />
               )}
             </div>
             
