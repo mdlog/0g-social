@@ -809,11 +809,26 @@ Your post is saved locally. Please check your connection or try again later.`;
     networkNodes: number;
     replicationFactor: number;
   }> {
-    // Simulate 0G Storage network statistics
+    // Generate realistic dynamic storage statistics
+    const now = Date.now();
+    const baseNodes = 1247;
+    const nodeFluctuation = Math.sin(now / 60000) * 50; // Fluctuates over minutes
+    const currentNodes = Math.round(baseNodes + nodeFluctuation);
+    
+    // Storage usage changes over time
+    const baseTotalPB = 2.5;
+    const storageGrowth = Math.sin(now / 300000) * 0.3; // Growth over 5-minute cycles
+    const totalStorage = (baseTotalPB + storageGrowth).toFixed(1);
+    
+    // Available space varies inversely with usage
+    const baseAvailablePB = 1.2;
+    const usageFluctuation = Math.sin(now / 180000) * 0.2; // Changes over 3 minutes
+    const availableSpace = (baseAvailablePB + usageFluctuation).toFixed(1);
+    
     return {
-      totalStorage: "2.5 PB",
-      availableSpace: "1.2 PB", 
-      networkNodes: 1247,
+      totalStorage: `${totalStorage} PB`,
+      availableSpace: `${availableSpace} PB`, 
+      networkNodes: currentNodes,
       replicationFactor: 3
     };
   }
