@@ -725,8 +725,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      const currentUser = await storage.getUserByWalletAddress(walletData.address);
+      if (!currentUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const followData = insertFollowSchema.parse(req.body);
-      const follow = await storage.followUser(walletData.address, followData.followingId);
+      const follow = await storage.followUser(currentUser.id, followData.followingId);
       res.json(follow);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
