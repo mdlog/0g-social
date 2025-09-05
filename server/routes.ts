@@ -503,39 +503,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
             mimeType: req.file.mimetype
           });
           
-          if (mediaResult.success) {
+          console.log(`[MEDIA UPLOAD] Result received:`, JSON.stringify(mediaResult, null, 2));
+          
+          if (mediaResult.success && mediaResult.hash) {
             mediaStorageHash = mediaResult.hash;
             mediaTransactionHash = mediaResult.transactionHash;
             // Don't set mediaUploadURL - we use mediaStorageHash for 0G Storage files
             console.log(`[MEDIA UPLOAD] ✅ SUCCESS! Hash: ${mediaResult.hash}`);
             console.log(`[MEDIA UPLOAD] ✅ Transaction: ${mediaResult.transactionHash}`);
           } else {
-            console.error(`[MEDIA UPLOAD] ❌ FAILED: ${mediaResult.error}`);
-            console.error(`[MEDIA UPLOAD] ❌ Error details:`, mediaResult);
+            console.error(`[MEDIA UPLOAD] ❌ FAILED: ${mediaResult.error || 'No hash returned'}`);
+            console.error(`[MEDIA UPLOAD] ❌ Full result:`, mediaResult);
+            // Clear variables to ensure null values
+            mediaStorageHash = undefined;
+            mediaTransactionHash = undefined;
           }
         } catch (mediaError: any) {
           console.error('[MEDIA UPLOAD] ❌ EXCEPTION during upload:', mediaError);
           console.error('[MEDIA UPLOAD] ❌ Error stack:', mediaError?.stack);
+          // Clear variables to ensure null values in case of exception
+          mediaStorageHash = undefined;
+          mediaTransactionHash = undefined;
         }
       } else {
         console.log('[MEDIA UPLOAD] No file provided in request');
       }
 
-      // CRITICAL: Only create post if 0G Storage upload was successful
+      // CRITICAL: Only create post if ALL required 0G Storage uploads were successful
       // This ensures data integrity - no posts in feed without valid blockchain verification
-      if (!storageResult.success) {
-        console.error('[Post Creation] ❌ 0G Storage upload failed - POST WILL NOT BE CREATED');
-        console.error('[Post Creation] ❌ Error:', storageResult.error);
+      
+      // Check content storage success (if content was provided)
+      if (postData.content && postData.content.trim() && !storageResult.success) {
+        console.error('[Post Creation] ❌ Content 0G Storage upload failed - POST WILL NOT BE CREATED');
+        console.error('[Post Creation] ❌ Content storage error:', storageResult.error);
         
         return res.status(400).json({
           success: false,
-          message: "Post creation failed",
+          message: "Post creation failed - content storage error",
           error: storageResult.error,
           errorType: storageResult.errorType,
           retryable: storageResult.retryable,
           details: storageResult.retryable 
-            ? "0G Storage upload failed due to network issues. Please try again."
-            : "0G Storage upload failed. Please check your connection and try again."
+            ? "Content upload to 0G Storage failed due to network issues. Please try again."
+            : "Content upload to 0G Storage failed. Please check your connection and try again."
+        });
+      }
+      
+      // Check media storage success (if media was provided)
+      if (req.file && !mediaStorageHash) {
+        console.error('[Post Creation] ❌ Media 0G Storage upload failed - POST WILL NOT BE CREATED');
+        console.error('[Post Creation] ❌ Media upload did not return valid hash');
+        
+        return res.status(400).json({
+          success: false,
+          message: "Post creation failed - media storage error",
+          error: "Media upload to 0G Storage failed",
+          errorType: "MEDIA_STORAGE_FAILED",
+          retryable: true,
+          details: "Media upload to 0G Storage failed. Please try again."
         });
       }
 
