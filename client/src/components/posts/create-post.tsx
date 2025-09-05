@@ -230,6 +230,12 @@ export function CreatePost() {
     onSuccess: (data: any) => {
       setContent("");
       removeSelectedFile();
+      
+      // Stop progress bar immediately when post is successful
+      setUploadProgress(100);
+      setIsSigningMetaMask(false);
+      setUploadStartTime(null);
+      
       // Invalidate all posts queries with broad matching to refresh the feed
       queryClient.invalidateQueries({ 
         predicate: (query) => {
@@ -268,6 +274,11 @@ export function CreatePost() {
       }
     },
     onError: (error: any) => {
+      // Stop progress bar immediately when error occurs
+      setUploadProgress(0);
+      setIsSigningMetaMask(false);
+      setUploadStartTime(null);
+      
       let errorMessage = "Failed to create post";
       let shouldRefresh = false;
       
