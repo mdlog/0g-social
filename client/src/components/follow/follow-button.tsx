@@ -22,7 +22,7 @@ export function FollowButton({ userId, currentUserId, className, size = "sm" }: 
   const queryClient = useQueryClient();
 
   // Check if already following
-  const { data: isFollowing, isLoading } = useQuery({
+  const { data: followStatus, isLoading } = useQuery({
     queryKey: ["/api/follows/check", userId],
     queryFn: async () => {
       const response = await fetch(`/api/follows/check/${userId}`, {
@@ -34,6 +34,8 @@ export function FollowButton({ userId, currentUserId, className, size = "sm" }: 
       return response.json();
     },
   });
+
+  const isFollowing = followStatus?.isFollowing || false;
 
   const followMutation = useMutation({
     mutationFn: async () => {
