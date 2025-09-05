@@ -730,8 +730,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const followData = insertFollowSchema.parse(req.body);
-      const follow = await storage.followUser(currentUser.id, followData.followingId);
+      const { followingId } = req.body;
+      if (!followingId) {
+        return res.status(400).json({ message: "followingId is required" });
+      }
+      
+      const follow = await storage.followUser(currentUser.id, followingId);
       res.json(follow);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
