@@ -1,11 +1,12 @@
 import { Github, Twitter, Globe, Heart, Shield, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ZGInfrastructureStatus } from "@/components/zg-infrastructure/zg-status";
 
 export function Footer() {
   return (
     <footer className="bg-white dark:bg-og-slate-800 border-t border-og-slate-200 dark:border-og-slate-700 mt-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
@@ -120,6 +121,14 @@ export function Footer() {
                 </a>
               </li>
             </ul>
+          </div>
+
+          {/* Infrastructure Status */}
+          <div className="space-y-4">
+            <h4 className="font-semibold text-og-slate-900 dark:text-og-slate-100">Infrastructure</h4>
+            <div className="text-sm">
+              <ZGInfrastructureStatus />
+            </div>
           </div>
         </div>
 
