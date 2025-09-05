@@ -20,7 +20,7 @@ interface Post {
   transactionHash?: string;
   mediaStorageHash?: string;
   mediaType?: string;
-  author: {
+  author?: {
     displayName?: string;
     username?: string;
     walletAddress?: string;
@@ -78,6 +78,16 @@ function AdminPage() {
       error: error ? JSON.stringify(error, null, 2) : null, 
       hasData: !!adminData 
     });
+    
+    // Debug: Log actual data structure
+    if (adminData && adminData.posts && adminData.posts.length > 0) {
+      console.log("[ADMIN DEBUG] First post data:", JSON.stringify({
+        id: adminData.posts[0].id,
+        authorId: adminData.posts[0].authorId,
+        author: adminData.posts[0].author,
+        hasAuthor: !!adminData.posts[0].author
+      }, null, 2));
+    }
     
     if (error) {
       const errorData = error as any;
@@ -254,7 +264,9 @@ function AdminPage() {
                     {/* Author */}
                     <TableCell>
                       <div className="text-sm">
-                        <div className="font-medium">{post.author?.displayName || post.author?.username || 'Unknown User'}</div>
+                        <div className="font-medium">
+                          {post.author?.displayName || post.author?.username || 'Unknown User'}
+                        </div>
                         <div className="text-muted-foreground text-xs">
                           {post.author?.walletAddress ? `${post.author.walletAddress.slice(0, 6)}...${post.author.walletAddress.slice(-4)}` : 'N/A'}
                         </div>
