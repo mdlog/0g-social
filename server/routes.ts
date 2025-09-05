@@ -521,7 +521,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('[MEDIA UPLOAD] No file provided in request');
       }
 
-      // Create the post in our system regardless of 0G Storage status (graceful degradation)
+      // CRITICAL: Only create post if 0G Storage upload was successful
+      // This ensures data integrity - no posts in feed without valid blockchain verification
+      if (!storageResult.success) {
+        console.error('[Post Creation] ❌ 0G Storage upload failed - POST WILL NOT BE CREATED');
+        console.error('[Post Creation] ❌ Error:', storageResult.error);
+        
+        return res.status(400).json({
+          success: false,
+          message: "Post creation failed",
+          error: storageResult.error,
+          errorType: storageResult.errorType,
+          retryable: storageResult.retryable,
+          details: storageResult.retryable 
+            ? "0G Storage upload failed due to network issues. Please try again."
+            : "0G Storage upload failed. Please check your connection and try again."
+        });
+      }
+
+      // Only proceed if 0G Storage upload was successful
       const newPost = {
         content: postData.content,
         authorId: user.id, // Use proper user UUID, not wallet address
@@ -532,18 +550,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         commentsCount: 0,
         sharesCount: 0,
         isAiRecommended: Math.random() > 0.7,
-        storageHash: storageResult?.success ? storageResult.hash : undefined,
-        transactionHash: storageResult?.success ? (storageResult.transactionHash || mediaTransactionHash) : undefined,
+        storageHash: storageResult.hash, // Guaranteed to exist since storageResult.success = true
+        transactionHash: storageResult.transactionHash || mediaTransactionHash,
         createdAt: new Date()
       };
       
+      console.log('[Post Creation DEBUG] ✅ 0G Storage success - creating post in database');
       console.log('[Post Creation DEBUG] Final newPost object:', JSON.stringify(newPost, null, 2));
       console.log('[Post Creation DEBUG] Storage hash being saved:', newPost.storageHash);
       console.log('[Post Creation DEBUG] Transaction hash being saved:', newPost.transactionHash);
       console.log('[Post Creation DEBUG] Media storage hash being saved:', newPost.mediaStorageHash);
 
       // Create the post with proper user reference
-      const post = await storage.createPost(newPost);
+      const post = await storage.createPost(newPost as any);
       
       console.log('[Post Creation DEBUG] Created post result:', JSON.stringify(post, null, 2));
 
@@ -597,27 +616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // If 0G Storage failed, still return success with helpful message and retry info
-      if (!storageResult.success) {
-        console.warn('[Post Creation] 0G Storage failed but post created in feed:', storageResult.error);
-        
-        // Queue for background retry if it's a retryable error
-        if (storageResult.retryable) {
-          console.log('[Post Creation] Queueing post for background 0G Storage retry...');
-          // Note: Background retry system can be implemented later if needed
-        }
-        
-        return res.status(201).json({ 
-          ...post,
-          storageStatus: "pending",
-          storageError: storageResult.error,
-          errorType: storageResult.errorType,
-          retryable: storageResult.retryable,
-          message: storageResult.retryable 
-            ? "Post created successfully. 0G Storage upload will retry automatically when network is available."
-            : "Post created successfully. Please check your 0G tokens and try again if needed."
-        });
-      }
+      // At this point, 0G Storage upload was successful, so we can proceed
       
       // Record creation on 0G DA
       await zgDAService.recordInteraction('post', user.id, post.id, {
