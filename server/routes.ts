@@ -3534,7 +3534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const offset = parseInt(req.params.offset) || 0;
       
       // Get all posts with author information
-      const posts = await storage.getPosts(limit, offset);
+      const posts = await storage.getGlobalFeed(undefined, limit, offset);
       
       // Enhance posts with blockchain verification and hash links
       const enhancedPosts = posts.map(post => ({
