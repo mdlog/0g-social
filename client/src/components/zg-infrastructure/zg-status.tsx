@@ -67,6 +67,82 @@ export function ZGInfrastructureStatus() {
   });
 
   return (
+    <div className="space-y-2 text-xs">
+      {/* Storage Stats */}
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <Database className="w-3 h-3" />
+          Storage:
+        </span>
+        <span className="font-medium">{storageStats?.totalStorage || '...'}</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <HardDrive className="w-3 h-3" />
+          Nodes:
+        </span>
+        <span className="font-medium">{storageStats?.networkNodes || '...'}</span>
+      </div>
+
+      {/* Compute Stats */}
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <Cpu className="w-3 h-3" />
+          Compute:
+        </span>
+        <span className="font-medium">{computeStats?.totalInstances || '...'} instances</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <Activity className="w-3 h-3" />
+          Response:
+        </span>
+        <span className="font-medium">{computeStats?.averageResponseTime || '...'} ms</span>
+      </div>
+
+      {/* DA Stats */}
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <Shield className="w-3 h-3" />
+          DA Transactions:
+        </span>
+        <span className="font-medium">{daStats?.totalTransactions || '...'}</span>
+      </div>
+
+      {/* Chain Status */}
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <CheckCircle className="w-3 h-3 text-green-500" />
+          Block Height:
+        </span>
+        <span className="font-medium">{web3Status?.blockHeight?.toLocaleString() || '...'}</span>
+      </div>
+    </div>
+  );
+}
+
+export function ZGInfrastructureStatusCards() {
+  const { data: storageStats } = useQuery<ZGStorageStats>({
+    queryKey: ["/api/zg/storage/stats"],
+    refetchInterval: 30000,
+  });
+
+  const { data: computeStats } = useQuery<ZGComputeStats>({
+    queryKey: ["/api/zg/compute/stats"],
+    refetchInterval: 10000,
+  });
+
+  const { data: daStats } = useQuery<ZGDAStats>({
+    queryKey: ["/api/zg/da/stats"],
+    refetchInterval: 5000,
+  });
+
+  const { data: web3Status } = useQuery<Web3Status>({
+    queryKey: ["/api/web3/status"],
+    refetchInterval: 1000, // Update every second for real-time block height
+  });
+
+  return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 0G Storage */}
