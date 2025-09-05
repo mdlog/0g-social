@@ -992,6 +992,69 @@ export default function AdminPage() {
           <AdminUserManagement />
         )}
       </main>
+      
+      {/* Admin Footer */}
+      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Left Side - Platform Info */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                <span className="font-semibold text-sm">DeSocialAI Admin</span>
+              </div>
+              <Separator orientation="vertical" className="h-4" />
+              <div className="text-sm text-muted-foreground">
+                Decentralized Social Media Platform
+              </div>
+            </div>
+            
+            {/* Center - System Status */}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-muted-foreground">System Online</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Hash className="h-3 w-3 text-blue-600" />
+                <span className="text-xs text-muted-foreground">0G Chain Connected</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Database className="h-3 w-3 text-green-600" />
+                <span className="text-xs text-muted-foreground">Database Active</span>
+              </div>
+            </div>
+            
+            {/* Right Side - Version & Time */}
+            <div className="flex items-center gap-4">
+              <div className="text-xs text-muted-foreground">
+                <span>Admin Panel v2.0</span>
+              </div>
+              <Separator orientation="vertical" className="h-4" />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>{new Date().toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bottom Row - Additional Info */}
+          <div className="mt-4 pt-4 border-t border-border/40">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+              <div className="text-xs text-muted-foreground">
+                © 2025 DeSocialAI. Built on 0G Chain infrastructure with authentic blockchain verification.
+              </div>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span>Admin Access: 0x4C61...c5B6</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  <span>Authorized</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
