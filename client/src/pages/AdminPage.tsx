@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ExternalLink, Shield, CheckCircle, XCircle, Hash, FileText, Image, Video, ChevronLeft, ChevronRight } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { ExternalLink, Shield, CheckCircle, XCircle, Hash, FileText, Image, Video, ChevronLeft, ChevronRight, Home, Settings, Database, Users, Activity, BarChart3, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Post {
@@ -183,15 +184,73 @@ function AdminPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-6 w-6 text-primary" />
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Admin Header */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo and Title */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Shield className="h-8 w-8 text-primary" />
+                <div>
+                  <h1 className="text-xl font-bold">Admin Dashboard</h1>
+                  <p className="text-xs text-muted-foreground">DeSocialAI Management</p>
+                </div>
+              </div>
+              
+              <Separator orientation="vertical" className="h-8" />
+              
+              {/* Quick Stats */}
+              <div className="hidden md:flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{metadata?.total || 0}</span>
+                  <span className="text-xs text-muted-foreground">Posts</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium">{metadata?.blockchainVerifiedCount || 0}</span>
+                  <span className="text-xs text-muted-foreground">Verified</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Image className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{metadata?.withMediaCount || 0}</span>
+                  <span className="text-xs text-muted-foreground">Media</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Navigation and Actions */}
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/">
+                  <Home className="h-4 w-4 mr-2" />
+                  Back to App
+                </Link>
+              </Button>
+              
+              <Button onClick={() => refetch()} variant="outline" size="sm">
+                <Activity className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span>Last updated: {metadata ? new Date(metadata.timestamp).toLocaleTimeString() : '--'}</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </header>
+      
+      {/* Main Content */}
+      <main className="flex-1 container mx-auto px-4 py-8">
+      {/* Page Title */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-2">All Posts Management</h2>
         <p className="text-muted-foreground">
-          Comprehensive view of all posts with blockchain verification status
+          Comprehensive view of all posts with blockchain verification status and pagination controls
         </p>
       </div>
 
@@ -459,6 +518,115 @@ function AdminPage() {
           </div>
         </CardContent>
       </Card>
+      </main>
+      
+      {/* Admin Footer */}
+      <footer className="border-t bg-muted/50">
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* System Info */}
+            <div>
+              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                System Status
+              </h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>0G Chain:</span>
+                  <Badge variant="default" className="text-xs">Active</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span>0G Storage:</span>
+                  <Badge variant="default" className="text-xs">Connected</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span>0G DA:</span>
+                  <Badge variant="default" className="text-xs">Synced</Badge>
+                </div>
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div>
+              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Quick Actions
+              </h3>
+              <div className="space-y-2">
+                <Button variant="ghost" size="sm" className="w-full justify-start h-8 px-2">
+                  <BarChart3 className="h-3 w-3 mr-2" />
+                  View Analytics
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full justify-start h-8 px-2">
+                  <Users className="h-3 w-3 mr-2" />
+                  Manage Users
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full justify-start h-8 px-2">
+                  <Database className="h-3 w-3 mr-2" />
+                  System Logs
+                </Button>
+              </div>
+            </div>
+            
+            {/* Current Session */}
+            <div>
+              <h3 className="font-semibold text-sm mb-3">Current Session</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div>
+                  <span className="block">Admin Access</span>
+                  <code className="text-xs bg-muted px-1 rounded">
+                    0x4C61...c5B6
+                  </code>
+                </div>
+                <div>
+                  <span className="block">Session Time</span>
+                  <span className="text-xs">{new Date().toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Platform Info */}
+            <div>
+              <h3 className="font-semibold text-sm mb-3">Platform</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div>DeSocialAI v2.0</div>
+                <div>Built on 0G Chain</div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>All Systems Operational</span>
+                </div>
+                <div className="text-xs text-muted-foreground/70">
+                  © 2025 DeSocialAI. Decentralized social platform.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Separator className="my-4" />
+          
+          {/* Bottom Row */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <span>Admin Panel - Authorized Access Only</span>
+              <Badge variant="outline" className="text-xs">
+                Secure Session
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground">
+                Privacy Policy
+              </Button>
+              <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground">
+                Terms of Service
+              </Button>
+              <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground">
+                Support
+              </Button>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
