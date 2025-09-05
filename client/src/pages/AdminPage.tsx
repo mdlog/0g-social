@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ExternalLink, Shield, CheckCircle, XCircle, Hash, FileText, Image, Video } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ExternalLink, Shield, CheckCircle, XCircle, Hash, FileText, Image, Video, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Post {
@@ -53,8 +54,11 @@ interface AdminPostsResponse {
 function AdminPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [limit] = useState(50);
-  const [offset] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Calculate offset based on current page
+  const offset = (currentPage - 1) * itemsPerPage;
 
   // Fetch user data first to ensure session is established
   const { data: currentUser } = useQuery({
@@ -64,7 +68,7 @@ function AdminPage() {
 
   // Fetch admin posts data only after user is loaded
   const { data: adminData, isLoading, error, refetch } = useQuery<AdminPostsResponse>({
-    queryKey: [`/api/admin/posts/${limit}/${offset}`],
+    queryKey: [`/api/admin/posts/${itemsPerPage}/${offset}`],
     enabled: !!currentUser, // Only run after user is loaded
     retry: 3, // Retry 3 times for session issues
     retryDelay: 1000, // Wait 1 second between retries
@@ -140,6 +144,11 @@ function AdminPage() {
 
   const { posts, metadata } = adminData;
 
+  // Calculate pagination info
+  const totalPages = Math.ceil(metadata.total / itemsPerPage);
+  const startItem = offset + 1;
+  const endItem = Math.min(offset + itemsPerPage, metadata.total);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
   };
@@ -154,6 +163,23 @@ function AdminPage() {
     if (mediaType.startsWith('video/')) return <Video className="h-4 w-4" />;
     if (mediaType.startsWith('image/')) return <Image className="h-4 w-4" />;
     return <FileText className="h-4 w-4" />;
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePageSizeChange = (newSize: string) => {
+    setItemsPerPage(parseInt(newSize));
+    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   return (
@@ -373,6 +399,63 @@ function AdminPage() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+          
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {startItem} to {endItem} of {metadata.total} posts
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Posts per page:</span>
+                <Select value={itemsPerPage.toString()} onValueChange={handlePageSizeChange}>
+                  <SelectTrigger className="w-20" data-testid="select-page-size">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10" data-testid="option-10">10</SelectItem>
+                    <SelectItem value="25" data-testid="option-25">25</SelectItem>
+                    <SelectItem value="50" data-testid="option-50">50</SelectItem>
+                    <SelectItem value="100" data-testid="option-100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1"
+                data-testid="button-previous"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              
+              <div className="flex items-center gap-1 text-sm">
+                <span>Page</span>
+                <span className="font-medium">{currentPage}</span>
+                <span>of</span>
+                <span className="font-medium">{totalPages}</span>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1"
+                data-testid="button-next"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
