@@ -31,6 +31,7 @@ export function CreatePost() {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isSigningMetaMask, setIsSigningMetaMask] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -112,6 +113,9 @@ export function CreatePost() {
       }
 
       try {
+        // Set signing state to true - progress bar won't start yet
+        setIsSigningMetaMask(true);
+        
         // Connect to MetaMask
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         
@@ -148,6 +152,9 @@ export function CreatePost() {
         });
         
         console.log('[FRONTEND DEBUG] Signature received:', signature);
+        
+        // MetaMask signature completed - now progress bar can start
+        setIsSigningMetaMask(false);
 
         // Step 2: Prepare form data for backend (includes file if present)
         const formData = new FormData();
@@ -210,6 +217,8 @@ export function CreatePost() {
         console.log('[FRONTEND DEBUG] Success response:', result);
         return result;
       } catch (error: any) {
+        // Reset signing state if signature fails or is cancelled
+        setIsSigningMetaMask(false);
         if (error.code === 4001) {
           throw new Error("Signature cancelled by user");
         }
@@ -297,10 +306,10 @@ export function CreatePost() {
     },
   });
 
-  // Progress simulation effect
+  // Progress simulation effect - starts after MetaMask signature confirmed
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (createPostMutation.isPending && uploadProgress < 100) {
+    if (createPostMutation.isPending && !isSigningMetaMask && uploadProgress < 100) {
       interval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 100) return 100;
@@ -314,12 +323,13 @@ export function CreatePost() {
     } else if (!createPostMutation.isPending) {
       // Reset progress when not uploading
       setUploadProgress(0);
+      setIsSigningMetaMask(false);
     }
     
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [createPostMutation.isPending, uploadProgress]);
+  }, [createPostMutation.isPending, isSigningMetaMask, uploadProgress]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -513,19 +523,26 @@ export function CreatePost() {
                       }`}
                     >
                       {createPostMutation.isPending ? (
-                        <div className="flex items-center space-x-3 w-full">
-                          <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs">Uploading to 0G...</span>
-                              <span className="text-xs font-mono">{Math.floor(uploadProgress)}%</span>
-                            </div>
-                            <Progress 
-                              value={uploadProgress} 
-                              className="h-2 bg-white/20 [&>div]:bg-white/80"
-                            />
+                        isSigningMetaMask ? (
+                          <div className="flex items-center space-x-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-sm">Waiting for signature...</span>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="flex items-center space-x-3 w-full">
+                            <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs">Uploading to 0G...</span>
+                                <span className="text-xs font-mono">{Math.floor(uploadProgress)}%</span>
+                              </div>
+                              <Progress 
+                                value={uploadProgress} 
+                                className="h-2 bg-white/20 [&>div]:bg-white/80"
+                              />
+                            </div>
+                          </div>
+                        )
                       ) : (
                         "Sign & Post"
                       )}
