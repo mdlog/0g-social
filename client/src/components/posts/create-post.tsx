@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ImageIcon, Database, Loader2, Wallet, X, Video } from "lucide-react";
@@ -29,6 +30,7 @@ export function CreatePost() {
   const [uploadedMediaURL, setUploadedMediaURL] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -295,6 +297,30 @@ export function CreatePost() {
     },
   });
 
+  // Progress simulation effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (createPostMutation.isPending && uploadProgress < 100) {
+      interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 100) return 100;
+          // Simulate realistic progress: faster start, slower end
+          if (prev < 30) return prev + Math.random() * 8 + 2; // 2-10% increments
+          if (prev < 60) return prev + Math.random() * 4 + 1; // 1-5% increments
+          if (prev < 90) return prev + Math.random() * 2 + 0.5; // 0.5-2.5% increments
+          return prev + Math.random() * 0.5 + 0.1; // Small final increments
+        });
+      }, 300);
+    } else if (!createPostMutation.isPending) {
+      // Reset progress when not uploading
+      setUploadProgress(0);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [createPostMutation.isPending, uploadProgress]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -482,13 +508,24 @@ export function CreatePost() {
                     <Button
                       type="submit"
                       disabled={isDisabled || isOverLimit}
-                      className="bg-og-primary hover:bg-og-primary/90 text-white font-semibold px-6"
+                      className={`bg-og-primary hover:bg-og-primary/90 text-white font-semibold ${
+                        createPostMutation.isPending ? 'px-4 min-w-[200px]' : 'px-6'
+                      }`}
                     >
                       {createPostMutation.isPending ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Uploading to 0G... (Max 45s)
-                        </>
+                        <div className="flex items-center space-x-3 w-full">
+                          <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs">Uploading to 0G...</span>
+                              <span className="text-xs font-mono">{Math.floor(uploadProgress)}%</span>
+                            </div>
+                            <Progress 
+                              value={uploadProgress} 
+                              className="h-2 bg-white/20 [&>div]:bg-white/80"
+                            />
+                          </div>
+                        </div>
                       ) : (
                         "Sign & Post"
                       )}
