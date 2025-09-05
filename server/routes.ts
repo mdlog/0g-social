@@ -3588,7 +3588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...post,
         // Blockchain verification URLs
         blockchainUrls: {
-          storageHash: post.storageHash ? `https://chainscan-galileo.0g.ai/tx/${post.transactionHash}` : null,
+          storageHash: post.storageHash ? `https://chainscan-galileo.0g.ai/tx/${post.storageHash}` : null,
           transactionHash: post.transactionHash ? `https://chainscan-galileo.0g.ai/tx/${post.transactionHash}` : null,
           mediaHash: post.mediaStorageHash ? `https://chainscan-galileo.0g.ai/tx/${post.mediaStorageHash}` : null
         },
