@@ -74,7 +74,7 @@ export function ZGInfrastructureStatus() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 0G Storage */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
           <CardHeader className="pb-2">
             <div className="flex items-center space-x-2">
               <Database className="w-4 h-4 text-og-primary" />
@@ -102,7 +102,7 @@ export function ZGInfrastructureStatus() {
         </Card>
 
         {/* 0G Compute */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
           <CardHeader className="pb-2">
             <div className="flex items-center space-x-2">
               <Cpu className="w-4 h-4 text-og-secondary" />
@@ -130,7 +130,7 @@ export function ZGInfrastructureStatus() {
         </Card>
 
         {/* 0G Data Availability */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
           <CardHeader className="pb-2">
             <div className="flex items-center space-x-2">
               <Shield className="w-4 h-4 text-green-500" />
@@ -157,7 +157,7 @@ export function ZGInfrastructureStatus() {
         </Card>
 
         {/* 0G Chain Status */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-gray-200 dark:border-gray-700">
           <CardHeader className="pb-2">
             <div className="flex items-center space-x-2">
               <Activity className="w-4 h-4 text-blue-500" />
