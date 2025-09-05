@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, Shield, CheckCircle, XCircle, Hash, FileText, Image, Video, ChevronLeft, ChevronRight, Home, Settings, Database, Users, Activity, BarChart3, Clock } from "lucide-react";
+import { ExternalLink, Shield, CheckCircle, XCircle, Hash, FileText, Image, Video, ChevronLeft, ChevronRight, Home, Settings, Database, Users, Activity, BarChart3, Clock, User, Wallet, CreditCard, Calendar, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Post {
@@ -23,9 +23,18 @@ interface Post {
   mediaStorageHash?: string;
   mediaType?: string;
   author?: {
+    id?: string;
     displayName?: string;
     username?: string;
+    email?: string;
     walletAddress?: string;
+    isVerified?: boolean;
+    isPremium?: boolean;
+    reputationScore?: number;
+    followersCount?: number;
+    followingCount?: number;
+    postsCount?: number;
+    createdAt?: string;
   };
   blockchainUrls: {
     storageHash?: string;
@@ -317,8 +326,8 @@ function AdminPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Post</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Author Info</TableHead>
+                  <TableHead>User Details</TableHead>
                   <TableHead>Verification</TableHead>
                   <TableHead>Storage Hash</TableHead>
                   <TableHead>Transaction Hash</TableHead>
@@ -346,15 +355,87 @@ function AdminPage() {
                       </div>
                     </TableCell>
 
-                    {/* Author */}
+                    {/* Author Info */}
                     <TableCell>
-                      <div className="text-sm">
-                        <div className="font-medium">
-                          {post.author?.displayName || post.author?.username || 'Unknown User'}
+                      <div className="text-sm space-y-1">
+                        <div className="flex items-center gap-2">
+                          <User className="h-3 w-3 text-muted-foreground" />
+                          <span className="font-medium">
+                            {post.author?.displayName || post.author?.username || 'Unknown User'}
+                          </span>
+                          {post.author?.isVerified && (
+                            <CheckCircle className="h-3 w-3 text-blue-600" />
+                          )}
+                          {post.author?.isPremium && (
+                            <CreditCard className="h-3 w-3 text-yellow-600" />
+                          )}
                         </div>
-                        <div className="text-muted-foreground text-xs">
-                          {post.author?.walletAddress ? `${post.author.walletAddress.slice(0, 6)}...${post.author.walletAddress.slice(-4)}` : 'N/A'}
+                        <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                          <Wallet className="h-3 w-3" />
+                          <span className="font-mono">
+                            {post.author?.walletAddress ? `${post.author.walletAddress.slice(0, 8)}...${post.author.walletAddress.slice(-6)}` : 'N/A'}
+                          </span>
+                          {post.author?.walletAddress && (
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(post.author?.walletAddress || '');
+                                toast({ title: "Copied!", description: "Wallet address copied to clipboard" });
+                              }}
+                              className="hover:text-primary transition-colors"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                          )}
                         </div>
+                      </div>
+                    </TableCell>
+
+                    {/* User Details */}
+                    <TableCell>
+                      <div className="text-xs space-y-1">
+                        {post.author?.id && (
+                          <div className="flex items-center gap-2">
+                            <Hash className="h-3 w-3 text-muted-foreground" />
+                            <span className="font-mono text-muted-foreground">
+                              ID: {post.author.id.slice(0, 8)}...
+                            </span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(post.author?.id || '');
+                                toast({ title: "Copied!", description: "User ID copied to clipboard" });
+                              }}
+                              className="hover:text-primary transition-colors"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4 text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>👥 {post.author?.followersCount || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            <span>📝 {post.author?.postsCount || 0}</span>
+                          </div>
+                        </div>
+                        {post.author?.reputationScore !== undefined && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs">⭐ Rep: {post.author.reputationScore}</span>
+                          </div>
+                        )}
+                        {post.author?.email && (
+                          <div className="text-xs text-muted-foreground truncate" title={post.author.email}>
+                            📧 {post.author.email}
+                          </div>
+                        )}
+                        {post.author?.createdAt && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            <span>Joined {new Date(post.author.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        )}
                       </div>
                     </TableCell>
 

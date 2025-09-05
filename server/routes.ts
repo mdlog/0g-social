@@ -2,7 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema, insertShareSchema, insertCommentLikeSchema, type Notification } from "@shared/schema";
+import { insertUserSchema, insertPostSchema, insertFollowSchema, insertLikeSchema, insertCommentSchema, insertRepostSchema, updateUserProfileSchema, insertCommunitySchema, insertBookmarkSchema, insertCollectionSchema, insertTipSchema, insertHashtagSchema, insertShareSchema, insertCommentLikeSchema, type Notification, users, posts, likes, comments, follows } from "@shared/schema";
+import { eq, desc, gte, isNotNull, and, sql } from "drizzle-orm";
+import { db } from "./db";
 import { z } from "zod";
 import { ObjectStorageService } from "./objectStorage";
 import { generateAIInsights, generateTrendingTopics, generatePersonalizedRecommendations } from "./services/ai";
@@ -3615,6 +3617,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("[ADMIN] Error fetching posts:", error);
       res.status(500).json({ message: "Failed to fetch admin posts data" });
+    }
+  });
+
+  // Admin - Get all users with detailed information
+  app.get("/api/admin/users/:limit/:offset", checkAdminAccess, async (req, res) => {
+    try {
+      console.log("[ADMIN] Getting all users with detailed information");
+      
+      const limit = parseInt(req.params.limit) || 50;
+      const offset = parseInt(req.params.offset) || 0;
+      
+      // Get all users from database
+      const allUsers = await db.select().from(users).orderBy(desc(users.createdAt)).limit(limit).offset(offset);
+      const totalUsers = await db.select({ count: sql<number>`count(*)` }).from(users);
+      
+      // Enhance users with additional statistics
+      const enhancedUsers = await Promise.all(allUsers.map(async (user) => {
+        // Get user's posts count from database
+        const userPosts = await db.select({ count: sql<number>`count(*)` }).from(posts).where(eq(posts.authorId, user.id));
+        const actualPostsCount = userPosts[0].count;
+        
+        // Get user's likes count
+        const userLikes = await db.select({ count: sql<number>`count(*)` }).from(likes).where(eq(likes.userId, user.id));
+        const totalLikes = userLikes[0].count;
+        
+        return {
+          ...user,
+          statistics: {
+            actualPostsCount,
+            totalLikes,
+            joinedDaysAgo: Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+            lastSeenDaysAgo: user.updatedAt ? Math.floor((Date.now() - new Date(user.updatedAt).getTime()) / (1000 * 60 * 60 * 24)) : null
+          },
+          verification: {
+            hasWallet: !!user.walletAddress,
+            hasEmail: !!user.email,
+            hasAvatar: !!user.avatar,
+            isVerified: !!user.isVerified,
+            isPremium: !!user.isPremium
+          }
+        };
+      }));
+      
+      const response = {
+        users: enhancedUsers,
+        metadata: {
+          total: totalUsers[0].count,
+          limit,
+          offset,
+          timestamp: new Date().toISOString(),
+          verifiedCount: enhancedUsers.filter(u => u.verification.isVerified).length,
+          premiumCount: enhancedUsers.filter(u => u.verification.isPremium).length,
+          withWalletCount: enhancedUsers.filter(u => u.verification.hasWallet).length
+        }
+      };
+      
+      res.json(response);
+    } catch (error: any) {
+      console.error("[ADMIN] Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch admin users data" });
+    }
+  });
+
+  // Admin - Get system statistics
+  app.get("/api/admin/stats", checkAdminAccess, async (req, res) => {
+    try {
+      console.log("[ADMIN] Getting system statistics");
+      
+      // Get counts from database
+      const totalUsers = await db.select({ count: sql<number>`count(*)` }).from(users);
+      const totalPosts = await db.select({ count: sql<number>`count(*)` }).from(posts);
+      const totalLikes = await db.select({ count: sql<number>`count(*)` }).from(likes);
+      const totalComments = await db.select({ count: sql<number>`count(*)` }).from(comments);
+      const totalFollows = await db.select({ count: sql<number>`count(*)` }).from(follows);
+      
+      // Get recent activity (last 24 hours)
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentUsers = await db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.createdAt, yesterday));
+      const recentPosts = await db.select({ count: sql<number>`count(*)` }).from(posts).where(gte(posts.createdAt, yesterday));
+      
+      // Get verified counts
+      const verifiedUsers = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.isVerified, true));
+      const premiumUsers = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.isPremium, true));
+      const postsWithMedia = await db.select({ count: sql<number>`count(*)` }).from(posts).where(isNotNull(posts.mediaStorageHash));
+      const blockchainVerifiedPosts = await db.select({ count: sql<number>`count(*)` }).from(posts)
+        .where(and(isNotNull(posts.storageHash), isNotNull(posts.transactionHash)));
+      
+      const response = {
+        totals: {
+          users: totalUsers[0].count,
+          posts: totalPosts[0].count,
+          likes: totalLikes[0].count,
+          comments: totalComments[0].count,
+          follows: totalFollows[0].count
+        },
+        recent: {
+          newUsers: recentUsers[0].count,
+          newPosts: recentPosts[0].count
+        },
+        verification: {
+          verifiedUsers: verifiedUsers[0].count,
+          premiumUsers: premiumUsers[0].count,
+          postsWithMedia: postsWithMedia[0].count,
+          blockchainVerifiedPosts: blockchainVerifiedPosts[0].count
+        },
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json(response);
+    } catch (error: any) {
+      console.error("[ADMIN] Error fetching stats:", error);
+      res.status(500).json({ message: "Failed to fetch admin stats" });
     }
   });
 
