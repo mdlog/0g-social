@@ -13,13 +13,13 @@ interface FollowButtonProps {
 }
 
 export function FollowButton({ userId, currentUserId, className, size = "sm" }: FollowButtonProps) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Don't show follow button for own profile
+  // Don't show follow button for own profile - check this before any hooks
   if (!currentUserId || currentUserId === userId) {
     return null;
   }
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Check if already following
   const { data: isFollowing, isLoading } = useQuery({

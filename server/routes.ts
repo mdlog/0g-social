@@ -742,7 +742,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
 
-    await storage.unfollowUser(walletData.address, req.params.followingId);
+    const currentUser = await storage.getUserByWalletAddress(walletData.address);
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await storage.unfollowUser(currentUser.id, req.params.followingId);
     res.json({ success: true });
   });
 
@@ -762,7 +767,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({ isFollowing: false });
     }
 
-    const isFollowing = await storage.isFollowing(walletData.address, req.params.followingId);
+    // Get current user by wallet address
+    const currentUser = await storage.getUserByWalletAddress(walletData.address);
+    if (!currentUser) {
+      return res.json({ isFollowing: false });
+    }
+
+    const isFollowing = await storage.isFollowing(currentUser.id, req.params.followingId);
     res.json({ isFollowing });
   });
 
