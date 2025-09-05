@@ -21,9 +21,9 @@ interface Post {
   mediaStorageHash?: string;
   mediaType?: string;
   author: {
-    displayName: string;
-    username: string;
-    walletAddress: string;
+    displayName?: string;
+    username?: string;
+    walletAddress?: string;
   };
   blockchainUrls: {
     storageHash?: string;
@@ -254,9 +254,9 @@ function AdminPage() {
                     {/* Author */}
                     <TableCell>
                       <div className="text-sm">
-                        <div className="font-medium">{post.author.displayName}</div>
+                        <div className="font-medium">{post.author?.displayName || post.author?.username || 'Unknown User'}</div>
                         <div className="text-muted-foreground text-xs">
-                          {post.author.walletAddress.slice(0, 6)}...{post.author.walletAddress.slice(-4)}
+                          {post.author?.walletAddress ? `${post.author.walletAddress.slice(0, 6)}...${post.author.walletAddress.slice(-4)}` : 'N/A'}
                         </div>
                       </div>
                     </TableCell>
